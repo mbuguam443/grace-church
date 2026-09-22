@@ -20,6 +20,9 @@
         <a href="?export=csv{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" class="btn btn-outline-success">
             <i class="bi bi-download me-1"></i>Export CSV
         </a>
+        <a href="?format=pdf{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}" class="btn btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+        </a>
     </div>
 
     <div class="card shadow-sm mb-4">
@@ -222,7 +225,7 @@
                     <tbody>
                         {% for member in members %}
                         <tr>
-                            <td class="fw-medium">{{ member.get_full_name }}</td>
+                            <td class="fw-medium">{{ member.first_name }} {{ member.middle_name }} {{ member.last_name }}</td>
                             <td>{{ member.get_gender_display|default:"—" }}</td>
                             <td>{{ member.phone|default:"—" }}</td>
                             <td>{{ member.department|default:"—" }}</td>

@@ -35,6 +35,9 @@ class PublicHomeView(TemplateView):
         context['announcements'] = Announcement.objects.filter(
             is_active=True
         ).order_by('-created_at')[:5]
+        context['gracechurch_audio'] = os.path.isfile(
+            os.path.join(settings.STATICFILES_DIRS[0], 'audio', 'gracechurchaudio.mp3')
+        )
 
         return context
 
@@ -93,6 +96,7 @@ class PublicGiveView(TemplateView):
 _ALLOWED_AUDIO = {
     'weak-men-vs-distorted-women.mp3',
     'weak-men-vs-distorted-women-full.mp3',
+    'gracechurchaudio.mp3',
 }
 _CHUNK = 262144
 

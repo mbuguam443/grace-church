@@ -34,6 +34,10 @@
                             <strong>{{ church_settings.audio_title|default:church_settings.church_name }}</strong>
                             <span>{{ church_settings.audio_speaker }}</span>
                             <span id="gcAudioMode">Tap to play</span>
+                            {% elif gracechurch_audio %}
+                            <strong>{{ church_settings.audio_title|default:"Grace Church Audio" }}</strong>
+                            <span>{{ church_settings.audio_speaker }}</span>
+                            <span id="gcAudioMode">Tap to play</span>
                             {% else %}
                             <strong>WEAK MEN VS DISTORTED WOMEN</strong>
                             <span>Pastor T Mwangi</span>
@@ -45,12 +49,12 @@
                         {% if church_settings.audio_file %}
                         <audio id="gcHomeAudio" controls preload="auto"
                                src="{% url 'public:audio' church_settings.audio_basename %}"></audio>
+                        {% elif gracechurch_audio %}
+                        <audio id="gcHomeAudio" controls preload="auto"
+                               src="{% url 'public:audio' 'gracechurchaudio.mp3' %}"></audio>
                         {% else %}
                         <audio id="gcHomeAudio" controls preload="auto"
-                               src="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
-                               data-clip="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
-                               data-full="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
-                        <button type="button" id="gcAudioToggle">Full sermon</button>
+                               src="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
                         {% endif %}
                     </div>
                 </div>
@@ -375,21 +379,10 @@
 (function () {
     var audio = document.getElementById('gcHomeAudio');
     if (!audio) return;
-    var btn = document.getElementById('gcAudioToggle');
     var modeTag = document.getElementById('gcAudioMode');
-    var fullUrl = audio.getAttribute('data-full');
-    var clipUrl = audio.getAttribute('data-clip');
-    var fullOn = false;
     audio.volume = 0.75;
     var started = false;
     var evts = ['click', 'pointerdown', 'touchend', 'mousedown', 'keydown', 'scroll'];
-    function setMode(full) {
-        if (!fullUrl) return;
-        fullOn = full;
-        audio.src = full ? fullUrl : clipUrl;
-        if (btn) btn.textContent = full ? 'Play excerpt' : 'Full sermon';
-        modeTag.textContent = full ? 'Full sermon playing' : 'Excerpt playing';
-    }
     function tryPlay() {
         if (started) return;
         var p = audio.play();
@@ -408,16 +401,9 @@
     }
     audio.addEventListener('play', function () {
         started = true;
-        modeTag.textContent = fullUrl ? (fullOn ? 'Full sermon playing' : 'Excerpt playing') : 'Playing';
+        modeTag.textContent = 'Playing';
         unbind();
     });
-    if (btn) {
-        btn.addEventListener('click', function () {
-            setMode(!fullOn);
-            var p = audio.play();
-            if (p && p.catch) { p.catch(function () {}); }
-        });
-    }
     evts.forEach(function (e) { document.addEventListener(e, onInteract); });
     tryPlay();
 })();

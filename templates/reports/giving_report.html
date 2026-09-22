@@ -20,6 +20,9 @@
         <a href="?export=csv{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" class="btn btn-outline-success">
             <i class="bi bi-download me-1"></i>Export CSV
         </a>
+        <a href="?format=pdf{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" class="btn btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+        </a>
     </div>
 
     <div class="card shadow-sm mb-4">
@@ -199,7 +202,7 @@
                         {% for gift in giving_records %}
                         <tr>
                             <td>{{ gift.date|date:"M d, Y" }}</td>
-                            <td class="fw-medium">{{ gift.contributor.get_full_name|default:gift.contributor_name }}</td>
+                            <td class="fw-medium">{% if gift.contributor %}{{ gift.contributor.first_name }} {{ gift.contributor.last_name }}{% else %}{{ gift.contributor_name|default:"—" }}{% endif %}</td>
                             <td><span class="badge bg-secondary">{{ gift.get_giving_type_display }}</span></td>
                             <td class="text-end fw-bold text-success">${{ gift.amount|floatformat:2 }}</td>
                             <td>{{ gift.get_payment_method_display }}</td>
