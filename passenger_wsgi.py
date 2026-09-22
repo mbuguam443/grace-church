@@ -22,15 +22,15 @@ django.setup()
 from django.conf import settings
 try:
     from django.core.management import call_command
+    call_command('migrate', interactive=False)
+    call_command('collectstatic', '--noinput')
     marker = os.path.join(BASE_DIR, '.dbsynced')
     if not settings.DEBUG and not os.path.exists(marker):
-        logger.info('First start: running migrate + collectstatic + seed...')
-        call_command('migrate', interactive=False)
-        call_command('collectstatic', '--noinput')
+        logger.info('First start: seeding demo data...')
         call_command('seed_data')
         with open(marker, 'w') as f:
-            f.write('Database schema synced and seeded on first start.\n')
-        logger.info('Initial sync complete.')
+            f.write('Seeded on first start.\n')
+        logger.info('Seed complete.')
 except Exception as exc:
     logger.exception('Startup sync failed: %s', exc)
 

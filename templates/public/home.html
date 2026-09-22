@@ -312,4 +312,69 @@
         </div>
     </div>
 </section>
+
+<!-- Autoplay Sermon Player -->
+<div class="gc-audio-player">
+    <div class="gc-audio-info">
+        <i class="bi bi-music-note-beamed gc-audio-icon"></i>
+        <div>
+            <strong>WEAK MEN VS DISTORTED WOMEN</strong>
+            <span>Pastor T Mwangi</span>
+        </div>
+    </div>
+    <audio id="gcHomeAudio" controls preload="auto"
+           src="{% static 'audio/weak-men-vs-distorted-women.mp3' %}"></audio>
+</div>
+<style>
+    .gc-audio-player {
+        position: fixed; left: 16px; bottom: 16px; z-index: 1050;
+        display: flex; align-items: center; gap: 12px;
+        background: var(--secondary, #4E3A2C); color: #fff;
+        padding: 10px 14px; border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.35);
+        max-width: min(92vw, 540px);
+    }
+    .gc-audio-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .gc-audio-icon { color: var(--gold, #C9A24B); font-size: 1.4rem; }
+    .gc-audio-info div { display: flex; flex-direction: column; line-height: 1.25; }
+    .gc-audio-info strong { font-size: .85rem; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gc-audio-info span { font-size: .75rem; opacity: .75; }
+    #gcHomeAudio { height: 36px; width: 220px; flex-shrink: 0; }
+    @media (max-width: 575px) {
+        .gc-audio-player { left: 8px; right: 8px; bottom: 8px; max-width: none; }
+        .gc-audio-info { flex: 1; }
+        #gcHomeAudio { width: 100%; }
+    }
+</style>
+<script>
+(function () {
+    var audio = document.getElementById('gcHomeAudio');
+    if (!audio) return;
+    audio.volume = 0.75;
+    var started = false;
+    var evts = ['click', 'touchstart', 'keydown', 'scroll'];
+    function tryPlay() {
+        if (started) return;
+        var p = audio.play();
+        if (p && p.then) {
+            p.then(function () { started = true; unbind(); }).catch(function () {});
+        } else if (p && p.catch) {
+            p.catch(function () {});
+        }
+    }
+    function onInteract() {
+        tryPlay();
+        if (!started) { setTimeout(tryPlay, 400); }
+    }
+    function unbind() {
+        evts.forEach(function (e) { document.removeEventListener(e, onInteract); });
+    }
+    audio.addEventListener('play', function () {
+        started = true;
+        unbind();
+    });
+    evts.forEach(function (e) { document.addEventListener(e, onInteract); });
+    tryPlay();
+})();
+</script>
 {% endblock %}

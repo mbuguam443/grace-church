@@ -59,8 +59,8 @@ CHURCH_SHORT_NAME=GC
 ```
 Alternatively create a `.env` in the app root with the same keys (`settings.py` uses `python-dotenv`; `settings_production.py` reads `os.environ`, so prefer the Setup Python App env vars for production).
 
-## Step 7: Start the app — first start auto-syncs the database
-`passenger_wsgi.py` runs `migrate` + `collectstatic` + `seed_data` automatically on the **first** app start (writes a `.dbsynced` marker so it only runs once). After creating the Python app and installing requirements, just **Restart** it (Step 9) and the tables + demo logins are created in MySQL.
+## Step 7: Start the app — auto-sync on start
+`passenger_wsgi.py` runs `migrate` + `collectstatic` on **every** restart (fast and idempotent), and seeds the demo data + logins (`seed_data`) only on the **first** start (`.dbsynced` marker). So after creating the Python app and installing requirements, just **Restart** it (Step 9) — tables and demo accounts are created automatically, and new static files ship with a plain Restart (no `.dbsynced` fiddling).
 
 > Why not `setup.php`? When a Python app is created at the subdomain **root**, Passenger serves *every* request to Django, so `.php` files in the app root are not reachable (they return 404). The auto-migrate startup replaces the PHP "Run All Setup" flow for this layout.
 >
