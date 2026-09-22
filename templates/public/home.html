@@ -45,7 +45,7 @@
         <div>
             <strong>WEAK MEN VS DISTORTED WOMEN</strong>
             <span>Pastor T Mwangi</span>
-            <span id="gcAudioMode">Excerpt playing</span>
+            <span id="gcAudioMode">Tap to play</span>
         </div>
     </div>
     <div class="gc-audio-controls">
@@ -369,7 +369,7 @@
     var fullOn = false;
     audio.volume = 0.75;
     var started = false;
-    var evts = ['click', 'touchstart', 'keydown', 'scroll'];
+    var evts = ['click', 'pointerdown', 'touchend', 'mousedown', 'keydown', 'scroll'];
     function setMode(full) {
         fullOn = full;
         audio.src = full ? fullUrl : audio.getAttribute('data-clip');
@@ -394,6 +394,7 @@
     }
     audio.addEventListener('play', function () {
         started = true;
+        modeTag.textContent = fullOn ? 'Full sermon playing' : 'Excerpt playing';
         unbind();
     });
     btn.addEventListener('click', function () {
