@@ -26,6 +26,23 @@
                         <i class="bi bi-play-circle me-2"></i>Watch Sermons
                     </a>
                 </div>
+                <div class="gc-audio-player">
+                    <div class="gc-audio-info">
+                        <i class="bi bi-music-note-beamed gc-audio-icon"></i>
+                        <div>
+                            <strong>WEAK MEN VS DISTORTED WOMEN</strong>
+                            <span>Pastor T Mwangi</span>
+                            <span id="gcAudioMode">Tap to play</span>
+                        </div>
+                    </div>
+                    <div class="gc-audio-controls">
+                        <audio id="gcHomeAudio" controls preload="auto"
+                               src="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
+                               data-clip="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
+                               data-full="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
+                        <button type="button" id="gcAudioToggle">Full sermon</button>
+                    </div>
+                </div>
                 <div class="hero-service-times">
                     <p class="mb-2"><i class="bi bi-clock-fill me-2"></i>Service Times</p>
                     <p class="fs-5 fw-semibold">Sunday: 8:00 AM & 11:00 AM | Wednesday: 7:00 PM</p>
@@ -37,25 +54,6 @@
         <a href="#upcoming-events"><i class="bi bi-chevron-double-down fs-3"></i></a>
     </div>
 </section>
-
-<!-- Autoplay Sermon Player -->
-<div class="gc-audio-player">
-    <div class="gc-audio-info">
-        <i class="bi bi-music-note-beamed gc-audio-icon"></i>
-        <div>
-            <strong>WEAK MEN VS DISTORTED WOMEN</strong>
-            <span>Pastor T Mwangi</span>
-            <span id="gcAudioMode">Tap to play</span>
-        </div>
-    </div>
-    <div class="gc-audio-controls">
-        <audio id="gcHomeAudio" controls preload="auto"
-               src="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
-               data-clip="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
-               data-full="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
-        <button type="button" id="gcAudioToggle">Full sermon</button>
-    </div>
-</div>
 
 <!-- Upcoming Events Section -->
 <section id="upcoming-events" class="section bg-light">
@@ -335,9 +333,10 @@
 <style>
     .gc-audio-player {
         display: flex; align-items: center; justify-content: center; gap: 16px;
-        background: var(--secondary, #4E3A2C); color: #fff;
-        padding: 12px 16px; width: 100%;
-        border-bottom: 3px solid var(--gold, #C9A24B);
+        background: rgba(58,49,41,0.92); color: #fff;
+        padding: 12px 18px; max-width: 640px; margin: 30px auto 0;
+        border-radius: 14px; border: 1px solid rgba(201,162,75,0.5);
+        box-shadow: 0 8px 24px rgba(0,0,0,.35);
     }
     .gc-audio-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .gc-audio-icon { color: var(--gold, #C9A24B); font-size: 1.4rem; }
