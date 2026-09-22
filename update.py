@@ -39,8 +39,12 @@ def run(cmd, check=True, env=None):
     print("$ " + " ".join(cmd))
     full_env = dict(os.environ)
     full_env.update(env or {})
-    r = subprocess.run(cmd, cwd=BASE_DIR, env=full_env, text=True)
+    r = subprocess.run(cmd, cwd=BASE_DIR, env=full_env, text=True, capture_output=True)
+    if r.stdout.strip():
+        print(r.stdout.strip())
     if check and r.returncode != 0:
+        if r.stderr.strip():
+            print(r.stderr.strip())
         sys.exit("\n[ERROR] Command failed: " + " ".join(cmd))
     return r
 
@@ -71,9 +75,21 @@ def main():
         git("remote", "add", "origin", GIT_URL, check=False)
         git("fetch", "origin")
         # Adopt the current server files as a local commit so the reset below
-        # can overwrite them cleanly. media/, .env and db are git-ignored, so
-        # they are staged out and survive every update.
-        git("add", "-A")
+        # can overwrite them cleanly. Server-only files are excluded HERE so
+        # they survive even if this folder never got the repo's .gitignore:
+        excludes = [
+            ":(exclude).env",
+            ":(exclude)media",
+            ":(exclude)db.sqlite3",
+            ":(exclude)*.sqlite3",
+            ":(exclude)*.log",
+            ":(exclude)staticfiles",
+            ":(exclude)venv",
+            ":(exclude)__pycache__",
+            ":(exclude)*.pyc",
+            ":(exclude).dbsynced",
+        ]
+        git("add", "-A", "--", ".", *excludes)
         git(
             "-c", "user.name=Deployer",
             "-c", "user.email=deploy@gracechurch",
