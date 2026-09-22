@@ -47,12 +47,8 @@
 <body>
     <div class="login-card">
         <div class="login-logo">
-            {% if church_settings.logo %}
-            <img src="{{ church_settings.logo.url }}" alt="{{ church_settings.short_name }}">
-            {% else %}
-            <img src="{% static 'img/logo.png' %}" alt="{{ church_settings.short_name|default:'GC' }}">
-            {% endif %}
-            <h2>{{ church_settings.short_name|default:"GC" }}</h2>
+            <img src="{% static 'img/login-logo.png' %}" alt="Grace Church Munyaka">
+            <h2>Grace Church Munyaka</h2>
             <p>Church Management System</p>
         </div>
 
