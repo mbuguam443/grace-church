@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-Grace Church Munyaka - Web Management Script
-Run this script to setup the database and static files.
-Access via browser: http://yourdomain.com/manage.py
+Grace Church Munyaka - Web Management Script (browser-run, file-based cPanel deploy).
+Run via browser: http://yourdomain.com/manage_web.py
+Uses settings_production (MySQL via PyMySQL) — no SSH needed.
 """
 import os
 import sys

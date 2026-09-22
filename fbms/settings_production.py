@@ -12,7 +12,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-this-to-a-secure-secret
 
 DEBUG = False
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = os.environ.get(
+    'DJANGO_ALLOWED_HOSTS',
+    'gracechurch.schones-heim-builders.co.ke,localhost,127.0.0.1'
+).split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -86,8 +89,8 @@ WSGI_APPLICATION = 'fbms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME', 'wlsihszp_gc'),
-        'USER': os.environ.get('DB_USER', 'wlsihszp_gc'),
+        'NAME': os.environ.get('DB_NAME', 'wlsihszp_gracechurch'),
+        'USER': os.environ.get('DB_USER', 'wlsihszp_gracechurch'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'Me32323383#&'),
         'HOST': 'localhost',
         'PORT': '3306',

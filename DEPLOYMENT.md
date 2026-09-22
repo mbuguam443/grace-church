@@ -1,189 +1,131 @@
-# Grace Church Munyaka Management System - cPanel Deployment Guide
+# Grace Church Munyaka Management System — cPanel File-Based Deployment
+
+Target site: **http://gracechurch.schones-heim-builders.co.ke**
+Database: **MySQL (phpMyAdmin)** via **PyMySQL** (`pymysql.install_as_MySQLdb()` in `fbms/settings_production.py`).
+
+This guide is **file-based only** — every step is done in the cPanel browser UI. No SSH, no terminal, no command line.
 
 ## Prerequisites
-- cPanel account with Python support
-- SSH access (recommended)
-- Domain name pointed to your hosting
+- cPanel account
+- Subdomain `gracechurch` created (→ `gracechurch.schones-heim-builders.co.ke`)
+- MySQL database created in cPanel (phpMyAdmin)
 
-## Step 1: Prepare Your Project
+## Step 1: Create the MySQL database (cPanel → MySQL® Databases)
+1. Create database: `wlsihszp_gracechurch`
+2. Create user: `wlsihszp_gracechurch`, password `Me32323383#&`
+3. Add user to database → **ALL PRIVILEGES**
 
-### 1.1 Update settings_production.py
-Edit `fbms/settings_production.py`:
-- Set a strong `SECRET_KEY`
-- Add your domain to `ALLOWED_HOSTS`
-- Configure database settings (if using PostgreSQL)
+Already done in `fbms/settings_production.py` defaults — no code change needed unless your names differ.
 
-### 1.2 Generate a Secure Secret Key
-```bash
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+## Step 2: Prepare the database (skip schema import)
+No SQL file is needed — the `migrate` step (Step 7) creates every table in MySQL automatically.
+If you ever want a database backup, use **cPanel → phpMyAdmin → Export** on `wlsihszp_gracechurch`.
+
+> Note: Django's `dumpdata` exports *data* (JSON/XML/YAML), not schema — there is no `--format=sql`. To produce a plain `schema.sql` yourself, run `migrate` locally against a scratch DB, then export from phpMyAdmin/MySQL.
+
+## Step 3: Upload the app (cPanel → File Manager)
+1. Open File Manager → go to the **subdomain root** (e.g. `public_html/gracechurch` or the docroot for the subdomain)
+2. Upload the project zip, right-click → **Extract**
+3. Confirm these exist: `passenger_wsgi.py`, `manage.py`, `setup.php`, `manage.php`, `requirements.txt`, `.env`
+
+## Step 4: Create the Python app (cPanel → Setup Python App)
+1. **Setup Python App** → **Create Application**
+2. Application root: the folder you uploaded to (e.g. `~/gc` or your subdomain docroot)
+3. Application URL: `http://gracechurch.schones-heim-builders.co.ke`
+4. Application startup file: `passenger_wsgi.py`
+5. Python version: 3.10+ (whatever cPanel offers ≥3.10)
+6. Click **Create** — cPanel creates a virtualenv for you
+
+## Step 5: Install dependencies (no terminal!)
+In the **Setup Python App** screen for your app:
+1. Open the app → **Manage requirements** (or the requirements.txt box)
+2. Confirm `requirements.txt` contents are listed (django, PyMySQL, whitenoise, Pillow, python-dotenv, gunicorn)
+3. Save — cPanel runs `pip install -r requirements.txt` inside the virtualenv for you
+
+## Step 6: Environment variables (no .env edit needed if you use Setup Python App)
+In **Setup Python App → your app → Environment Variables**, add:
 ```
-
-## Step 2: Upload Files to cPanel
-
-### Option A: Via File Manager
-1. Log in to cPanel
-2. Open File Manager
-3. Navigate to your domain's root folder (usually `public_html`)
-4. Upload all project files
-
-### Option B: Via FTP/SFTP
-Use an FTP client (FileZilla, WinSCP) to upload files to your domain root
-
-### Option C: Via Git (if available)
-```bash
-git clone <your-repo-url> .
-```
-
-## Step 3: Set Up Python Application in cPanel
-
-1. Log in to cPanel
-2. Go to **Setup Python App** (or **Python Selector**)
-3. Click **Create Application**
-4. Select Python version (3.9+ recommended)
-5. Set the application root to your project folder
-6. Set the application URL (your domain)
-7. Set the application startup file to `passenger_wsgi.py`
-8. Click **Create**
-
-## Step 4: Install Dependencies
-
-### Via SSH (recommended)
-```bash
-cd ~/your-project-folder
-source ~/virtualenv/your-project/3.9/bin/activate
-pip install -r requirements.txt
-```
-
-### Via cPanel Terminal
-1. Open **Terminal** in cPanel
-2. Navigate to your project folder
-3. Run the pip install command
-
-## Step 5: Configure Environment Variables
-
-In cPanel's Python App settings, add these environment variables:
-```
-DJANGO_SECRET_KEY=your-secure-secret-key
+DJANGO_SECRET_KEY=<generate a long random string>
 DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+DJANGO_ALLOWED_HOSTS=gracechurch.schones-heim-builders.co.ke
+DB_NAME=wlsihszp_gracechurch
+DB_USER=wlsihszp_gracechurch
+DB_PASSWORD=Me32323383#&
+DB_HOST=localhost
+DB_PORT=3306
 TIME_ZONE=Africa/Nairobi
+CHURCH_NAME=Grace Church Munyaka
+CHURCH_SHORT_NAME=GC
 ```
+Alternatively create a `.env` in the app root with the same keys (`settings.py` uses `python-dotenv`; `settings_production.py` reads `os.environ`, so prefer the Setup Python App env vars for production).
 
-Or create a `.env` file in your project root:
+## Step 7: Run setup (file-based, browser)
+Open in your browser:
 ```
-DJANGO_SECRET_KEY=your-secure-secret-key
-DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
-TIME_ZONE=Africa/Nairobi
+http://gracechurch.schones-heim-builders.co.ke/setup.php
 ```
+Click **Run All Setup** — this runs, in order:
+1. `migrate` (creates tables in MySQL via PyMySQL)
+2. `collectstatic` (Whitenoise serves CSS/JS/images)
+3. `seed_data` (optional demo data)
+4. `setup_media.py` + `link_media.py` (make uploads public)
 
-## Step 6: Run Migrations and Setup
+You can also use `manage.php` for individual steps (migrate / collectstatic / seed).
 
-### Via SSH
-```bash
-cd ~/your-project-folder
-source ~/virtualenv/your-project/3.9/bin/activate
-python manage.py migrate --settings=fbms.settings_production
-python manage.py collectstatic --noinput --settings=fbms.settings_production
-python manage.py createsuperuser --settings=fbms.settings_production
-python manage.py seed_data --settings=fbms.settings_production
+Both scripts auto-detect your virtualenv Python (`venv/bin/python` or `VIRTUAL_ENV`), falling back to `python3`.
+
+## Step 8: Make media uploads public
+Open in your browser:
 ```
-
-## Step 7: Configure Static Files
-
-### Option A: Using Whitenoise (recommended)
-Add to `MIDDLEWARE` in `settings_production.py`:
-```python
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this
-    ...
-]
+http://gracechurch.schones-heim-builders.co.ke/manage.php?action=setup_media
 ```
+(or use `setup.php?action=media`) — it runs `setup_media.py` + `link_media.py`, which symlink `media/` so uploaded images are served at `/media/`.
 
-Add to `settings_production.py`:
-```python
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-```
+## Step 9: Restart the app
+cPanel → **Setup Python App** → your app → **Restart**
 
-### Option B: Via cPanel
-1. Copy files from `staticfiles/` to `public_html/static/`
-2. Or configure an alias in cPanel
+## Step 10: Test
+1. Visit `http://gracechurch.schones-heim-builders.co.ke`
+2. Log in at `/accounts/login/` → dashboard at `/dashboard/`
+3. Check static files load (CSS/JS/images)
 
-## Step 8: Configure .htaccess
+## Updating later (still no terminal)
+1. Upload a new zip via File Manager and extract (over the old files), **or**
+2. Run `update.py` from a one-off Python run (Setup Python App → run script), which pulls git, migrates, collects static, and restarts Passenger via `tmp/restart.txt`
 
-The `.htaccess` file is already included. Make sure mod_rewrite is enabled on your server.
-
-## Step 9: Restart Application
-
-In cPanel's Python App section, click **Restart** to apply changes.
-
-## Step 10: Test Your Website
-
-1. Visit your domain
-2. Test login functionality
-3. Check all pages load correctly
-4. Verify static files (CSS, JS, images) are loading
-
-## Default Login Credentials
-After seeding data:
+## Default login credentials
+After seeding:
 - **Super Admin:** `admin` / `admin123`
 - **Pastor:** `pastor` / `demo123`
 - **Member:** `member1` / `test123`
 
 ## Troubleshooting
-
 ### 500 Internal Server Error
-1. Check error logs in cPanel
-2. Verify `SECRET_KEY` is set
-3. Check file permissions (644 for files, 755 for folders)
-4. Ensure `DEBUG = False` in production
+1. cPanel → Error Logs (or `logs/` folder)
+2. Verify env vars in Setup Python App (SECRET_KEY, DB_*)
+3. File permissions: 644 for files, 755 for folders
+4. `DEBUG = False` in production (already set)
 
-### Static Files Not Loading
-1. Run `python manage.py collectstatic`
-2. Check `STATIC_ROOT` path
-3. Verify `.htaccess` is configured
+### Static files not loading
+1. Re-run `setup.php?action=collectstatic`
+2. Whitenoise is already in `MIDDLEWARE` — static is served by Django, no Apache alias required
+3. If you prefer Apache: remove the `Alias` placeholder in `.htaccess` and point it at your real app path
 
-### Database Errors
-1. Run `python manage.py migrate`
-2. Check database file permissions
-3. Verify SQLite is supported
+### Database errors
+1. Re-run `setup.php?action=migrate`
+2. Confirm DB name/user/password in Setup Python App env vars match Step 1
+3. Confirm the user has ALL PRIVILEGES on the database
 
-### Import Errors
-1. Ensure all dependencies are installed
-2. Check Python version compatibility
-3. Verify virtual environment is activated
+### `python`/`python3` not found from setup.php
+The scripts fall back through `venv/bin/python` → `$VIRTUAL_ENV/bin/python` → `python3` → `python`. If all fail, set the `VIRTUAL_ENV` environment variable in Setup Python App to your virtualenv path.
 
-## Security Checklist
-- [ ] Changed default `SECRET_KEY`
-- [ ] Set `DEBUG = False`
-- [ ] Added domain to `ALLOWED_HOSTS`
-- [ ] Changed default admin password
-- [ ] Enabled HTTPS (SSL certificate)
-- [ ] Configured secure headers
-- [ ] Set up regular backups
-
-## Optional: PostgreSQL Database
-
-If your cPanel supports PostgreSQL:
-
-1. Create a database in cPanel > PostgreSQL Databases
-2. Update `settings_production.py`:
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'your_db_name',
-        'USER': 'your_db_user',
-        'PASSWORD': 'your_db_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-```
+## Security checklist
+- [ ] `SECRET_KEY` set to a long random value
+- [ ] `DEBUG = False`
+- [ ] `DJANGO_ALLOWED_HOSTS` contains only your domain
+- [ ] Default admin password changed
+- [ ] HTTPS/SSL enabled for the subdomain
+- [ ] `.env` (if used) is not publicly reachable (it is git-ignored; confirm File Manager shows it outside the web root or has 600 perms)
 
 ## Support
-For issues, check:
-1. cPanel error logs
-2. Django debug logs
-3. Browser console (F12)
+Check: cPanel error logs, `logs/` folder, browser console (F12).

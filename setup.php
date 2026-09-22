@@ -5,19 +5,41 @@
 
 header('Content-Type: text/html; charset=utf-8');
 
+// Grace Church Munyaka - Web Setup Script
+// File-based cPanel deployment: upload files, open this page in a browser.
+// Uses the app's virtualenv Python (created by cPanel "Setup Python App").
+
+function gc_python() {
+    $candidates = [
+        __DIR__ . '/venv/bin/python',
+        __DIR__ . '/../venv/bin/python',
+        getenv('VIRTUAL_ENV') ? getenv('VIRTUAL_ENV') . '/bin/python' : '',
+        'python3',
+        'python',
+    ];
+    foreach ($candidates as $bin) {
+        if ($bin && (is_file($bin) || $bin === 'python3' || $bin === 'python')) {
+            return $bin;
+        }
+    }
+    return 'python3';
+}
+
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 $output = '';
 $status = '';
 
 if ($action) {
+    $PY = escapeshellarg(gc_python());
     $commands = [
-        'migrate' => 'python manage.py migrate --settings=fbms.settings_production 2>&1',
-        'collectstatic' => 'python manage.py collectstatic --noinput --settings=fbms.settings_production 2>&1',
-        'seed' => 'python manage.py seed_data --settings=fbms.settings_production 2>&1',
+        'migrate' => $PY . ' manage.py migrate --settings=fbms.settings_production 2>&1',
+        'collectstatic' => $PY . ' manage.py collectstatic --noinput --settings=fbms.settings_production 2>&1',
+        'seed' => $PY . ' manage.py seed_data --settings=fbms.settings_production 2>&1',
+        'media' => $PY . ' setup_media.py 2>&1 && ' . $PY . ' link_media.py 2>&1',
     ];
     
     if ($action === 'setup_all') {
-        $cmd = $commands['migrate'] . ' && ' . $commands['collectstatic'] . ' && ' . $commands['seed'];
+        $cmd = $commands['migrate'] . ' && ' . $commands['collectstatic'] . ' && ' . $commands['seed'] . ' && ' . $commands['media'];
     } elseif (isset($commands[$action])) {
         $cmd = $commands[$action];
     } else {
@@ -57,12 +79,13 @@ if ($action) {
 <body>
     <div class="container">
         <h1>Grace Church Munyaka Setup</h1>
-        <p class="subtitle">Click the buttons below to setup your website</p>
+        <p class="subtitle">File-based cPanel setup — click a button (no SSH needed)</p>
         
         <div class="card">
             <a class="btn btn-migrate" href="?action=migrate">1. Run Migrations</a>
             <a class="btn btn-static" href="?action=collectstatic">2. Collect Static Files</a>
             <a class="btn btn-seed" href="?action=seed">3. Seed Demo Data</a>
+            <a class="btn btn-static" href="?action=media">4. Link Media Files</a>
             <a class="btn btn-all" href="?action=setup_all">Run All Setup</a>
         </div>
         

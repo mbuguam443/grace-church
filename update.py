@@ -19,6 +19,11 @@ print("\n0. Pulling latest changes...")
 os.system("git fetch origin")
 os.system("git reset --hard origin/main")
 
+# Ensure static files and media are reachable from public_html (cPanel file-based)
+for helper in ('setup_media.py', 'link_media.py'):
+    if os.path.exists(helper):
+        os.system(sys.executable + ' ' + helper)
+
 print("\n1. Running migrations...")
 import django
 django.setup()
@@ -34,7 +39,14 @@ restart = os.path.join(BASE_DIR, 'tmp', 'restart.txt')
 os.makedirs(os.path.dirname(restart), exist_ok=True)
 with open(restart, 'w') as f:
     f.write('')
-print("\n3. Passenger restart triggered.")
+print("\n3. Passenger/App restart triggered (tmp/restart.txt + setup_media.py).")
+
+# Link media + static into public_html (file-based, no terminal needed)
+for helper in ('setup_media.py', 'link_media.py'):
+    helper_path = os.path.join(BASE_DIR, helper)
+    if os.path.exists(helper_path):
+        print(f"\n4. Running {helper} ...")
+        os.system(f'"{sys.executable}" "{helper_path}"')
 
 print("\n" + "=" * 50)
 print("UPDATE COMPLETED SUCCESSFULLY!")

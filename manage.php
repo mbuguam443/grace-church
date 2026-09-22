@@ -1,6 +1,24 @@
 <?php
 // Grace Church Munyaka - Management Script
-// Access this file via browser to run management commands
+// Access this file via browser (file-based deployment, no SSH needed)
+
+// Find the app's virtualenv Python (created by cPanel "Setup Python App")
+function gc_python() {
+    $candidates = [
+        __DIR__ . '/venv/bin/python',
+        __DIR__ . '/../venv/bin/python',
+        getenv('VIRTUAL_ENV') ? getenv('VIRTUAL_ENV') . '/bin/python' : '',
+        'python3',
+        'python',
+    ];
+    foreach ($candidates as $bin) {
+        if ($bin && (is_file($bin) || trim($bin) === 'python3' || trim($bin) === 'python')) {
+            return $bin;
+        }
+    }
+    return 'python3';
+}
+$PY = gc_python();
 
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
@@ -9,22 +27,30 @@ if (isset($_GET['action'])) {
     
     switch ($action) {
         case 'migrate':
-            exec('python manage.py migrate --settings=fbms.settings_production 2>&1', $output, $return_var);
+            exec(escapeshellarg($PY) . ' manage.py migrate --settings=fbms.settings_production 2>&1', $output, $return_var);
             $title = 'Migrations';
             break;
         case 'collectstatic':
-            exec('python manage.py collectstatic --noinput --settings=fbms.settings_production 2>&1', $output, $return_var);
+            exec(escapeshellarg($PY) . ' manage.py collectstatic --noinput --settings=fbms.settings_production 2>&1', $output, $return_var);
             $title = 'Collect Static Files';
             break;
         case 'seed':
-            exec('python manage.py seed_data --settings=fbms.settings_production 2>&1', $output, $return_var);
+            exec(escapeshellarg($PY) . ' manage.py seed_data --settings=fbms.settings_production 2>&1', $output, $return_var);
             $title = 'Seed Demo Data';
             break;
         case 'setup_all':
-            exec('python manage.py migrate --settings=fbms.settings_production 2>&1', $output, $return_var);
-            exec('python manage.py collectstatic --noinput --settings=fbms.settings_production 2>&1', $output, $return_var);
-            exec('python manage.py seed_data --settings=fbms.settings_production 2>&1', $output, $return_var);
+            exec(escapeshellarg($PY) . ' manage.py migrate --settings=fbms.settings_production 2>&1', $output, $return_var);
+            exec(escapeshellarg($PY) . ' manage.py collectstatic --noinput --settings=fbms.settings_production 2>&1', $output, $return_var);
+            exec(escapeshellarg($PY) . ' manage.py seed_data --settings=fbms.settings_production 2>&1', $output, $return_var);
             $title = 'Full Setup';
+            break;
+        case 'setup_media':
+            $media = [];
+            exec(escapeshellarg($PY) . ' setup_media.py 2>&1', $media, $return_var);
+            $output = $media;
+            exec(escapeshellarg($PY) . ' link_media.py 2>&1', $media, $return_var);
+            $output = array_merge($output, $media);
+            $title = 'Media Setup';
             break;
         default:
             $title = 'Unknown Action';
@@ -50,12 +76,13 @@ if (isset($_GET['action'])) {
     </style>
 </head>
 <body>
-    <h1>Grace Church Munyaka Management</h1>
-    <p>Click the buttons below to run management commands:</p>
+        <h1>Grace Church Munyaka Management</h1>
+    <p>File-based cPanel setup — click a button (no SSH/terminal needed):</p>
     
     <a class="btn" href="?action=migrate">Run Migrations</a>
     <a class="btn" href="?action=collectstatic">Collect Static Files</a>
     <a class="btn" href="?action=seed">Seed Demo Data</a>
+    <a class="btn" href="?action=setup_media">Link Media Files</a>
     <a class="btn" href="?action=setup_all">Run All Setup</a>
     
     <?php if (isset($title)): ?>

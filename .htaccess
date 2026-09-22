@@ -7,6 +7,12 @@
     RewriteRule . /index.php [L]
 </IfModule>
 
+# Grace Church Munyaka (cPanel) — serve Django static/media directly
+<IfModule mod_alias.c>
+    Alias /static/ __APPROOT__/staticfiles/
+    Alias /media/ __APPROOT__/media/
+</IfModule>
+
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "DENY"
