@@ -7,11 +7,11 @@
     RewriteRule . /index.php [L]
 </IfModule>
 
-# Grace Church Munyaka (cPanel) — serve Django static/media directly
-<IfModule mod_alias.c>
-    Alias /static/ __APPROOT__/staticfiles/
-    Alias /media/ __APPROOT__/media/
-</IfModule>
+# Grace Church Munyaka (cPanel)
+# NOTE: No Alias for /static or /media here — a placeholder Alias like
+# "/static/ __APPROOT__/staticfiles/" makes Apache 404 every request before it
+# reaches Django. Static is served by WhiteNoise under /assets/ and media by the
+# app's /media/ route, so let everything fall through to the Passenger app.
 
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"

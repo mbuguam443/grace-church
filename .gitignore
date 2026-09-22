@@ -15,5 +15,6 @@ env/
 *.pyc
 cpanel error.txt
 .dbsynced
-static/audio/
+# DO NOT ignore static/audio/ — the site's MP3s ship inside the git repo so
+# git-based server updates carry them. Only the stray desktop-loose MP3 stays out.
 /WEAK MEN VS DISTORTED WOMEN  With Pastor T Mwangi - Pastor T Mwangi.mp3
