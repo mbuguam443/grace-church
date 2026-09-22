@@ -325,9 +325,9 @@
     </div>
     <div class="gc-audio-controls">
         <audio id="gcHomeAudio" controls preload="auto"
-               src="{% static 'audio/weak-men-vs-distorted-women.mp3' %}"
-               data-clip="{% static 'audio/weak-men-vs-distorted-women.mp3' %}"
-               data-full="{% static 'audio/weak-men-vs-distorted-women-full.mp3' %}"></audio>
+               src="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
+               data-clip="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
+               data-full="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
         <button type="button" id="gcAudioToggle">Full sermon</button>
     </div>
 </div>

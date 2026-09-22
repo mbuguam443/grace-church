@@ -1,5 +1,9 @@
+import os
+import re
 from datetime import date
 
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
 from django.views.generic import ListView, TemplateView
 
 from communication.models import Announcement
@@ -82,3 +86,63 @@ class PublicContactView(TemplateView):
 
 class PublicGiveView(TemplateView):
     template_name = 'public/give.html'
+
+
+_ALLOWED_AUDIO = {
+    'weak-men-vs-distorted-women.mp3',
+    'weak-men-vs-distorted-women-full.mp3',
+}
+_CHUNK = 262144
+
+
+def _range_chunks(filepath, start, end):
+    remaining = end - start + 1
+    with open(filepath, 'rb') as f:
+        f.seek(start)
+        while remaining > 0:
+            data = f.read(min(_CHUNK, remaining))
+            if not data:
+                break
+            remaining -= len(data)
+            yield data
+
+
+def stream_audio(request, filename):
+    if filename not in _ALLOWED_AUDIO or not filename.endswith('.mp3'):
+        return HttpResponseNotFound('Not found')
+    filepath = os.path.join(settings.STATICFILES_DIRS[0], 'audio', filename)
+    if not os.path.isfile(filepath):
+        return HttpResponseNotFound('Not found')
+
+    size = os.path.getsize(filepath)
+    start, end = 0, size - 1
+    has_range = False
+
+    match = re.match(r'bytes=(\d*)-(\d*)', request.headers.get('Range', ''))
+    if match:
+        has_range = True
+        start_spec = match.group(1)
+        end_spec = match.group(2)
+        if start_spec:
+            start = int(start_spec)
+            end = int(end_spec) if end_spec else size - 1
+        else:
+            start = max(0, size - int(end_spec or '0'))
+            end = size - 1
+        if start >= size:
+            resp = HttpResponse(status=416)
+            resp['Content-Range'] = 'bytes */%d' % size
+            return resp
+
+    length = end - start + 1
+    resp = StreamingHttpResponse(
+        _range_chunks(filepath, start, end),
+        content_type='audio/mpeg',
+    )
+    resp['Accept-Ranges'] = 'bytes'
+    resp['Content-Length'] = str(length)
+    resp['Content-Disposition'] = 'inline; filename="%s"' % filename
+    if has_range:
+        resp.status_code = 206
+        resp['Content-Range'] = 'bytes %d-%d/%d' % (start, end, size)
+    return resp
