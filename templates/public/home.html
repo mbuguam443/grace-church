@@ -344,7 +344,7 @@
     .gc-audio-info strong { font-size: .85rem; font-family: 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .gc-audio-info span { font-size: .75rem; opacity: .75; }
     .gc-audio-mode { color: var(--gold, #C9A24B); font-weight: 600; opacity: 1; }
-    .gc-audio-controls { display: flex; align-items: center; gap: 8px; }
+    .gc-audio-controls { display: flex; align-items: center; gap: 8px; min-width: 0; }
     .gc-audio-controls button {
         background: var(--accent, #B5651D); color: #fff; border: 0;
         padding: 6px 10px; border-radius: 8px; font-size: .72rem; font-weight: 600;
@@ -353,9 +353,11 @@
     .gc-audio-controls button:hover { opacity: .9; }
     #gcHomeAudio { height: 36px; width: 200px; flex-shrink: 0; }
     @media (max-width: 575px) {
-        .gc-audio-player { flex-wrap: wrap; text-align: center; }
-        .gc-audio-info { flex: 1; }
+        .gc-audio-player { flex-direction: column; align-items: stretch; width: 100%; max-width: 100%; margin: 22px auto 0; padding: 14px; }
+        .gc-audio-info { justify-content: center; }
+        .gc-audio-controls { flex-direction: column; width: 100%; }
         #gcHomeAudio { width: 100%; }
+        .gc-audio-controls button { width: 100%; }
     }
 </style>
 <script>
