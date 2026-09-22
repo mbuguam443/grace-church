@@ -1,0 +1,84 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit Song{% else %}Post Song{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-music-note-beamed me-2"></i>
+                {% if form.instance.pk %}Edit Song{% else %}Post Song{% endif %}
+            </h1>
+            <p class="text-muted mb-0">Praise and worship songs for the team and members</p>
+        </div>
+        <a href="{% url 'songs:song_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}<li>{{ field|title }}: {{ error }}</li>{% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control" value="{{ form.title.value|default:'' }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                        <select name="category" class="form-select" required>
+                            {% for value, label in form.category.field.choices %}
+                            <option value="{{ value }}" {% if form.category.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Author / Artist</label>
+                        <input type="text" name="author" class="form-control" value="{{ form.author.value|default:'' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Scripture</label>
+                        <input type="text" name="scripture" class="form-control" value="{{ form.scripture.value|default:'' }}" placeholder="e.g. Psalm 100:1">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Key</label>
+                        <input type="text" name="key" class="form-control" value="{{ form.key.value|default:'' }}" placeholder="e.g. G">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Tempo</label>
+                        <input type="text" name="tempo" class="form-control" value="{{ form.tempo.value|default:'' }}" placeholder="e.g. Fast">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">YouTube URL</label>
+                        <input type="url" name="youtube_url" class="form-control" value="{{ form.youtube_url.value|default:'' }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Lyrics <span class="text-danger">*</span></label>
+                        <textarea name="lyrics" class="form-control" rows="12" required>{{ form.lyrics.value|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'songs:song_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> {% if form.instance.pk %}Update Song{% else %}Post Song{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

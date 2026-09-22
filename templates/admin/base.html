@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ church_settings.short_name|default:"GC" }} Dashboard{% endblock %}</title>
+    {% if church_settings.favicon %}
+    <link rel="icon" type="image/png" href="{{ church_settings.favicon.url }}">
+    <link rel="apple-touch-icon" href="{{ church_settings.favicon.url }}">
+    {% else %}
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.png' %}">
+    {% endif %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'css/admin.css' %}?v=4" rel="stylesheet">
+    <style>
+        :root {
+            --primary: {{ church_settings.primary_color|default:'#A8704A' }};
+            --secondary: {{ church_settings.secondary_color|default:'#4E3A2C' }};
+            --accent: {{ church_settings.accent_color|default:'#B5651D' }};
+            --gold: {{ church_settings.gold_color|default:'#C9A24B' }};
+        }
+    </style>
+    <style>
+        .sidebar {
+            position: fixed; top: 0; left: 0; bottom: 0;
+            width: var(--sidebar-width); background: var(--secondary);
+            color: white; z-index: 1000; transition: var(--transition);
+            overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 20px; display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .sidebar-brand h4 { margin: 0; font-size: 16px; font-weight: 600; }
+        .sidebar-brand img { width: 36px; height: 36px; border-radius: 8px; }
+        .sidebar-nav { padding: 16px 0; }
+        .sidebar-nav a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 20px; color: rgba(255,255,255,0.8);
+            font-size: 14px; transition: var(--transition); border-left: 3px solid transparent;
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: rgba(255,255,255,0.1); color: white; border-left-color: var(--primary);
+        }
+        .sidebar-nav a i { font-size: 18px; width: 22px; }
+        .sidebar-section { padding: 12px 20px 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); font-weight: 600; }
+
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; transition: var(--transition); }
+        .topbar {
+            background: white; height: var(--topbar-height); display: flex;
+            align-items: center; justify-content: space-between;
+            padding: 0 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar .dropdown-toggle { background: none; border: none; color: var(--dark); }
+        .topbar .dropdown-toggle::after { display: none; }
+        .content-wrapper { padding: 24px; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; }
+        .user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+        .page-header { margin-bottom: 24px; }
+        .page-header h2 { font-size: 22px; font-weight: 700; color: var(--secondary); }
+        .breadcrumb { background: none; padding: 0; font-size: 13px; }
+        .breadcrumb a { color: var(--primary); }
+
+        @media (max-width: 991px) {
+            .sidebar { transform: translateX(-100%); box-shadow: none; }
+            .sidebar.show {
+                transform: translateX(0); box-shadow: 4px 0 40px rgba(0,0,0,0.25);
+            }
+            .main-content { margin-left: 0; }
+            .sidebar-backdrop {
+                display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5); z-index: 999; border: none;
+            }
+            .sidebar-backdrop.show { display: block; }
+            body.menu-open { overflow: hidden; }
+            .sidebar-close { display: flex; }
+        }
+        .sidebar-close {
+            display: none; margin-left: auto; background: none; border: none;
+            color: rgba(255,255,255,0.8); font-size: 20px; cursor: pointer;
+            padding: 0 4px;
+        }
+        .sidebar-close:hover { color: white; }
+        @media (max-width: 576px) {
+            .content-wrapper { padding: 16px; }
+            .topbar { padding: 0 16px; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            {% if church_settings.logo %}
+            <img src="{{ church_settings.logo.url }}" alt="{{ church_settings.short_name }}" style="width:42px;height:42px;object-fit:contain;">
+            {% else %}
+            <img src="{% static 'img/logo.png' %}" alt="{{ church_settings.short_name|default:'GC' }}" style="width:42px;height:42px;object-fit:contain;">
+            {% endif %}
+            <h4>{{ church_settings.short_name|default:"GC" }}</h4>
+            <button class="sidebar-close" type="button" aria-label="Close menu" onclick="closeSidebar()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="sidebar-nav">
+            <a href="{% url 'dashboard:index' %}" class="{% if '/dashboard/' in request.path %}active{% endif %}">
+                <i class="bi bi-speedometer2"></i> {% if user.is_admin_user or user.is_leader %}Dashboard{% else %}My Portal{% endif %}
+            </a>
+            {% if not user.is_admin_user and not user.is_leader %}
+            <a href="{% url 'accounts:profile' %}" class="{% if '/accounts/profile' in request.path %}active{% endif %}"><i class="bi bi-person"></i> My Profile</a>
+            {% endif %}
+            {% if user.is_admin_user or user.is_leader %}
+            <div class="sidebar-section">Management</div>
+            {% if allowed_modules is None or 'members' in allowed_modules %}
+            <a href="{% url 'members:member-list' %}" class="{% if '/members' in request.path %}active{% endif %}"><i class="bi bi-people"></i> Members</a>
+            {% endif %}
+            {% if allowed_modules is None or 'families' in allowed_modules %}
+            <a href="{% url 'members:family-list' %}" class="{% if '/members/families' in request.path %}active{% endif %}"><i class="bi bi-house-heart"></i> Families</a>
+            {% endif %}
+            {% if allowed_modules is None or 'visitors' in allowed_modules %}
+            <a href="{% url 'visitors:visitor_list' %}" class="{% if '/visitors' in request.path %}active{% endif %}"><i class="bi bi-person-plus"></i> Visitors</a>
+            {% endif %}
+            {% if allowed_modules is None or 'services' in allowed_modules %}
+            <a href="{% url 'services:service_list' %}" class="{% if '/services' in request.path %}active{% endif %}"><i class="bi bi-calendar-event"></i> Services</a>
+            {% endif %}
+            {% if allowed_modules is None or 'attendance' in allowed_modules %}
+            <a href="{% url 'attendance:attendance_list' %}" class="{% if '/attendance' in request.path %}active{% endif %}"><i class="bi bi-check2-square"></i> Attendance</a>
+            {% endif %}
+            {% if allowed_modules is None or 'ministries' in allowed_modules %}
+            <a href="{% url 'ministries:ministry-list' %}" class="{% if '/ministries' in request.path %}active{% endif %}"><i class="bi bi-diagram-3"></i> Ministries</a>
+            {% endif %}
+            {% if allowed_modules is None or 'groups' in allowed_modules %}
+            <a href="{% url 'groups:group-list' %}" class="{% if '/groups' in request.path %}active{% endif %}"><i class="bi bi-people-fill"></i> Groups</a>
+            {% endif %}
+            {% if allowed_modules is None or 'children' in allowed_modules %}
+            <a href="{% url 'children:child_list' %}" class="{% if '/children' in request.path %}active{% endif %}"><i class="bi bi-emoji-smile"></i> Children</a>
+            {% endif %}
+            {% endif %}
+
+            <div class="sidebar-section">Church Life</div>
+            {% if allowed_modules is None or 'events' in allowed_modules %}
+            <a href="{% url 'events:event-list' %}" class="{% if '/events' in request.path %}active{% endif %}"><i class="bi bi-calendar3"></i> Events</a>
+            {% endif %}
+            {% if allowed_modules is None or 'sermons' in allowed_modules %}
+            <a href="{% url 'sermons:sermon_list' %}" class="{% if '/sermons' in request.path %}active{% endif %}"><i class="bi bi-book"></i> Sermons</a>
+            {% endif %}
+            {% if allowed_modules is None or 'ministries' in allowed_modules %}
+            <a href="{% url 'ministries:ministry-list' %}" class="{% if '/ministries' in request.path %}active{% endif %}"><i class="bi bi-diagram-3"></i> Ministries</a>
+            {% endif %}
+            {% if allowed_modules is None or 'songs' in allowed_modules %}
+            <a href="{% url 'songs:song_list' %}" class="{% if '/songs' in request.path %}active{% endif %}"><i class="bi bi-music-note-beamed"></i> Praise & Worship</a>
+            {% endif %}
+            {% if allowed_modules is None or 'bible_study' in allowed_modules %}
+            <a href="{% url 'bible_study:study_list' %}" class="{% if '/bible-study' in request.path %}active{% endif %}"><i class="bi bi-journal-bookmark"></i> Bible Study</a>
+            {% endif %}
+            {% if allowed_modules is None or 'sunday_school' in allowed_modules %}
+            <a href="{% url 'sunday_school:course_list' %}" class="{% if '/sunday-school' in request.path %}active{% endif %}"><i class="bi bi-mortarboard"></i> Sunday School</a>
+            {% endif %}
+            {% if allowed_modules is None or 'announcements' in allowed_modules %}
+            <a href="{% url 'communication:announcement_list' %}" class="{% if '/communication' in request.path %}active{% endif %}"><i class="bi bi-megaphone"></i> Announcements</a>
+            {% endif %}
+
+            {% if user.is_admin_user or user.is_finance %}
+            <div class="sidebar-section">Finance</div>
+            {% if allowed_modules is None or 'finance' in allowed_modules %}
+            <a href="{% url 'finance:finance-dashboard' %}" class="{% if '/finance' in request.path %}active{% endif %}"><i class="bi bi-graph-up"></i> Finance</a>
+            {% endif %}
+            {% if allowed_modules is None or 'giving' in allowed_modules %}
+            <a href="{% url 'giving:giving-list' %}" class="{% if '/giving' in request.path %}active{% endif %}"><i class="bi bi-gift"></i> Giving</a>
+            {% endif %}
+            {% endif %}
+
+            {% if user.is_admin_user or user.is_leader %}
+            <div class="sidebar-section">Operations</div>
+            {% if allowed_modules is None or 'assets' in allowed_modules %}
+            <a href="{% url 'assets:asset-list' %}" class="{% if '/assets' in request.path %}active{% endif %}"><i class="bi bi-box"></i> Assets</a>
+            {% endif %}
+            {% if allowed_modules is None or 'facilities' in allowed_modules %}
+            <a href="{% url 'facilities:facility-list' %}" class="{% if '/facilities' in request.path %}active{% endif %}"><i class="bi bi-building"></i> Facilities</a>
+            {% endif %}
+            {% if allowed_modules is None or 'reports' in allowed_modules %}
+            <a href="{% url 'reports:reports-home' %}" class="{% if '/reports' in request.path %}active{% endif %}"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+            {% endif %}
+            {% endif %}
+
+            {% if user.is_admin_user or user.is_leader %}
+            <div class="sidebar-section">Administration</div>
+            {% if user.is_admin_user %}
+            {% if allowed_modules is None or 'users' in allowed_modules %}
+            <a href="{% url 'accounts:approval' %}" class="{% if '/accounts/approve' in request.path %}active{% endif %}">
+                <i class="bi bi-person-check"></i> Approvals
+                {% if pending_registrations_count %}<span class="badge bg-danger ms-auto">{{ pending_registrations_count }}</span>{% endif %}
+            </a>
+            {% endif %}
+            {% if allowed_modules is None or 'users' in allowed_modules %}
+            <a href="{% url 'accounts:user_list' %}" class="{% if '/accounts/users' in request.path %}active{% endif %}"><i class="bi bi-person-badge"></i> Users</a>
+            {% endif %}
+            {% if allowed_modules is None or 'users' in allowed_modules %}
+            <a href="{% url 'accounts:permissions' %}" class="{% if '/accounts/permissions' in request.path %}active{% endif %}"><i class="bi bi-shield-lock"></i> Role Permissions</a>
+            {% endif %}
+            {% endif %}
+            {% if allowed_modules is None or 'settings' in allowed_modules %}
+            <a href="{% url 'core:settings' %}" class="{% if '/core/settings' in request.path %}active{% endif %}"><i class="bi bi-gear"></i> Settings</a>
+            {% endif %}
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+    <div class="main-content">
+        <header class="topbar">
+            <button class="btn btn-sm btn-outline d-lg-none menu-toggle" type="button" aria-label="Open menu" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="search-box d-none d-md-block">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Search..." style="width: 280px;">
+            </div>
+            <div class="topbar-right">
+                <div class="dropdown">
+                    <button class="dropdown-toggle" data-bs-toggle="dropdown">
+                        {% if user.photo %}
+                            <img src="{{ user.photo.url }}" class="user-avatar" alt="">
+                        {% else %}
+                            <div class="user-avatar">{{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}</div>
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i> Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var backdrop = document.getElementById('sidebarBackdrop');
+            var isOpen = sidebar.classList.toggle('show');
+            if (backdrop) backdrop.classList.toggle('show', isOpen);
+            document.body.classList.toggle('menu-open', isOpen);
+        }
+        function closeSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var backdrop = document.getElementById('sidebarBackdrop');
+            sidebar.classList.remove('show');
+            if (backdrop) backdrop.classList.remove('show');
+            document.body.classList.remove('menu-open');
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            var path = window.location.pathname;
+            var sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+            sidebarLinks.forEach(function(link) {
+                var href = link.getAttribute('href');
+                if (href && path.startsWith(href) && href !== '/') {
+                    link.classList.add('active');
+                } else if (href === '/' && path === '/') {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

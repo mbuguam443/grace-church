@@ -1,0 +1,166 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Attendance - {{ service.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-people-fill me-2"></i>Attendance: {{ service.name }}
+            </h1>
+            <p class="text-muted mb-0">
+                <i class="bi bi-calendar me-1"></i>{{ service.date|date:"l, M d, Y" }}
+                <span class="mx-2">|</span>
+                <i class="bi bi-clock me-1"></i>{{ service.start_time|time:"H:i" }} - {{ service.end_time|time:"H:i" }}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if user.can_manage_content %}
+            <a href="{% url 'attendance:attendance_create' %}?service={{ service.pk }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Record Attendance
+            </a>
+            {% endif %}
+            <a href="{% url 'services:service_detail' service.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Service
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-start border-4 border-primary">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small text-uppercase mb-1">Total Attendance</p>
+                            <h3 class="mb-0">{{ total_count|default:"0" }}</h3>
+                        </div>
+                        <div class="text-primary">
+                            <i class="bi bi-people fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-start border-4 border-success">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small text-uppercase mb-1">Members</p>
+                            <h3 class="mb-0">{{ member_count|default:"0" }}</h3>
+                        </div>
+                        <div class="text-success">
+                            <i class="bi bi-person-check fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-start border-4 border-info">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small text-uppercase mb-1">Visitors</p>
+                            <h3 class="mb-0">{{ visitor_count|default:"0" }}</h3>
+                        </div>
+                        <div class="text-info">
+                            <i class="bi bi-person-plus fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-start border-4 border-warning">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small text-uppercase mb-1">Online</p>
+                            <h3 class="mb-0">{{ online_count|default:"0" }}</h3>
+                        </div>
+                        <div class="text-warning">
+                            <i class="bi bi-wifi fs-2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">
+                <i class="bi bi-list-ul me-2"></i>Attendance List
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Notes</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if record.member %}
+                                <i class="bi bi-person-check me-1 text-success"></i>{{ record.member }}
+                            {% elif record.visitor_name %}
+                                <i class="bi bi-person-plus me-1 text-info"></i>{{ record.visitor_name }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if record.attendance_type == 'member' %}
+                                <span class="badge bg-success"><i class="bi bi-person-check me-1"></i>Member</span>
+                            {% elif record.attendance_type == 'visitor' %}
+                                <span class="badge bg-info"><i class="bi bi-person-plus me-1"></i>Visitor</span>
+                            {% elif record.attendance_type == 'online' %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-wifi me-1"></i>Online</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ record.attendance_type|default:"—" }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ record.notes }}">{{ record.notes|default:"—" }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                {% if user.can_manage_content %}
+                                <a href="{% url 'attendance:attendance_delete' record.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No attendance records for this service.
+                            {% if user.can_manage_content %}
+                            <a href="{% url 'attendance:attendance_create' %}?service={{ service.pk }}">Record attendance now</a>.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

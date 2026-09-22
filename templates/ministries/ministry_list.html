@@ -1,0 +1,142 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Ministries - GC{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="bi bi-diagram-3"></i> Ministries</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Ministries</li>
+            </ol>
+        </nav>
+    </div>
+    {% if user.can_manage_content %}
+    <a href="{% url 'ministries:ministry-create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add Ministry
+    </a>
+    {% endif %}
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Search ministries..." value="{{ request.GET.q }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'ministries:ministry-list' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x-lg"></i> Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Leader</th>
+                    <th>Members</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ministry in ministries %}
+                <tr>
+                    <td>
+                        <a href="{% url 'ministries:ministry-detail' ministry.pk %}" class="fw-semibold text-decoration-none">
+                            {{ ministry.name }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if ministry.leader %}
+                            <i class="bi bi-person-circle text-muted"></i> {{ ministry.leader }}
+                        {% else %}
+                            <span class="text-muted">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ ministry.members_count }}</span>
+                    </td>
+                    <td>
+                        {% if ministry.is_active %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary"><i class="bi bi-pause-circle"></i> Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'ministries:ministry-detail' ministry.pk %}" class="btn btn-outline-info" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if user.can_manage_content %}
+                            <a href="{% url 'ministries:ministry-update' ministry.pk %}" class="btn btn-outline-warning" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'ministries:ministry-delete' ministry.pk %}" class="btn btn-outline-danger" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        No ministries found.
+                        <a href="{% url 'ministries:ministry-create' %}">Create one</a>.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+    <div class="card-footer">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

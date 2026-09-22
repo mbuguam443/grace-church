@@ -1,0 +1,94 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Bible Study Notes{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start">
+    <div>
+        <h2>Bible Study Notes</h2>
+        <nav class="breadcrumb">
+            <a href="{% url 'dashboard:index' %}">Home</a> / Bible Study
+        </nav>
+    </div>
+    {% if user.can_manage_content %}
+    <a href="{% url 'bible_study:study_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Post Study
+    </a>
+    {% endif %}
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search title, scripture, teacher..." value="{{ search }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for study in studies %}
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">{{ study.title }}</h5>
+                    {% if user.can_manage_content and not study.is_active %}
+                    <span class="badge bg-secondary">Hidden</span>
+                    {% endif %}
+                </div>
+                <p class="text-primary mb-2"><i class="bi bi-book me-1"></i>{{ study.bible_verse }}</p>
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-calendar me-1"></i>{{ study.study_date|date:"M d, Y" }}
+                    {% if study.teacher %}| <i class="bi bi-person me-1"></i>{{ study.teacher }}{% endif %}
+                    {% if study.series %}| {{ study.series }}{% endif %}
+                </p>
+                <p class="text-muted">{{ study.content|truncatewords:30 }}</p>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'bible_study:study_detail' study.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-book-open me-1"></i>Read Study
+                    </a>
+                    {% if user.can_manage_content %}
+                    <a href="{% url 'bible_study:study_edit' study.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'bible_study:study_delete' study.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="bi bi-book"></i>
+            <p>No Bible study notes available yet.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}">&laquo;</a></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&search={{ search }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}">&raquo;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

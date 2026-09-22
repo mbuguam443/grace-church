@@ -1,0 +1,165 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Children{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1"><i class="bi bi-people me-2"></i>Children</h1>
+            <p class="text-muted mb-0">Manage children registered in the church</p>
+        </div>
+        {% if user.can_manage_content %}
+        <a href="{% url 'children:child_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Add Child
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label small fw-semibold">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" id="search" class="form-control" placeholder="Search name, parent, class..." value="{{ request.GET.q }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="gender" class="form-label small fw-semibold">Gender</label>
+                    <select name="gender" id="gender" class="form-select">
+                        <option value="">All</option>
+                        <option value="male" {% if request.GET.gender == 'male' %}selected{% endif %}>Male</option>
+                        <option value="female" {% if request.GET.gender == 'female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label small fw-semibold">Status</label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Parent/Guardian</th>
+                        <th>School Class</th>
+                        <th>Teacher</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for child in children %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if child.photo %}
+                                <img src="{{ child.photo.url }}" alt="{{ child.first_name }}" class="rounded-circle me-2" width="36" height="36" style="object-fit: cover;">
+                                {% else %}
+                                <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-person text-secondary"></i>
+                                </div>
+                                {% endif %}
+                                <a href="{% url 'children:child_detail' child.pk %}" class="text-decoration-none fw-medium">{{ child.first_name }} {{ child.last_name }}</a>
+                            </div>
+                        </td>
+                        <td>{{ child.age|default:"—" }}</td>
+                        <td>
+                            {% if child.gender == 'male' %}
+                            <span class="badge bg-info"><i class="bi bi-gender-male me-1"></i>Male</span>
+                            {% elif child.gender == 'female' %}
+                            <span class="badge bg-warning"><i class="bi bi-gender-female me-1"></i>Female</span>
+                            {% else %}
+                            <span class="badge bg-secondary">—</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ child.parent|default:"—" }}</td>
+                        <td>{{ child.school_class|default:"—" }}</td>
+                        <td>{{ child.teacher|default:"—" }}</td>
+                        <td class="text-center">
+                            {% if child.is_active %}
+                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary"><i class="bi bi-pause-circle me-1"></i>Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'children:child_detail' child.pk %}" class="btn btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
+                                {% if user.can_manage_content %}
+                                <a href="{% url 'children:child_edit' child.pk %}" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a href="{% url 'children:child_delete' child.pk %}" class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No children found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Children pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"><i class="bi bi-chevron-double-left"></i></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"><i class="bi bi-chevron-left"></i></a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"><i class="bi bi-chevron-right"></i></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}"><i class="bi bi-chevron-double-right"></i></a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

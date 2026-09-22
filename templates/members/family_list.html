@@ -1,0 +1,164 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Families - Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-house-heart-fill me-2"></i>Families
+            </h1>
+            <p class="text-muted mb-0">Manage church families</p>
+        </div>
+        <a href="{% url 'members:family-create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Add Family
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label for="search" class="form-label fw-semibold">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="search" name="q"
+                               value="{{ request.GET.q }}" placeholder="Search by family name, phone, address...">
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                </div>
+                {% if request.GET.q %}
+                <div class="col-md-2 d-flex align-items-end">
+                    <a href="{% url 'members:family-list' %}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-x-circle me-1"></i>Clear
+                    </a>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width:50px">#</th>
+                        <th>Family Name</th>
+                        <th>Phone</th>
+                        <th class="text-center">Members</th>
+                        <th class="text-center" style="width:150px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for family in families %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-2"
+                                     style="width:36px;height:36px">
+                                    <i class="bi bi-house-heart text-primary"></i>
+                                </div>
+                                <span class="fw-semibold">{{ family.name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ family.phone|default:"-" }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-primary bg-opacity-10 text-primary fs-6">
+                                {{ family.member_count|default:0 }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'members:family-detail' family.pk %}"
+                                   class="btn btn-outline-info" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'members:family-update' family.pk %}"
+                                   class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'members:family-delete' family.pk %}"
+                                   class="btn btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
+                            <p class="text-muted mb-0">No families found.</p>
+                            <a href="{% url 'members:family-create' %}" class="btn btn-sm btn-primary mt-2">
+                                <i class="bi bi-plus-lg me-1"></i>Add First Family
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Family pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <p class="text-center text-muted small mt-2 mb-0">
+                Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} families
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

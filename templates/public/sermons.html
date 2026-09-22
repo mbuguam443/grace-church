@@ -1,0 +1,346 @@
+{% extends "public/base.html" %}
+{% load static %}
+
+{% block title %}Sermons - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container py-5 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-3">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">Sermons</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 fw-bold">Sermons</h1>
+        <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+            Be nourished and equipped by the Word of God. Watch, listen, or read our sermon library.
+        </p>
+    </div>
+</section>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe id="videoFrame" src="" title="Sermon Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Sermon -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="card border-0 shadow-lg overflow-hidden">
+            <div class="row g-0">
+                <div class="col-lg-5">
+                    <div class="rounded-4 overflow-hidden shadow video-thumbnail" style="position:relative;cursor:pointer;" onclick="playVideo('dQw4w9WgXcQ')">
+                        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="Latest Sermon" class="w-100" style="min-height:350px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.3);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:4rem;"></i>
+                        </div>
+                        <span class="badge bg-accent position-absolute top-0 start-0 m-3 fs-6">Latest</span>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center h-100">
+                        <h6 class="text-accent fw-bold text-uppercase">Latest Message</h6>
+                        <h2 class="fw-bold text-secondary mb-3">Walking in Divine Purpose</h2>
+                        <p class="text-muted mb-3">
+                            In this powerful message, Pastor John Mbugua explores how God has uniquely
+                            equipped each believer to fulfill His divine purpose. Discover the keys to
+                            unlocking your calling and making an eternal impact in your generation.
+                        </p>
+                        <div class="mb-4">
+                            <p class="mb-1"><i class="bi bi-person-fill text-primary me-2"></i><strong>Pastor John Mbugua</strong></p>
+                            <p class="mb-1 text-muted small"><i class="bi bi-calendar-event text-primary me-2"></i>October 6, 2024</p>
+                            <p class="mb-0 text-muted small"><i class="bi bi-clock text-primary me-2"></i>Duration: 52 minutes</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="#" class="btn btn-primary">
+                                <i class="bi bi-play-fill me-2"></i>Watch Now
+                            </a>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="bi bi-headphones me-2"></i>Listen Audio
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary">
+                                <i class="bi bi-file-earmark-text me-2"></i>Read Notes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sermon Series -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Current Series</h6>
+            <h2 class="display-5 fw-bold text-secondary">Kingdom Principles</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                A 6-week series exploring the foundational principles that govern God's Kingdom
+                and how to apply them in everyday life.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('kJQP7kiw5Fk')">
+                        <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg" alt="The Principle of Seedtime & Harvest" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                        <span class="badge bg-accent position-absolute top-0 end-0 m-2">Week 1</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">The Principle of Seedtime & Harvest</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Oct 6, 2024
+                        </p>
+                        <p class="text-muted small">Understanding the unchangeable law of sowing and reaping in God's Kingdom economy.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('9bZkp7q19f0')">
+                        <img src="https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg" alt="The Principle of Faith & Confession" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                        <span class="badge bg-primary position-absolute top-0 end-0 m-2">Week 2</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">The Principle of Faith & Confession</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Rev. Sarah Kimani | Sep 29, 2024
+                        </p>
+                        <p class="text-muted small">How your words and beliefs shape your reality and activate God's power in your life.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('L_jWHffIx5E')">
+                        <img src="https://img.youtube.com/vi/L_jWHffIx5E/maxresdefault.jpg" alt="The Principle of Stewardship" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                        <span class="badge bg-primary position-absolute top-0 end-0 m-2">Week 3</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">The Principle of Stewardship</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Sep 22, 2024
+                        </p>
+                        <p class="text-muted small">Managing God's resources with wisdom and integrity for maximum Kingdom impact.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Sermons -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            <div>
+                <h6 class="text-accent fw-bold text-uppercase ls-2">Sermon Library</h6>
+                <h2 class="display-5 fw-bold text-secondary mb-0">Recent Messages</h2>
+            </div>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm" style="width: auto;">
+                    <option>All Series</option>
+                    <option>Kingdom Principles</option>
+                    <option>Faith Foundations</option>
+                    <option>Spiritual Warfare</option>
+                </select>
+                <select class="form-select form-select-sm" style="width: auto;">
+                    <option>All Speakers</option>
+                    <option>Pastor John Mbugua</option>
+                    <option>Rev. Sarah Kimani</option>
+                    <option>Pastor David Ochieng</option>
+                </select>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('dQw4w9WgXcQ')">
+                        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="The Power of Unwavering Faith" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">The Power of Unwavering Faith</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Rev. Sarah Kimani | Sep 15, 2024
+                        </p>
+                        <p class="text-muted small mb-3">Learn how to maintain steadfast faith even in the most challenging seasons of life.</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('kJQP7kiw5Fk')">
+                        <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg" alt="Gratitude: The Gateway to Miracles" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">Gratitude: The Gateway to Miracles</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Sep 8, 2024
+                        </p>
+                        <p class="text-muted small mb-3">Explore how a lifestyle of gratitude unlocks God's supernatural intervention.</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('9bZkp7q19f0')">
+                        <img src="https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg" alt="Overcoming Spiritual Warfare" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">Overcoming Spiritual Warfare</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor David Ochieng | Sep 1, 2024
+                        </p>
+                        <p class="text-muted small mb-3">Understanding the enemy's tactics and the believer's authority in Christ.</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('L_jWHffIx5E')">
+                        <img src="https://img.youtube.com/vi/L_jWHffIx5E/maxresdefault.jpg" alt="The Blessing of Obedience" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">The Blessing of Obedience</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Aug 25, 2024
+                        </p>
+                        <p class="text-muted small mb-3">Discover the blessings that flow from a life of radical obedience to God's Word.</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('dQw4w9WgXcQ')">
+                        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="Walking in Love" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">Walking in Love</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Rev. Mary Mbugua | Aug 18, 2024
+                        </p>
+                        <p class="text-muted small mb-3">The greatest commandment and the mark of true discipleship in a divided world.</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sermon-card">
+                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('kJQP7kiw5Fk')">
+                        <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg" alt="Dreaming God-Sized Dreams" class="w-100" style="height:180px;object-fit:cover;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">Dreaming God-Sized Dreams</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Aug 11, 2024
+                        </p>
+                        <p class="text-muted small mb-3">How to break free from limitations and pursue the extraordinary plans God has for you.</p>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
+                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="#" class="btn btn-outline-primary btn-lg">
+                Load More Sermons <i class="bi bi-arrow-down ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Subscribe Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container py-4 text-center">
+        <h2 class="display-6 fw-bold mb-3">Never Miss a Message</h2>
+        <p class="text-white-50 fs-5 mb-4">
+            Subscribe to receive new sermons directly in your inbox every Monday morning.
+        </p>
+        <form class="row g-2 justify-content-center" style="max-width: 500px; margin: 0 auto;">
+            <div class="col-sm-8">
+                <input type="email" class="form-control form-control-lg" placeholder="Enter your email address">
+            </div>
+            <div class="col-sm-4">
+                <button type="submit" class="btn btn-accent btn-lg w-100 text-white">
+                    <i class="bi bi-bell me-2"></i>Subscribe
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function playVideo(videoId) {
+    var modal = new bootstrap.Modal(document.getElementById('videoModal'));
+    document.getElementById('videoFrame').src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+    modal.show();
+}
+document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('videoFrame').src = '';
+});
+</script>
+{% endblock %}

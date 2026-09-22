@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Delete Song{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">Confirm Deletion</h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <h4>Delete Song?</h4>
+                    <p class="text-muted mb-4">Delete <strong>"{{ song.title }}"</strong>? This cannot be undone.</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <a href="{% url 'songs:song_detail' song.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

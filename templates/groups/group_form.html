@@ -1,0 +1,178 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Group{% else %}Add Group{% endif %} - GC{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2>
+            {% if form.instance.pk %}
+                <i class="bi bi-pencil-square"></i> Edit Group
+            {% else %}
+                <i class="bi bi-plus-circle"></i> Add Group
+            {% endif %}
+        </h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'groups:group-list' %}">Groups</a></li>
+                <li class="breadcrumb-item active">{% if form.instance.pk %}Edit{% else %}Add{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="{% url 'groups:group-list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> Group Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="id_name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" value="{{ form.name.value|default:'' }}" placeholder="Enter group name" required>
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label fw-semibold">Description</label>
+                        <textarea name="description" id="id_description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" rows="4" placeholder="Describe the group">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_leader" class="form-label fw-semibold">Leader</label>
+                            <select name="leader" id="id_leader" class="form-select {% if form.leader.errors %}is-invalid{% endif %}">
+                                <option value="">-- Select Leader --</option>
+                                {% for member in form.leader.field.queryset %}
+                                <option value="{{ member.pk }}" {% if form.leader.value|stringformat:'s' == member.pk|stringformat:'s' %}selected{% endif %}>{{ member }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.leader.errors %}
+                            <div class="invalid-feedback">{{ form.leader.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_assistant_leader" class="form-label fw-semibold">Assistant Leader</label>
+                            <select name="assistant_leader" id="id_assistant_leader" class="form-select {% if form.assistant_leader.errors %}is-invalid{% endif %}">
+                                <option value="">-- Select Assistant Leader --</option>
+                                {% for member in form.assistant_leader.field.queryset %}
+                                <option value="{{ member.pk }}" {% if form.assistant_leader.value|stringformat:'s' == member.pk|stringformat:'s' %}selected{% endif %}>{{ member }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.assistant_leader.errors %}
+                            <div class="invalid-feedback">{{ form.assistant_leader.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_meeting_day" class="form-label fw-semibold">Meeting Day</label>
+                            <select name="meeting_day" id="id_meeting_day" class="form-select {% if form.meeting_day.errors %}is-invalid{% endif %}">
+                                <option value="">-- Select Day --</option>
+                                {% for day in "Monday Tuesday Wednesday Thursday Friday Saturday Sunday"|split:" " %}
+                                <option value="{{ day }}" {% if form.meeting_day.value == day %}selected{% endif %}>{{ day }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.meeting_day.errors %}
+                            <div class="invalid-feedback">{{ form.meeting_day.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_meeting_time" class="form-label fw-semibold">Meeting Time</label>
+                            <input type="time" name="meeting_time" id="id_meeting_time" class="form-control {% if form.meeting_time.errors %}is-invalid{% endif %}" value="{{ form.meeting_time.value|default:'' }}">
+                            {% if form.meeting_time.errors %}
+                            <div class="invalid-feedback">{{ form.meeting_time.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_location" class="form-label fw-semibold">Location</label>
+                        <input type="text" name="location" id="id_location" class="form-control {% if form.location.errors %}is-invalid{% endif %}" value="{{ form.location.value|default:'' }}" placeholder="Enter meeting location">
+                        {% if form.location.errors %}
+                        <div class="invalid-feedback">{{ form.location.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_members" class="form-label fw-semibold">Members</label>
+                        <select name="members" id="id_members" class="form-select {% if form.members.errors %}is-invalid{% endif %}" multiple size="6">
+                            {% for member in form.members.field.queryset %}
+                            <option value="{{ member.pk }}" {% if member.pk in form.members.value %}selected{% endif %}>{{ member }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Hold Ctrl/Cmd to select multiple members.</div>
+                        {% if form.members.errors %}
+                        <div class="invalid-feedback">{{ form.members.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="is_active" id="id_is_active" class="form-check-input" {% if form.is_active.value or form.is_active.value is None %}checked{% endif %}>
+                            <label class="form-check-label fw-semibold" for="id_is_active">Active</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> {% if form.instance.pk %}Update{% else %}Create{% endif %} Group
+                        </button>
+                        <a href="{% url 'groups:group-list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-lightbulb"></i> Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Use a clear name for the group.</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Assign both a leader and assistant.</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Set regular meeting schedule.</li>
+                    <li><i class="bi bi-check2 text-success"></i> Add members who belong to this group.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dayInput = document.getElementById('id_meeting_day');
+        if (dayInput && dayInput.value === '') {
+            const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+            const currentValue = dayInput.dataset.value || '';
+            days.forEach(function(day) {
+                const option = document.createElement('option');
+                option.value = day;
+                option.textContent = day;
+                if (currentValue === day) option.selected = true;
+                dayInput.appendChild(option);
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,315 @@
+{% extends "public/base.html" %}
+{% load static %}
+
+{% block title %}Grace Church Munyaka - Welcome Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section d-flex align-items-center" style="background: linear-gradient(135deg, rgba(78,58,44,0.85) 0%, rgba(168,112,74,0.75) 100%), url('{% if church_settings.hero_image %}{{ church_settings.hero_image.url }}{% else %}{% static 'img/hero-church.jpg' %}{% endif %}') center/cover;">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative z-2">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center text-white">
+                <h1 class="display-3 fw-bold mb-4">
+                    Grace Church Munyaka<br>
+                    <span class="text-gold">Ministry International</span>
+                </h1>
+                <p class="lead mb-4 fs-4">
+                    A vibrant community united by faith, transformed by grace, and committed
+                    to sharing the love of Christ with the world.
+                </p>
+                <div class="hero-buttons mt-4">
+                    <a href="{% url 'public:services' %}" class="btn btn-accent btn-lg px-4 py-2">
+                        <i class="bi bi-calendar-check me-2"></i>Join Us This Sunday
+                    </a>
+                    <a href="{% url 'public:sermons' %}" class="btn btn-outline-light btn-lg px-4 py-2">
+                        <i class="bi bi-play-circle me-2"></i>Watch Sermons
+                    </a>
+                </div>
+                <div class="hero-service-times">
+                    <p class="mb-2"><i class="bi bi-clock-fill me-2"></i>Service Times</p>
+                    <p class="fs-5 fw-semibold">Sunday: 8:00 AM & 11:00 AM | Wednesday: 7:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-scroll-hint">
+        <a href="#upcoming-events"><i class="bi bi-chevron-double-down fs-3"></i></a>
+    </div>
+</section>
+
+<!-- Upcoming Events Section -->
+<section id="upcoming-events" class="section bg-light">
+    <div class="container">
+        <div class="section-header">
+            <h6>What's Happening</h6>
+            <h2>Upcoming Events</h2>
+            <p>Join us for these exciting upcoming events. There's something for everyone in our church family.</p>
+        </div>
+        <div class="row g-4">
+            {% if upcoming_events %}
+                {% for event in upcoming_events %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card event-card h-100">
+                        <div class="card-img-top" style="height:160px;background:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;border-radius:12px 12px 0 0;"></div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="event-date-box text-center me-3">
+                                    <span class="d-block fw-bold fs-4">{{ event.date|date:"d" }}</span>
+                                    <span class="d-block text-uppercase small opacity-75">{{ event.date|date:"M" }}</span>
+                                </div>
+                                <div>
+                                    <h5 class="card-title fw-bold mb-1">{{ event.name }}</h5>
+                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>{{ event.time|default:"TBA" }}</p>
+                                    <p class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ event.location|default:"Main Hall" }}</p>
+                                </div>
+                            </div>
+                            <p class="text-muted">{{ event.description|truncatewords:20 }}</p>
+                            <a href="{% url 'public:events' %}" class="text-accent fw-semibold">
+                                Learn More <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-md-4">
+                    <div class="card event-card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="event-date-box text-center me-3">
+                                    <span class="d-block fw-bold fs-4">15</span>
+                                    <span class="d-block text-uppercase small opacity-75">Oct</span>
+                                </div>
+                                <div>
+                                    <h5 class="card-title fw-bold mb-1">Annual Harvest Festival</h5>
+                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>10:00 AM - 4:00 PM</p>
+                                </div>
+                            </div>
+                            <p class="text-muted">Join us for a day of praise, food, games, and fellowship as we celebrate God's abundant blessings.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card event-card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="event-date-box text-center me-3">
+                                    <span class="d-block fw-bold fs-4">22</span>
+                                    <span class="d-block text-uppercase small opacity-75">Oct</span>
+                                </div>
+                                <div>
+                                    <h5 class="card-title fw-bold mb-1">Youth Conference 2024</h5>
+                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>9:00 AM - 5:00 PM</p>
+                                </div>
+                            </div>
+                            <p class="text-muted">A transformative conference for young people aged 13-25. Theme: "Arise and Shine."</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card event-card h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="event-date-box text-center me-3">
+                                    <span class="d-block fw-bold fs-4">29</span>
+                                    <span class="d-block text-uppercase small opacity-75">Oct</span>
+                                </div>
+                                <div>
+                                    <h5 class="card-title fw-bold mb-1">Prayer & Fasting Week</h5>
+                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>All Day</p>
+                                </div>
+                            </div>
+                            <p class="text-muted">A week dedicated to spiritual renewal through prayer, fasting, and intensive Bible study.</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'public:events' %}" class="btn btn-outline-primary btn-lg">
+                View All Events <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Sermons Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h6>Spiritual Food</h6>
+            <h2>Latest Sermons</h2>
+            <p>Be nourished by the Word. Watch or listen to our most recent messages from God's Word.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card sermon-card h-100">
+                    <div class="sermon-placeholder" style="background:url('{% if church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:3rem;opacity:0.9;"></i>
+                        </div>
+                        <span class="badge bg-accent position-absolute top-0 end-0 m-2">New</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">Walking in Divine Purpose</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor James Mwangi
+                        </p>
+                        <p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>Jeremiah 29:11</p>
+                        <p class="text-muted">Discover how God has uniquely equipped you to fulfill His divine purpose in this generation.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card sermon-card h-100">
+                    <div class="sermon-placeholder" style="background:url('{% static 'img/hero-cross.jpg' %}') center/cover;">
+                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:3rem;opacity:0.9;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">The Power of Unwavering Faith</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor James Mwangi
+                        </p>
+                        <p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>Hebrews 11:1</p>
+                        <p class="text-muted">Learn how to maintain steadfast faith even in the most challenging seasons of life.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card sermon-card h-100">
+                    <div class="sermon-placeholder" style="background:url('{% static 'img/church-building.jpg' %}') center/cover;">
+                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;">
+                            <i class="bi bi-play-circle-fill text-white" style="font-size:3rem;opacity:0.9;"></i>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold">Gratitude: The Gateway to Miracles</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-fill me-1"></i>Pastor James Mwangi
+                        </p>
+                        <p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>1 Thessalonians 5:18</p>
+                        <p class="text-muted">Explore how a lifestyle of gratitude unlocks God's supernatural intervention.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'public:sermons' %}" class="btn btn-outline-primary btn-lg">
+                Browse All Sermons <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Ministries Preview Section -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="section-header">
+            <h6>Get Involved</h6>
+            <h2>Our Ministries</h2>
+            <p>Find your place of service and community. There's a ministry for every member of the family.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card ministry-card text-center h-100 p-4">
+                    <div class="ministry-icon"><i class="bi bi-people-fill"></i></div>
+                    <h5 class="fw-bold">Men's Ministry</h5>
+                    <p class="text-muted small">Building godly men who lead their families and communities with integrity.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card ministry-card text-center h-100 p-4">
+                    <div class="ministry-icon"><i class="bi bi-heart-fill"></i></div>
+                    <h5 class="fw-bold">Women's Ministry</h5>
+                    <p class="text-muted small">Empowering women to walk in their God-given identity and purpose.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card ministry-card text-center h-100 p-4">
+                    <div class="ministry-icon"><i class="bi bi-stars"></i></div>
+                    <h5 class="fw-bold">Youth Ministry</h5>
+                    <p class="text-muted small">Inspiring the next generation to live boldly for Christ in a changing world.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card ministry-card text-center h-100 p-4">
+                    <div class="ministry-icon"><i class="bi bi-music-note-beamed"></i></div>
+                    <h5 class="fw-bold">Worship Team</h5>
+                    <p class="text-muted small">Using musical gifts to lead the congregation into God's presence through praise.</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'public:ministries' %}" class="btn btn-outline-primary btn-lg">
+                Explore All Ministries <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Service Times Section -->
+<section class="section section-primary">
+    <div class="container">
+        <div class="section-header text-white">
+            <h6 style="color: var(--gold);">Join Us</h6>
+            <h2>Service Times</h2>
+            <p>We would love to welcome you into our church family. Come experience the presence of God.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 col-lg-3">
+                <div class="text-center p-4 rounded-3 service-time-card">
+                    <i class="bi bi-sun display-3 text-gold mb-3"></i>
+                    <h4 class="fw-bold">Sunday Morning</h4>
+                    <p class="fs-2 fw-bold mb-0">8:00 AM</p>
+                    <p class="opacity-75">First Service</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="text-center p-4 rounded-3 service-time-card">
+                    <i class="bi bi-sunrise display-3 text-gold mb-3"></i>
+                    <h4 class="fw-bold">Sunday Morning</h4>
+                    <p class="fs-2 fw-bold mb-0">11:00 AM</p>
+                    <p class="opacity-75">Second Service</p>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="text-center p-4 rounded-3 service-time-card">
+                    <i class="bi bi-moon-stars display-3 text-gold mb-3"></i>
+                    <h4 class="fw-bold">Wednesday</h4>
+                    <p class="fs-2 fw-bold mb-0">7:00 PM</p>
+                    <p class="opacity-75">Midweek Service</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="section" style="background:url('{% if church_settings.cta_image %}{{ church_settings.cta_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover fixed;position:relative;">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(78,58,44,0.9);"></div>
+    <div class="container position-relative" style="z-index:2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="text-center p-5 rounded-4">
+                    <h2 class="fw-bold text-white mb-3">Ready to Take the Next Step?</h2>
+                    <p class="text-white-50 fs-5 mb-4">
+                        Whether you're exploring faith for the first time or looking for a church home,
+                        there's a place for you here at Grace Church Munyaka.
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="{% url 'public:contact' %}" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-envelope me-2"></i>Contact Us
+                        </a>
+                        <a href="{% url 'public:give' %}" class="btn btn-accent btn-lg px-4 text-white">
+                            <i class="bi bi-gift me-2"></i>Support Our Mission
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

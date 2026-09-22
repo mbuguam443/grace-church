@@ -1,0 +1,256 @@
+{% extends "public/base.html" %}
+
+{% block title %}Ministries - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container py-5 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-3">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">Ministries</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 fw-bold">Our Ministries</h1>
+        <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+            Discover your place of service and community. Every member has a gift and a purpose in the body of Christ.
+        </p>
+    </div>
+</section>
+
+<!-- Ministry Introduction -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h6 class="text-accent fw-bold text-uppercase ls-2">Serving Together</h6>
+                <h2 class="display-5 fw-bold text-secondary mb-4">Find Your Place to Serve</h2>
+                <p class="text-muted fs-5">
+                    At Grace Church Munyaka, we believe every believer is uniquely gifted and called to serve.
+                    Our ministries provide opportunities for you to grow, connect, and make a difference
+                    in the lives of others.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Adult Ministries -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <h3 class="fw-bold text-secondary mb-4"><i class="bi bi-person-lines-fill text-primary me-2"></i>Adult Ministries</h3>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person-fill fs-4 text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Men's Ministry</h5>
+                        </div>
+                        <p class="text-muted">Building godly men who lead their families, churches, and communities with integrity, courage, and faith. Through mentorship, retreats, and accountability groups, we equip men to fulfill their God-given calling.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Last Saturday of every month, 8:00 AM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-heart-fill fs-4 text-accent"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Women's Ministry</h5>
+                        </div>
+                        <p class="text-muted">Empowering women of all ages to walk in their God-given identity, purpose, and destiny. We offer Bible studies, conferences, mentorship programs, and community outreach initiatives.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Every Saturday, 9:00 AM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-gold bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-heart-pulse-fill fs-4 text-gold"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Couples & Family</h5>
+                        </div>
+                        <p class="text-muted">Strengthening marriages and families through biblical teaching, counseling, retreats, and fellowship. We help couples build thriving relationships anchored in God's Word.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> 2nd Friday of every month, 7:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-person-calendar fs-4 text-secondary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Senior Saints</h5>
+                        </div>
+                        <p class="text-muted">Honoring and ministering to our senior members through fellowship, prayer support, and activities that celebrate their wisdom and contribution to the church family.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Every Thursday, 10:00 AM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-book-fill fs-4 text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Bible Study Groups</h5>
+                        </div>
+                        <p class="text-muted">Small group Bible studies meeting in homes and at the church throughout the week. Dive deep into Scripture in a supportive community of fellow believers.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Various times and locations</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-hands-helping fs-4 text-accent"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Outreach & Missions</h5>
+                        </div>
+                        <p class="text-muted">Taking the Gospel beyond our walls through community service, evangelism, and supporting missionaries locally and internationally.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> 1st Saturday of every month, 7:00 AM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Youth & Children Ministries -->
+<section class="py-5">
+    <div class="container py-4">
+        <h3 class="fw-bold text-secondary mb-4"><i class="bi bi-stars text-gold me-2"></i>Youth & Children's Ministries</h3>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-gold bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-lightning-fill fs-4 text-gold"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Youth Ministry</h5>
+                        </div>
+                        <p class="text-muted">For young people aged 13-25. We create a dynamic environment where youth encounter God, build lasting friendships, and develop their God-given potential through worship, teaching, and social events.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Saturdays, 3:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-emoji-smile-fill fs-4 text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Children's Church</h5>
+                        </div>
+                        <p class="text-muted">Age-appropriate worship, Bible lessons, and activities for children ages 3-12. We create a safe, fun environment where children fall in love with Jesus and His Word.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Every Sunday during both services</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-music-note-beamed fs-4 text-accent"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Teen Connect</h5>
+                        </div>
+                        <p class="text-muted">A vibrant group for teenagers (13-17) navigating the challenges of adolescence with faith. Through relevant teaching, mentorship, and fun activities, we help teens build a strong foundation in Christ.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Fridays, 6:00 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Worship & Creative Arts -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <h3 class="fw-bold text-secondary mb-4"><i class="bi bi-palette-fill text-accent me-2"></i>Worship & Creative Arts</h3>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-mic-fill fs-4 text-primary"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Choir</h5>
+                        </div>
+                        <p class="text-muted">Our church choir leads the congregation in powerful worship through anthems, hymns, and contemporary gospel music. All voices are welcome.</p>
+                        <p class="small text-muted mb-0"><strong>Rehearsal:</strong> Thursdays, 7:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-music-note-list fs-4 text-accent"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Praise & Worship Team</h5>
+                        </div>
+                        <p class="text-muted">A team of vocalists and instrumentalists who lead the congregation into God's presence through contemporary worship. Auditions held quarterly.</p>
+                        <p class="small text-muted mb-0"><strong>Rehearsal:</strong> Wednesdays, 6:00 PM & Saturdays, 2:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 ministry-detail-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="icon-box bg-gold bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="bi bi-camera-fill fs-4 text-gold"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Media & Tech Team</h5>
+                        </div>
+                        <p class="text-muted">Behind-the-scenes team handling sound, lighting, livestream, photography, and social media. Use your technical skills to advance the Kingdom.</p>
+                        <p class="small text-muted mb-0"><strong>Meeting:</strong> Tuesdays, 6:00 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="display-6 fw-bold text-secondary mb-3">Ready to Get Involved?</h2>
+                <p class="text-muted fs-5 mb-4">
+                    We'd love to help you find the perfect ministry fit. Reach out to our pastoral team
+                    or visit us on Sunday to learn more.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{% url 'public:contact' %}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-envelope me-2"></i>Contact Us
+                    </a>
+                    <a href="{% url 'public:services' %}" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="bi bi-calendar-check me-2"></i>Visit This Sunday
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

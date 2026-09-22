@@ -1,0 +1,216 @@
+{% extends "admin/base.html" %}
+{% load static humanize %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-cash-stack text-primary"></i> Transactions
+            </h1>
+            <p class="text-muted mb-0">Manage income and expenses</p>
+        </div>
+        <a href="{% url 'finance:transaction-create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> New Transaction
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+            <h6 class="mb-0">
+                <i class="bi bi-funnel"></i> Filters
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-2">
+                    <label for="id_type" class="form-label small text-muted">Type</label>
+                    <select name="type" id="id_type" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        <option value="income" {% if request.GET.type == 'income' %}selected{% endif %}>Income</option>
+                        <option value="expense" {% if request.GET.type == 'expense' %}selected{% endif %}>Expense</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="id_category" class="form-label small text-muted">Category</label>
+                    <select name="category" id="id_category" class="form-select form-select-sm">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="id_date_from" class="form-label small text-muted">From</label>
+                    <input type="date" name="date_from" id="id_date_from" class="form-control form-control-sm" value="{{ request.GET.date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="id_date_to" class="form-label small text-muted">To</label>
+                    <input type="date" name="date_to" id="id_date_to" class="form-control form-control-sm" value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="id_search" class="form-label small text-muted">Search</label>
+                    <input type="text" name="search" id="id_search" class="form-control form-control-sm" placeholder="Search description..." value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            {% if request.GET.type or request.GET.category or request.GET.date_from or request.GET.date_to or request.GET.search %}
+            <div class="mt-2">
+                <a href="{% url 'finance:transaction-list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Member</th>
+                            <th class="text-end">Amount</th>
+                            <th>Recorded By</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if transaction.transaction_type == 'income' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success">
+                                        <i class="bi bi-arrow-down-circle"></i> Income
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger">
+                                        <i class="bi bi-arrow-up-circle"></i> Expense
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ transaction.category }}</span>
+                            </td>
+                            <td>{{ transaction.description|truncatechars:35 }}</td>
+                            <td>
+                                {% if transaction.member %}
+                                    {{ transaction.member.get_full_name|default:transaction.member }}
+                                {% else %}
+                                    <span class="text-muted">--</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end fw-semibold">
+                                {% if transaction.transaction_type == 'income' %}
+                                    <span class="text-success">+KSh {{ transaction.amount|intcomma }}</span>
+                                {% else %}
+                                    <span class="text-danger">-KSh {{ transaction.amount|intcomma }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ transaction.recorded_by.get_full_name|default:transaction.recorded_by }}</small>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                     <a href="{% url 'finance:transaction-update' transaction.pk %}" class="btn btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                     <a href="{% url 'finance:transaction-delete' transaction.pk %}" class="btn btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                <h5>No transactions found</h5>
+                                <p class="small">Try adjusting your filters or add a new transaction.</p>
+                                 <a href="{% url 'finance:transaction-create' %}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-plus-lg"></i> Add Transaction
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if transactions %}
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="5" class="fw-semibold">Totals</td>
+                            <td class="text-end">
+                                <span class="text-success fw-semibold">+KSh {{ total_income|default:"0"|intcomma }}</span>
+                                <br>
+                                <span class="text-danger fw-semibold">-KSh {{ total_expense|default:"0"|intcomma }}</span>
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        {% if is_paginated %}
+        <div class="card-footer bg-white border-0">
+            <nav aria-label="Transaction pagination">
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

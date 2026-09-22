@@ -1,0 +1,147 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ asset.name }} | Assets | Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{% url 'assets:asset-list' %}">Assets</a></li>
+                    <li class="breadcrumb-item active">{{ asset.name }}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-box-seam me-2"></i>{{ asset.name }}
+            </h1>
+        </div>
+        <div class="btn-group">
+            {% if user.can_manage_content %}
+            <a href="{% url 'assets:asset-update' asset.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+            <a href="{% url 'assets:asset-delete' asset.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash me-1"></i>Delete
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i>Asset Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Asset Name</label>
+                            <p class="fw-medium mb-0">{{ asset.name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Category</label>
+                            <p class="fw-medium mb-0">
+                                <span class="badge bg-secondary">{{ asset.category|default:"—" }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Serial Number</label>
+                            <p class="fw-medium mb-0"><code>{{ asset.serial_number|default:"—" }}</code></p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Purchase Date</label>
+                            <p class="fw-medium mb-0">{{ asset.purchase_date|date:"F d, Y"|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Value</label>
+                            <p class="fw-medium mb-0">${{ asset.value|floatformat:2 }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Condition</label>
+                            <p class="fw-medium mb-0">
+                                {% if asset.condition == 'excellent' %}
+                                    <span class="badge bg-success">Excellent</span>
+                                {% elif asset.condition == 'good' %}
+                                    <span class="badge bg-info">Good</span>
+                                {% elif asset.condition == 'fair' %}
+                                    <span class="badge bg-warning text-dark">Fair</span>
+                                {% elif asset.condition == 'poor' %}
+                                    <span class="badge bg-danger">Poor</span>
+                                {% elif asset.condition == 'disposed' %}
+                                    <span class="badge bg-dark">Disposed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">—</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Location</label>
+                            <p class="fw-medium mb-0">{{ asset.location|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Assigned Department</label>
+                            <p class="fw-medium mb-0">{{ asset.assigned_department|default:"—" }}</p>
+                        </div>
+                        <div class="col-12">
+                            <label class="text-muted small text-uppercase">Notes</label>
+                            <p class="mb-0">{{ asset.notes|default:"—"|linebreaks }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-activity me-2"></i>Status</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if asset.is_active %}
+                        <span class="badge bg-success-subtle text-success fs-6 me-2"><i class="bi bi-check-circle-fill"></i></span>
+                        <span class="fw-medium">Active</span>
+                        {% else %}
+                        <span class="badge bg-danger-subtle text-danger fs-6 me-2"><i class="bi bi-x-circle-fill"></i></span>
+                        <span class="fw-medium">Inactive</span>
+                        {% endif %}
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Created</span>
+                        <span>{{ asset.created_at|date:"M d, Y"|default:"—" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Last Updated</span>
+                        <span>{{ asset.updated_at|date:"M d, Y"|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if user.can_manage_content %}
+                        <a href="{% url 'assets:asset-update' asset.pk %}" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil me-1"></i>Edit Asset
+                        </a>
+                        <a href="{% url 'assets:asset-create' %}" class="btn btn-outline-success">
+                            <i class="bi bi-plus-lg me-1"></i>Add Another Asset
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'assets:asset-list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-list me-1"></i>View All Assets
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

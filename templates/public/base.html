@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ church_settings.church_name|default:"Grace Church Munyaka" }}{% endblock %}</title>
+    {% if church_settings.favicon %}
+    <link rel="icon" type="image/png" href="{{ church_settings.favicon.url }}">
+    <link rel="apple-touch-icon" href="{{ church_settings.favicon.url }}">
+    {% else %}
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.png' %}">
+    {% endif %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{% static 'css/public.css' %}?v=4" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; }
+        :root {
+            --primary: {{ church_settings.primary_color|default:'#A8704A' }};
+            --secondary: {{ church_settings.secondary_color|default:'#4E3A2C' }};
+            --accent: {{ church_settings.accent_color|default:'#B5651D' }};
+            --gold: {{ church_settings.gold_color|default:'#C9A24B' }};
+        }
+        @media (max-width: 991px) {
+            nav.navbar { background: var(--primary) !important; }
+            nav.navbar ul.navbar-nav a.nav-link,
+            nav.navbar.scrolled ul.navbar-nav a.nav-link {
+                color: #343A40 !important; background: transparent !important;
+            }
+            nav.navbar ul.navbar-nav a.nav-link:hover,
+            nav.navbar ul.navbar-nav a.nav-link.active,
+            nav.navbar.scrolled ul.navbar-nav a.nav-link:hover,
+            nav.navbar.scrolled ul.navbar-nav a.nav-link.active {
+                color: var(--primary) !important; background: #f8f9fa !important;
+            }
+            nav.navbar ul.navbar-nav a.btn-outline-light {
+                border-color: var(--primary) !important; color: var(--primary) !important;
+                background: transparent !important;
+            }
+            nav.navbar ul.navbar-nav a.btn-outline-light:hover {
+                background: var(--primary) !important; color: #fff !important;
+            }
+            nav.navbar .navbar-toggler {
+                display: flex !important; align-items: center; justify-content: center;
+                width: 44px; height: 44px; border-radius: 10px !important;
+                background: rgba(255,255,255,0.2) !important;
+                border: 1px solid rgba(255,255,255,0.4) !important; color: #fff !important;
+            }
+            nav.navbar ul.navbar-nav { background: #fff !important; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'public:home' %}">
+                {% if church_settings.logo %}
+                <img src="{{ church_settings.logo.url }}" alt="{{ church_settings.short_name }}">
+                {% else %}
+                <img src="{% static 'img/logo.png' %}" alt="{{ church_settings.short_name|default:'GC' }}">
+                {% endif %}
+                {{ church_settings.short_name|default:"GC" }}
+            </a>
+            <button class="navbar-toggler" type="button" aria-label="Toggle menu" onclick="document.getElementById('navMenu').classList.toggle('show')">
+                <i class="bi bi-list"></i>
+            </button>
+            <ul class="navbar-nav" id="navMenu">
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:home' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:about' %}">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:ministries' %}">Ministries</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:services' %}">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:events' %}">Events</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:sermons' %}">Sermons</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:contact' %}">Contact</a></li>
+                {% if user.is_authenticated %}
+                <li class="nav-item"><a class="btn btn-outline-light btn-sm ms-2" href="{% url 'dashboard:index' %}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+                {% else %}
+                <li class="nav-item"><a class="btn btn-outline-light btn-sm ms-2" href="{% url 'accounts:register' %}"><i class="bi bi-person-plus me-1"></i>Sign Up</a></li>
+                <li class="nav-item"><a class="btn btn-outline-light btn-sm ms-2" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                {% endif %}
+                <li class="nav-item"><a class="btn btn-accent btn-sm" href="{% url 'public:give' %}"><i class="bi bi-gift me-1"></i>Give</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 mb-3">
+                    <h5 class="d-flex align-items-center gap-2">
+                        {% if church_settings.logo %}
+                        <img src="{{ church_settings.logo.url }}" alt="{{ church_settings.short_name }}" style="height:40px;width:auto;object-fit:contain;">
+                        {% else %}
+                        <img src="{% static 'img/logo.png' %}" alt="GC" style="height:40px;width:auto;object-fit:contain;">
+                        {% endif %}
+                        {{ church_settings.short_name|default:"GC" }}
+                    </h5>
+                    <p class="mt-3">Grace Church Munyaka. A vibrant community committed to transforming lives through the love of Christ.</p>
+                    <div class="social-links mt-3">
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-3">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><a href="{% url 'public:home' %}">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'public:about' %}">About Us</a></li>
+                        <li class="mb-2"><a href="{% url 'public:ministries' %}">Ministries</a></li>
+                        <li class="mb-2"><a href="{% url 'public:events' %}">Events</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-3">
+                    <h6>Ministry</h6>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><a href="{% url 'public:sermons' %}">Sermons</a></li>
+                        <li class="mb-2"><a href="{% url 'public:services' %}">Services</a></li>
+                        <li class="mb-2"><a href="{% url 'public:give' %}">Give</a></li>
+                        <li class="mb-2"><a href="{% url 'public:contact' %}">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-3">
+                    <h6>Members</h6>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><a href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right me-1"></i>Member Login</a></li>
+                        <li class="mb-2"><a href="{% url 'accounts:register' %}"><i class="bi bi-person-plus me-1"></i>Create Account</a></li>
+                        <li class="mb-2"><a href="{% url 'dashboard:index' %}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4 mb-3">
+                    <h6>Contact Info</h6>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><i class="bi bi-geo-alt-fill me-2"></i>Nairobi, Kenya</li>
+                        <li class="mb-2"><i class="bi bi-telephone-fill me-2"></i>+254 700 000 000</li>
+                        <li class="mb-2"><i class="bi bi-envelope-fill me-2"></i>info@gracechurchmunyaka.org</li>
+                        <li class="mb-2"><i class="bi bi-clock-fill me-2"></i>Sunday: 8:00 AM & 11:00 AM</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="footer-bottom">
+                <p class="mb-0">&copy; {% now "Y" %} Grace Church Munyaka. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const nav = document.getElementById('mainNav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+        // Active nav link
+        document.addEventListener('DOMContentLoaded', function() {
+            var path = window.location.pathname;
+            var navLinks = document.querySelectorAll('.navbar-nav a');
+            navLinks.forEach(function(link) {
+                var href = link.getAttribute('href');
+                if (href && path.startsWith(href) && href !== '/') {
+                    link.classList.add('active');
+                } else if (href === '/' && path === '/') {
+                    link.classList.add('active');
+                }
+            });
+            var menu = document.getElementById('navMenu');
+            if (menu) {
+                menu.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        menu.classList.remove('show');
+                    });
+                });
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

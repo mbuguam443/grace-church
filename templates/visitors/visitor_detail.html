@@ -1,0 +1,150 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ visitor.first_name }} {{ visitor.last_name }} - Visitor Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-person-badge me-2"></i>Visitor Details
+            </h1>
+            <p class="text-muted mb-0">View complete visitor information</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if user.can_manage_content %}
+            <a href="{% url 'visitors:visitor_edit' visitor.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+            {% endif %}
+            <a href="{% url 'visitors:visitor_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Personal Information -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3" style="width:80px;height:80px;">
+                        <span class="fs-2 fw-bold">{{ visitor.first_name|first }}{{ visitor.last_name|first }}</span>
+                    </div>
+                    <h5 class="card-title mb-1">{{ visitor.first_name }} {{ visitor.last_name }}</h5>
+                    <p class="text-muted small mb-0">Visitor since {{ visitor.visit_date|date:"M Y" }}</p>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="bi bi-telephone me-2 text-muted"></i>Phone</span>
+                            <span>{{ visitor.phone|default:"—" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="bi bi-envelope me-2 text-muted"></i>Email</span>
+                            <span>{{ visitor.email|default:"—" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="bi bi-calendar me-2 text-muted"></i>Visit Date</span>
+                            <span>{{ visitor.visit_date|date:"M d, Y" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span><i class="bi bi-broadcast me-2 text-muted"></i>How They Heard</span>
+                            <span>{{ visitor.get_how_they_heard_display|default:"—" }}</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer bg-white">
+                    {% if user.can_manage_content %}
+                    <a href="{% url 'visitors:visitor_delete' visitor.pk %}" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="bi bi-trash me-1"></i>Delete Visitor
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Details -->
+        <div class="col-lg-8">
+            <div class="row">
+                <!-- Service Information -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-church me-2"></i>Service Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="text-muted small text-uppercase">Service Attended</label>
+                                <p class="mb-0 fw-medium">{{ visitor.service_attended|default:"Not specified" }}</p>
+                            </div>
+                            <div class="mb-0">
+                                <label class="text-muted small text-uppercase">Follow-up Status</label>
+                                <p class="mb-0">
+                                    {% if visitor.follow_up_status == 'pending' %}
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                                    {% elif visitor.follow_up_status == 'contacted' %}
+                                        <span class="badge bg-info"><i class="bi bi-chat-dots me-1"></i>Contacted</span>
+                                    {% elif visitor.follow_up_status == 'visited' %}
+                                        <span class="badge bg-primary"><i class="bi bi-arrow-repeat me-1"></i>Visited Again</span>
+                                    {% elif visitor.follow_up_status == 'joined' %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Joined Church</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary"><i class="bi bi-dash-circle me-1"></i>No Action</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignment -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-person-check me-2"></i>Follow-up Assignment
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="text-muted small text-uppercase">Assigned To</label>
+                                <p class="mb-0 fw-medium">
+                                    {% if visitor.assigned_to %}
+                                        <i class="bi bi-person-circle me-1"></i>{{ visitor.assigned_to }}
+                                    {% else %}
+                                        <span class="text-muted"><i class="bi bi-dash me-1"></i>Not assigned</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="mb-0">
+                                <label class="text-muted small text-uppercase">Last Updated</label>
+                                <p class="mb-0 fw-medium">{{ visitor.updated_at|default:visitor.created_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-journal-text me-2"></i>Notes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if visitor.notes %}
+                        <p class="mb-0" style="white-space: pre-line;">{{ visitor.notes }}</p>
+                    {% else %}
+                        <p class="text-muted mb-0"><i class="bi bi-info-circle me-1"></i>No notes available for this visitor.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

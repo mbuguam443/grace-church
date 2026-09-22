@@ -1,0 +1,155 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit Child{% else %}Add Child{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-person-plus me-2"></i>
+                {% if form.instance.pk %}Edit Child{% else %}Register New Child{% endif %}
+            </h1>
+            <p class="text-muted mb-0">{% if form.instance.pk %}Update child information{% else %}Add a new child to the system{% endif %}</p>
+        </div>
+        <a href="{% url 'children:child_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger d-flex align-items-start" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+            <div>
+                <strong>Please correct the errors below:</strong>
+                <ul class="mb-0 mt-1">
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-person me-2"></i>Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">First Name <span class="text-danger">*</span></label>
+                                <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" placeholder="First name" required>
+                                {% if form.first_name.errors %}<div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" placeholder="Last name" required>
+                                {% if form.last_name.errors %}<div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                                <input type="date" name="{{ form.date_of_birth.name }}" id="{{ form.date_of_birth.id_for_label }}" class="form-control {% if form.date_of_birth.errors %}is-invalid{% endif %}" value="{{ form.date_of_birth.value|date:'Y-m-d'|default:'' }}" required>
+                                {% if form.date_of_birth.errors %}<div class="invalid-feedback">{{ form.date_of_birth.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.gender.id_for_label }}" class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
+                                <select name="{{ form.gender.name }}" id="{{ form.gender.id_for_label }}" class="form-select {% if form.gender.errors %}is-invalid{% endif %}" required>
+                                    <option value="">Select gender</option>
+                                    <option value="male" {% if form.gender.value == 'male' %}selected{% endif %}>Male</option>
+                                    <option value="female" {% if form.gender.value == 'female' %}selected{% endif %}>Female</option>
+                                </select>
+                                {% if form.gender.errors %}<div class="invalid-feedback">{{ form.gender.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-12">
+                                <label for="{{ form.photo.id_for_label }}" class="form-label fw-semibold">Photo</label>
+                                <input type="file" name="{{ form.photo.name }}" id="{{ form.photo.id_for_label }}" class="form-control {% if form.photo.errors %}is-invalid{% endif %}" accept="image/*">
+                                {% if form.instance.pk and form.instance.photo %}
+                                <div class="form-text">
+                                    <img src="{{ form.instance.photo.url }}" alt="Current photo" class="rounded mt-1" width="60" height="60" style="object-fit: cover;">
+                                    <span class="ms-2">Current photo</span>
+                                </div>
+                                {% endif %}
+                                {% if form.photo.errors %}<div class="invalid-feedback">{{ form.photo.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-building me-2"></i>School & Class</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.school_class.id_for_label }}" class="form-label fw-semibold">School Class</label>
+                                <input type="text" name="{{ form.school_class.name }}" id="{{ form.school_class.id_for_label }}" class="form-control {% if form.school_class.errors %}is-invalid{% endif %}" value="{{ form.school_class.value|default:'' }}" placeholder="e.g., Class 3B">
+                                {% if form.school_class.errors %}<div class="invalid-feedback">{{ form.school_class.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.teacher.id_for_label }}" class="form-label fw-semibold">Teacher</label>
+                                <input type="text" name="{{ form.teacher.name }}" id="{{ form.teacher.id_for_label }}" class="form-control {% if form.teacher.errors %}is-invalid{% endif %}" value="{{ form.teacher.value|default:'' }}" placeholder="Teacher name">
+                                {% if form.teacher.errors %}<div class="invalid-feedback">{{ form.teacher.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-shield-check me-2"></i>Parent & Emergency</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="{{ form.parent.id_for_label }}" class="form-label fw-semibold">Parent/Guardian</label>
+                            <select name="{{ form.parent.name }}" id="{{ form.parent.id_for_label }}" class="form-select {% if form.parent.errors %}is-invalid{% endif %}">
+                                <option value="">Select parent/guardian</option>
+                                {% for parent in form.parent.field.queryset %}
+                                <option value="{{ parent.pk }}" {% if form.parent.value == parent.pk %}selected{% endif %}>{{ parent }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.parent.errors %}<div class="invalid-feedback">{{ form.parent.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.emergency_contact.id_for_label }}" class="form-label fw-semibold">Emergency Contact</label>
+                            <input type="text" name="{{ form.emergency_contact.name }}" id="{{ form.emergency_contact.id_for_label }}" class="form-control {% if form.emergency_contact.errors %}is-invalid{% endif %}" value="{{ form.emergency_contact.value|default:'' }}" placeholder="Phone number">
+                            {% if form.emergency_contact.errors %}<div class="invalid-feedback">{{ form.emergency_contact.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.allergies.id_for_label }}" class="form-label fw-semibold">Allergies</label>
+                            <textarea name="{{ form.allergies.name }}" id="{{ form.allergies.id_for_label }}" class="form-control {% if form.allergies.errors %}is-invalid{% endif %}" rows="3" placeholder="List any known allergies">{{ form.allergies.value|default:'' }}</textarea>
+                            {% if form.allergies.errors %}<div class="invalid-feedback">{{ form.allergies.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-0">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" name="{{ form.is_active.name }}" id="{{ form.is_active.id_for_label }}" class="form-check-input" {% if form.is_active.value or form.is_active.value is None %}checked{% endif %}>
+                                <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'children:child_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> {% if form.instance.pk %}Update Child{% else %}Register Child{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

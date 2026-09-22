@@ -1,0 +1,201 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Members - Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-people-fill me-2"></i>Members
+            </h1>
+            <p class="text-muted mb-0">Manage church members</p>
+        </div>
+        <a href="{% url 'members:member-create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Add Member
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label fw-semibold">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control" id="search" name="q"
+                               value="{{ request.GET.q }}" placeholder="Search by name, member number, phone...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label fw-semibold">Membership Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="visitor" {% if request.GET.status == 'visitor' %}selected{% endif %}>Visitor</option>
+                        <option value="transferred" {% if request.GET.status == 'transferred' %}selected{% endif %}>Transferred</option>
+                        <option value="deceased" {% if request.GET.status == 'deceased' %}selected{% endif %}>Deceased</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="gender" class="form-label fw-semibold">Gender</label>
+                    <select class="form-select" id="gender" name="gender">
+                        <option value="">All Genders</option>
+                        <option value="male" {% if request.GET.gender == 'male' %}selected{% endif %}>Male</option>
+                        <option value="female" {% if request.GET.gender == 'female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                </div>
+            </form>
+            {% if request.GET.q or request.GET.status or request.GET.gender %}
+            <div class="mt-3">
+                <a href="{% url 'members:member-list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i>Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width:50px">#</th>
+                        <th>Member #</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Type</th>
+                        <th class="text-center" style="width:150px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter }}</td>
+                        <td><span class="fw-semibold">{{ member.member_number }}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if member.photo %}
+                                <img src="{{ member.photo.url }}" alt="{{ member.first_name }}"
+                                     class="rounded-circle me-2" width="36" height="36"
+                                     style="object-fit:cover">
+                                {% else %}
+                                <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center me-2"
+                                     style="width:36px;height:36px">
+                                    <i class="bi bi-person text-secondary"></i>
+                                </div>
+                                {% endif %}
+                                <span>{{ member.first_name }} {{ member.last_name }}</span>
+                            </div>
+                        </td>
+                        <td>{{ member.phone|default:"-" }}</td>
+                        <td>
+                            {% if member.membership_status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif member.membership_status == 'inactive' %}
+                            <span class="badge bg-warning text-dark">Inactive</span>
+                            {% elif member.membership_status == 'visitor' %}
+                            <span class="badge bg-info text-dark">Visitor</span>
+                            {% elif member.membership_status == 'transferred' %}
+                            <span class="badge bg-secondary">Transferred</span>
+                            {% elif member.membership_status == 'deceased' %}
+                            <span class="badge bg-dark">Deceased</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ member.get_membership_type_display|default:"-" }}</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'members:member-detail' member.pk %}"
+                                   class="btn btn-outline-info" title="View">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'members:member-update' member.pk %}"
+                                   class="btn btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'members:member-delete' member.pk %}"
+                                   class="btn btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
+                            <p class="text-muted mb-0">No members found.</p>
+                            <a href="{% url 'members:member-create' %}" class="btn btn-sm btn-primary mt-2">
+                                <i class="bi bi-plus-lg me-1"></i>Add First Member
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Member pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.gender %}&gender={{ request.GET.gender }}{% endif %}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            <p class="text-center text-muted small mt-2 mb-0">
+                Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} members
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

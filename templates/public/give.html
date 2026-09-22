@@ -1,0 +1,305 @@
+{% extends "public/base.html" %}
+
+{% block title %}Give & Support - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container py-5 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-3">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">Give</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 fw-bold">Give & Support</h1>
+        <p class="lead text-white-50 mx-auto" style="max-width: 600px">
+            Your generous giving advances God's Kingdom and transforms lives. Partner with us in this mission.
+        </p>
+    </div>
+</section>
+
+<!-- Giving Scripture -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="bg-primary bg-opacity-5 rounded-4 p-5">
+                    <i class="bi bi-quote display-3 text-primary mb-3"></i>
+                    <blockquote class="blockquote">
+                        <p class="fs-4 text-secondary fw-semibold mb-3">
+                            "Each of you should give what you have decided in your heart to give,
+                            not reluctantly or under compulsion, for God loves a cheerful giver."
+                        </p>
+                        <footer class="blockquote-footer fs-6 text-muted">2 Corinthians 9:7</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Giving Options -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Ways to Give</h6>
+            <h2 class="display-5 fw-bold text-secondary">Make Your Contribution</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px">
+                Choose the giving method that works best for you. Every gift, no matter the size, makes a difference.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 giving-card">
+                    <div class="giving-icon mx-auto mb-3 bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                        <i class="bi bi-phone-fill display-5 text-primary"></i>
+                    </div>
+                    <h5 class="fw-bold">M-Pesa</h5>
+                    <p class="text-muted small mb-3">Give instantly via M-Pesa mobile money. Quick, secure, and convenient.</p>
+                    <div class="bg-light rounded-3 p-3">
+                        <p class="small text-muted mb-1"><strong>Paybill:</strong> 123456</p>
+                        <p class="small text-muted mb-0"><strong>Account:</strong> GC</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 giving-card">
+                    <div class="giving-icon mx-auto mb-3 bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                        <i class="bi bi-bank display-5 text-accent"></i>
+                    </div>
+                    <h5 class="fw-bold">Bank Transfer</h5>
+                    <p class="text-muted small mb-3">Direct bank transfer for tithes, offerings, and donations.</p>
+                    <div class="bg-light rounded-3 p-3">
+                        <p class="small text-muted mb-1"><strong>Bank:</strong> Faith Commercial Bank</p>
+                        <p class="small text-muted mb-1"><strong>A/C:</strong> 0123456789</p>
+                        <p class="small text-muted mb-0"><strong>Branch:</strong> Main Branch</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 giving-card">
+                    <div class="giving-icon mx-auto mb-3 bg-gold bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                        <i class="bi bi-credit-card display-5 text-gold"></i>
+                    </div>
+                    <h5 class="fw-bold">Card Payment</h5>
+                    <p class="text-muted small mb-3">Give securely online using your debit or credit card.</p>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-lock me-1"></i>Pay Online
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 giving-card">
+                    <div class="giving-icon mx-auto mb-3 bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                        <i class="bi bi-basket display-5 text-secondary"></i>
+                    </div>
+                    <h5 class="fw-bold">In Person</h5>
+                    <p class="text-muted small mb-3">Place your offering in the offering baskets during Sunday services.</p>
+                    <p class="small text-muted mb-0"><strong>Available:</strong> All services</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Giving Categories -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Your Giving at Work</h6>
+            <h2 class="display-5 fw-bold text-secondary">Where Your Money Goes</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px">
+                We are committed to transparency and stewardship. Here's how your generous contributions are used.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-house-door-fill text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Tithe (10%)</h5>
+                            <p class="text-muted small mb-0">Supporting the local church</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">Your tithes support the day-to-day operations of the church including staff salaries, utilities, building maintenance, and ministry programs that serve our congregation.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-gift-fill text-accent fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Offering</h5>
+                            <p class="text-muted small mb-0">Above and beyond the tithe</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">Offerings support special projects, building funds, community outreach programs, and emergency assistance for members in need.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-gold bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-globe text-gold fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Missions</h5>
+                            <p class="text-muted small mb-0">Spreading the Gospel globally</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">Mission donations support our missionaries, church planting efforts, and humanitarian projects in communities around the world.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-people-fill text-secondary fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Community Outreach</h5>
+                            <p class="text-muted small mb-0">Serving our local community</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">Outreach giving funds food drives, medical camps, educational sponsorships, and other initiatives that serve the less privileged in our community.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Online Giving Form -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow p-4 p-lg-5">
+                    <div class="text-center mb-4">
+                        <h6 class="text-accent fw-bold text-uppercase ls-2">Quick Give</h6>
+                        <h2 class="display-5 fw-bold text-secondary">Online Giving</h2>
+                        <p class="text-muted">Make a one-time or recurring gift securely online.</p>
+                    </div>
+                    <form method="post" action="{% url 'public:give' %}" class="giving-form">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="giveName" class="form-label fw-semibold">Full Name *</label>
+                                <input type="text" class="form-control form-control-lg" id="giveName" name="name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="giveEmail" class="form-label fw-semibold">Email Address *</label>
+                                <input type="email" class="form-control form-control-lg" id="giveEmail" name="email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="giveAmount" class="form-label fw-semibold">Amount (KES) *</label>
+                                <input type="number" class="form-control form-control-lg" id="giveAmount" name="amount" min="1" placeholder="Enter amount" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="giveType" class="form-label fw-semibold">Giving Type *</label>
+                                <select class="form-select form-select-lg" id="giveType" name="giving_type" required>
+                                    <option value="" selected disabled>Select type...</option>
+                                    <option value="tithe">Tithe</option>
+                                    <option value="offering">Offering</option>
+                                    <option value="missions">Missions</option>
+                                    <option value="outreach">Community Outreach</option>
+                                    <option value="building">Building Fund</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="giveFrequency" class="form-label fw-semibold">Frequency</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="frequency" id="freqOneTime" value="one_time" checked>
+                                        <label class="form-check-label" for="freqOneTime">One-time</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="frequency" id="freqMonthly" value="monthly">
+                                        <label class="form-check-label" for="freqMonthly">Monthly</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="frequency" id="freqAnnual" value="annual">
+                                        <label class="form-check-label" for="freqAnnual">Annually</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="giveNote" class="form-label fw-semibold">Note (Optional)</label>
+                                <textarea class="form-control" id="giveNote" name="note" rows="2" placeholder="Any special dedication or note..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="coverFees" name="cover_fees">
+                                    <label class="form-check-label text-muted small" for="coverFees">
+                                        I'd like to cover the transaction fees so my full gift goes to the church.
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 text-center mt-4">
+                                <button type="submit" class="btn btn-accent btn-lg px-5 text-white">
+                                    <i class="bi bi-gift me-2"></i>Complete Giving
+                                </button>
+                                <p class="text-muted small mt-2 mb-0">
+                                    <i class="bi bi-shield-lock me-1"></i>Your payment information is secure and encrypted.
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Impact Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Your Impact</h6>
+            <h2 class="display-5 fw-bold text-secondary">Lives Changed Through Giving</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <h2 class="fw-bold text-primary mb-0">500+</h2>
+                </div>
+                <h5 class="fw-bold">Families Fed Monthly</h5>
+                <p class="text-muted small">Through our community food program</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="bg-accent bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <h2 class="fw-bold text-accent mb-0">120</h2>
+                </div>
+                <h5 class="fw-bold">Students Sponsored</h5>
+                <p class="text-muted small">Receiving education through our scholarship fund</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="bg-gold bg-opacity-25 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <h2 class="fw-bold text-gold mb-0">12</h2>
+                </div>
+                <h5 class="fw-bold">Churches Planted</h5>
+                <p class="text-muted small">New congregations established across the region</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 bg-primary text-white">
+    <div class="container py-4 text-center">
+        <h2 class="display-6 fw-bold mb-3">Thank You for Your Generosity</h2>
+        <p class="text-white-50 fs-5 mb-4">
+            Every gift is a seed sown into the Kingdom of God. Thank you for being a partner in this mission.
+        </p>
+        <a href="{% url 'public:contact' %}" class="btn btn-outline-light btn-lg px-4">
+            <i class="bi bi-question-circle me-2"></i>Questions About Giving?
+        </a>
+    </div>
+</section>
+{% endblock %}

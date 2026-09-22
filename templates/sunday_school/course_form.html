@@ -1,0 +1,87 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit Course{% else %}Post Course{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-mortarboard me-2"></i>
+                {% if form.instance.pk %}Edit Course{% else %}Post Course{% endif %}
+            </h1>
+            <p class="text-muted mb-0">Teaching material for the Sunday school teachers</p>
+        </div>
+        <a href="{% url 'sunday_school:course_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}<li>{{ field|title }}: {{ error }}</li>{% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control" value="{{ form.title.value|default:'' }}" placeholder="e.g. Lesson 5: The Parable of the Sower" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Age Group <span class="text-danger">*</span></label>
+                        <select name="age_group" class="form-select" required>
+                            {% for value, label in form.age_group.field.choices %}
+                            <option value="{{ value }}" {% if form.age_group.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Lesson Date</label>
+                        <input type="date" name="lesson_date" class="form-control" value="{{ form.lesson_date.value|date:'Y-m-d'|default:'' }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Scripture</label>
+                        <input type="text" name="scripture" class="form-control" value="{{ form.scripture.value|default:'' }}" placeholder="e.g. Matthew 13:1-23">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Memory Verse</label>
+                        <input type="text" name="memory_verse" class="form-control" value="{{ form.memory_verse.value|default:'' }}" placeholder="e.g. Blessed are the pure in heart">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Lesson Material <span class="text-danger">*</span></label>
+                        <textarea name="lesson" class="form-control" rows="12" required>{{ form.lesson.value|default:'' }}</textarea>
+                        <div class="form-text">What the teacher will teach the children during Sunday school.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Activities / Crafts / Songs</label>
+                        <textarea name="activities" class="form-control" rows="4">{{ form.activities.value|default:'' }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="is_active" class="form-check-input" id="id_is_active" {% if form.is_active.value %}checked{% endif %}>
+                            <label class="form-check-label" for="id_is_active">Active (visible to teachers)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'sunday_school:course_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> {% if form.instance.pk %}Update Course{% else %}Post Course{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

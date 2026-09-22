@@ -1,0 +1,291 @@
+{% extends "public/base.html" %}
+{% load static %}
+
+{% block title %}Events - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container py-5 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-3">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">Events</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 fw-bold">Church Events</h1>
+        <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+            Stay connected with what's happening at Grace Church Munyaka. Join us for conferences, fellowships, and community events.
+        </p>
+    </div>
+</section>
+
+<!-- Featured Event -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="card border-0 shadow-lg overflow-hidden">
+            <div class="row g-0">
+                <div class="col-lg-5">
+                    <div style="background:url('{% static 'img/congregation.jpg' %}') center/cover;min-height:300px;">
+                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(181,101,29,0.7);min-height:300px;">
+                            <div class="text-center p-4 text-white">
+                                <i class="bi bi-megaphone-fill display-1"></i>
+                                <p class="fw-semibold mt-2 mb-0">Featured Event</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center h-100">
+                        <span class="badge bg-accent align-self-start mb-3">Featured</span>
+                        <h2 class="fw-bold text-secondary mb-3">Annual Revival Crusade 2024</h2>
+                        <p class="text-muted mb-3">
+                            Join us for our most anticipated event of the year! Five nights of powerful worship,
+                            anointed preaching, and life-changing miracles. Guest speaker: Bishop Michael Okonkwo.
+                            Expect transformation, healing, and a fresh touch from God.
+                        </p>
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-6">
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-calendar-event text-primary me-2 fs-5"></i><span><strong>Date:</strong> Nov 11-15, 2024</span></p>
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-clock me-2 fs-5" class="text-primary"></i><span><strong>Time:</strong> 6:00 PM - 9:00 PM</span></p>
+                            </div>
+                            <div class="col-sm-6">
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-geo-alt me-2" class="text-primary" fs-5"></i><span><strong>Venue:</strong> Main Sanctuary</span></p>
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-people text-primary me-2 fs-5"></i><span><strong>Open to:</strong> Everyone</span></p>
+                            </div>
+                        </div>
+                        <a href="{% url 'public:contact' %}" class="btn btn-accent text-white align-self-start">
+                            <i class="bi bi-bell me-2"></i>RSVP Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Upcoming Events -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Mark Your Calendar</h6>
+            <h2 class="display-5 fw-bold text-secondary">Upcoming Events</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                Don't miss these exciting events coming up at Grace Church Munyaka.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 event-card">
+                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/congregation.jpg' %}') center/cover;"></div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start">
+                            <div class="event-date-box text-center me-3 flex-shrink-0">
+                                <span class="d-block text-white fw-bold fs-3">15</span>
+                                <span class="d-block text-uppercase small text-muted">Oct</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Annual Harvest Festival</h5>
+                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2 text-primary"></i><span>10:00 AM - 4:00 PM</span></p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i><span>Church Grounds</span></p>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3">A day of praise, food, games, and fellowship as we celebrate God's abundant blessings. Bring your family and friends!</p>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">All Ages</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 event-card">
+                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/hero-church.jpg' %}') center/cover;"></div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start">
+                            <div class="event-date-box text-center me-3 flex-shrink-0">
+                                <span class="d-block text-white fw-bold fs-3">22</span>
+                                <span class="d-block text-uppercase small text-muted">Oct</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Youth Conference 2024</h5>
+                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>9:00 AM - 5:00 PM</span></p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Main Sanctuary</span></p>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3">Theme: "Arise and Shine." A transformative conference for young people aged 13-25 featuring worship, workshops, and guest speakers.</p>
+                        <span class="badge bg-gold bg-opacity-25 text-gold">Youth</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 event-card">
+                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/hero-bible.jpg' %}') center/cover;"></div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start">
+                            <div class="event-date-box text-center me-3 flex-shrink-0">
+                                <span class="d-block text-white fw-bold fs-3">29</span>
+                                <span class="d-block text-uppercase small text-muted">Oct</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Prayer & Fasting Week</h5>
+                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>All Week</span></p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Church & Home</span></p>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3">A week dedicated to spiritual renewal through prayer, fasting, and intensive Bible study. Daily prayer sessions at 6:00 AM and 6:00 PM.</p>
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary">All Members</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 event-card">
+                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/hero-cross.jpg' %}') center/cover;"></div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start">
+                            <div class="event-date-box text-center me-3 flex-shrink-0">
+                                <span class="d-block text-white fw-bold fs-3">05</span>
+                                <span class="d-block text-uppercase small text-muted">Nov</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Men's Fellowship Breakfast</h5>
+                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>8:00 AM - 11:00 AM</span></p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Fellowship Hall</span></p>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3">Men gather for a hearty breakfast, fellowship, and a powerful devotion on leadership and integrity in the home and workplace.</p>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">Men</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 event-card">
+                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/church-building.jpg' %}') center/cover;"></div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start">
+                            <div class="event-date-box text-center me-3 flex-shrink-0">
+                                <span class="d-block text-white fw-bold fs-3">11</span>
+                                <span class="d-block text-uppercase small text-muted">Nov</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Revival Crusade (Night 1)</h5>
+                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>6:00 PM - 9:00 PM</span></p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Main Sanctuary</span></p>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3">Night 1 of our 5-night Annual Revival Crusade. Guest speaker: Bishop Michael Okonkwo. Come expecting a miracle!</p>
+                        <span class="badge bg-accent">Special Event</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 event-card">
+                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/cross-sunset.jpg' %}') center/cover;"></div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start">
+                            <div class="event-date-box text-center me-3 flex-shrink-0">
+                                <span class="d-block text-white fw-bold fs-3">25</span>
+                                <span class="d-block text-uppercase small text-muted">Nov</span>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Christmas Carol Night</h5>
+                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>6:00 PM - 9:00 PM</span></p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Main Sanctuary</span></p>
+                            </div>
+                        </div>
+                        <p class="text-muted mt-3">A beautiful evening of Christmas carols, drama, and celebration of the birth of our Savior. Featuring our choir and drama team.</p>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">All Ages</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recurring Events -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Regular Gatherings</h6>
+            <h2 class="display-5 fw-bold text-secondary">Recurring Events</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-moon-fill text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">All-Night Prayer</h5>
+                            <p class="text-muted small mb-0">First Friday of every month</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">10:00 PM - 4:00 AM. An intense night of prayer, worship, and spiritual warfare for personal and corporate breakthroughs.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-accent bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-cup-hot text-accent fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Women's Morning Tea</h5>
+                            <p class="text-muted small mb-0">Every Saturday</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">9:00 AM - 11:00 AM. A time of fellowship, devotion, and encouragement for women of all ages over tea and snacks.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-gold bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-people-fill text-gold fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Youth Hangout</h5>
+                            <p class="text-muted small mb-0">Every Friday</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">6:00 PM - 8:30 PM. Games, music, snacks, and a short message. A safe space for teens to connect and grow in faith.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-box bg-secondary bg-opacity-10 rounded-circle p-3 me-3">
+                            <i class="bi bi-book-fill text-secondary fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Bible Study Groups</h5>
+                            <p class="text-muted small mb-0">Various days and locations</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">Small group Bible studies meeting in homes and at the church throughout the week. Find a group near you.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 bg-light">
+    <div class="container py-4 text-center">
+        <h2 class="display-6 fw-bold text-secondary mb-3">Have an Event Idea?</h2>
+        <p class="text-muted fs-5 mb-4">
+            We're always looking for new ways to bring our church community together.
+            Reach out to share your ideas or to register for an upcoming event.
+        </p>
+        <a href="{% url 'public:contact' %}" class="btn btn-primary btn-lg px-4">
+            <i class="bi bi-envelope me-2"></i>Contact Us
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-card .bi { vertical-align: middle; display: inline-block; }
+    .event-card p.small { display: flex; align-items: center; gap: 8px; }
+    .event-card p.small i { flex-shrink: 0; width: 16px; text-align: center; }
+</style>
+{% endblock %}

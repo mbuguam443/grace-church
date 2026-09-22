@@ -1,0 +1,135 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Reports | Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-graph-up me-2"></i>Reports & Analytics
+            </h1>
+            <p class="text-muted mb-0">View and generate church management reports</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-people-fill text-primary fs-1"></i>
+                    <h6 class="mt-2 mb-0">Membership</h6>
+                    <a href="{% url 'reports:membership-report' %}" class="btn btn-sm btn-outline-primary mt-2">View Report</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="card shadow-sm border-success h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar2-check text-success fs-1"></i>
+                    <h6 class="mt-2 mb-0">Attendance</h6>
+                    <a href="{% url 'reports:attendance-report' %}" class="btn btn-sm btn-outline-success mt-2">View Report</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="card shadow-sm border-warning h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack text-warning fs-1"></i>
+                    <h6 class="mt-2 mb-0">Finance</h6>
+                    <a href="{% url 'reports:finance-report' %}" class="btn btn-sm btn-outline-warning mt-2">View Report</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="card shadow-sm border-info h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-gift text-info fs-1"></i>
+                    <h6 class="mt-2 mb-0">Giving</h6>
+                    <a href="{% url 'reports:giving-report' %}" class="btn btn-sm btn-outline-info mt-2">View Report</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-2 mb-3">
+            <div class="card shadow-sm border-secondary h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-plus text-secondary fs-1"></i>
+                    <h6 class="mt-2 mb-0">Visitors</h6>
+                    <a href="{% url 'reports:visitor-report' %}" class="btn btn-sm btn-outline-secondary mt-2">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-clock-history me-2"></i>Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Sunday Service</h6>
+                                <small class="text-muted">Today</small>
+                            </div>
+                            <small class="text-muted">Attendance recorded: 245 members</small>
+                        </div>
+                        <div class="list-group-item px-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">New Member Registration</h6>
+                                <small class="text-muted">Yesterday</small>
+                            </div>
+                            <small class="text-muted">3 new members joined</small>
+                        </div>
+                        <div class="list-group-item px-0">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Facility Booking</h6>
+                                <small class="text-muted">2 days ago</small>
+                            </div>
+                            <small class="text-muted">Main Hall booked for Wedding</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="border rounded p-3 text-center">
+                                <h3 class="mb-0 text-primary">1,245</h3>
+                                <small class="text-muted">Total Members</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3 text-center">
+                                <h3 class="mb-0 text-success">892</h3>
+                                <small class="text-muted">Active This Month</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3 text-center">
+                                <h3 class="mb-0 text-warning">$45,230</h3>
+                                <small class="text-muted">Monthly Giving</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded p-3 text-center">
+                                <h3 class="mb-0 text-info">156</h3>
+                                <small class="text-muted">New Visitors (YTD)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

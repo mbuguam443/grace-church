@@ -1,0 +1,133 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ group.name }} Attendance - GC{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="bi bi-check2-square"></i> {{ group.name }} - Attendance</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'groups:group-list' %}">Groups</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'groups:group-detail' group.pk %}">{{ group.name }}</a></li>
+                <li class="breadcrumb-item active">Attendance</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="{% url 'groups:group-detail' group.pk %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Group
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-plus-circle"></i> Record Attendance</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_date" class="form-label fw-semibold">Date <span class="text-danger">*</span></label>
+                        <input type="date" name="date" id="id_date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Present Members</label>
+                        <div class="border rounded p-3" style="max-height: 250px; overflow-y: auto;">
+                            {% for member in group.members.all %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="members" value="{{ member.pk }}" id="member_{{ member.pk }}">
+                                <label class="form-check-label" for="member_{{ member.pk }}">
+                                    {{ member }}
+                                </label>
+                            </div>
+                            {% empty %}
+                            <p class="text-muted text-center mb-0">No members in this group.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_notes" class="form-label fw-semibold">Notes</label>
+                        <textarea name="notes" id="id_notes" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-lg"></i> Save Attendance
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-clock-history"></i> Attendance History</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Present</th>
+                            <th>Rate</th>
+                            <th>Notes</th>
+                            <th>Recorded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attendance in attendances %}
+                        <tr>
+                            <td>
+                                <i class="bi bi-calendar-check text-success"></i>
+                                <strong>{{ attendance.date|date:"M d, Y" }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ attendance.members.count }}</span>
+                                / {{ group.members_count }}
+                            </td>
+                            <td>
+                                {% if group.members_count > 0 %}
+                                    {% widthratio attendance.members.count group.members_count 100 as rate %}
+                                    <div class="progress" style="height: 8px; width: 80px;">
+                                        <div class="progress-bar bg-{% if rate >= 75 %}success{% elif rate >= 50 %}warning{% else %}danger{% endif %}" style="width: {{ rate }}%"></div>
+                                    </div>
+                                    <small class="text-muted">{{ rate }}%</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ attendance.notes|default:"-"|truncatechars:30 }}</small>
+                            </td>
+                            <td>
+                                <small>{{ attendance.created_at|date:"M d, Y H:i" }}</small>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                                No attendance records yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('id_date');
+        if (dateInput && !dateInput.value) {
+            const today = new Date();
+            dateInput.value = today.toISOString().split('T')[0];
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "public/base.html" %}
+
+{% block title %}Service Times - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container py-5 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-3">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">Service Times</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 fw-bold">Service Times</h1>
+        <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+            Join us for worship, prayer, and the ministry of God's Word. We can't wait to welcome you.
+        </p>
+    </div>
+</section>
+
+<!-- Main Service Times -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">When We Meet</h6>
+            <h2 class="display-5 fw-bold text-secondary">Weekly Services</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                We gather multiple times each week for worship, prayer, and fellowship.
+                Find a service that fits your schedule.
+            </p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 service-card text-center p-4">
+                    <div class="service-icon mx-auto mb-3 bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="bi bi-sun display-5 text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold text-secondary">Sunday First Service</h4>
+                    <p class="display-6 fw-bold text-primary mb-1">8:00 AM</p>
+                    <p class="text-muted">A reverent, traditional worship experience with hymns, prayer, and the ministry of God's Word. Sunday School for all ages begins at 9:30 AM.</p>
+                    <ul class="list-unstyled text-muted small mt-3">
+                        <li><i class="bi bi-check2 text-primary me-2"></i>Holy Communion (1st Sunday)</li>
+                        <li><i class="bi bi-check2 text-primary me-2"></i>Children's Church Available</li>
+                        <li><i class="bi bi-check2 text-primary me-2"></i>Nursery Care Provided</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow h-100 service-card text-center p-4 border-primary border-2">
+                    <div class="service-icon mx-auto mb-3 bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="bi bi-sunrise display-5 text-accent"></i>
+                    </div>
+                    <span class="badge bg-accent mb-2">Main Service</span>
+                    <h4 class="fw-bold text-secondary">Sunday Second Service</h4>
+                    <p class="display-6 fw-bold text-accent mb-1">11:00 AM</p>
+                    <p class="text-muted">Our flagship service featuring contemporary worship, dynamic praise, and powerful preaching. This is our most attended service with full choir and worship team.</p>
+                    <ul class="list-unstyled text-muted small mt-3">
+                        <li><i class="bi bi-check2 text-accent me-2"></i>Full Worship Team & Choir</li>
+                        <li><i class="bi bi-check2 text-accent me-2"></i>Children's Church Available</li>
+                        <li><i class="bi bi-check2 text-accent me-2"></i>Live Streamed Online</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100 service-card text-center p-4">
+                    <div class="service-icon mx-auto mb-3 bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="bi bi-moon-stars display-5 text-secondary"></i>
+                    </div>
+                    <h4 class="fw-bold text-secondary">Wednesday Midweek</h4>
+                    <p class="display-6 fw-bold text-secondary mb-1">7:00 PM</p>
+                    <p class="text-muted">A powerful midweek service focused on Bible teaching, prayer, and spiritual renewal. Perfect for recharging your faith in the middle of the week.</p>
+                    <ul class="list-unstyled text-muted small mt-3">
+                        <li><i class="bi bi-check2 text-secondary me-2"></i>In-Depth Bible Teaching</li>
+                        <li><i class="bi bi-check2 text-secondary me-2"></i>Prayer & Intercession</li>
+                        <li><i class="bi bi-check2 text-secondary me-2"></i>Testimonies & Praise</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What to Expect -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">First Time Visiting?</h6>
+            <h2 class="display-5 fw-bold text-secondary">What to Expect</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                We understand that visiting a new church can be nerve-wracking. Here's what you can expect when you come to Grace Church Munyaka.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-3">
+                    <div class="step-number mx-auto mb-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 60px; height: 60px;">1</div>
+                    <h5 class="fw-bold">Warm Welcome</h5>
+                    <p class="text-muted small">Our greeters will welcome you at the door and help you find your way. You'll feel at home from the moment you arrive.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-3">
+                    <div class="step-number mx-auto mb-3 bg-accent text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 60px; height: 60px;">2</div>
+                    <h5 class="fw-bold">Powerful Worship</h5>
+                    <p class="text-muted small">Experience heartfelt worship through music that ushers you into God's presence. Sing along or simply soak in the atmosphere.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-3">
+                    <div class="step-number mx-auto mb-3 bg-gold text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 60px; height: 60px;">3</div>
+                    <h5 class="fw-bold">Life-Changing Word</h5>
+                    <p class="text-muted small">Receive practical, Bible-based preaching that speaks to your everyday life and equips you for your God-given purpose.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center p-3">
+                    <div class="step-number mx-auto mb-3 bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 60px; height: 60px;">4</div>
+                    <h5 class="fw-bold">Fellowship</h5>
+                    <p class="text-muted small">Connect with friendly people who genuinely care. Enjoy refreshments and conversations after the service.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Special Services -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Special Gatherings</h6>
+            <h2 class="display-5 fw-bold text-secondary">Special Services & Events</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="bi bi-moon-fill text-primary fs-4"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold">All-Night Prayer</h5>
+                            <p class="text-muted mb-1">First Friday of every month, 10:00 PM - 4:00 AM</p>
+                            <p class="text-muted small">Join us for an intense night of prayer, worship, and spiritual warfare. Experience breakthroughs through corporate intercession.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="bi bi-droplet-fill text-accent fs-4"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold">Water Baptism</h5>
+                            <p class="text-muted mb-1">Quarterly - Next: Last Sunday of the quarter</p>
+                            <p class="text-muted small">If you've accepted Christ and want to take the next step of water baptism, we hold baptismal services every quarter.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 bg-gold bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="bi bi-heart-fill text-gold fs-4"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold">Marriage Enrichment</h5>
+                            <p class="text-muted mb-1">Bi-annual weekend retreats</p>
+                            <p class="text-muted small">Strengthen your marriage through biblical teaching, couple activities, and quality time together in a beautiful retreat setting.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0 bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="bi bi-people-fill text-secondary fs-4"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h5 class="fw-bold">New Members Class</h5>
+                            <p class="text-muted mb-1">Every quarter, Sundays 2:00 PM - 4:00 PM</p>
+                            <p class="text-muted small">A 4-week course for those who want to become official members of Grace Church Munyaka. Learn our beliefs, vision, and how to get involved.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Location & Directions -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h6 class="text-accent fw-bold text-uppercase ls-2">Find Us</h6>
+                <h2 class="display-5 fw-bold text-secondary mb-4">Our Location</h2>
+                <div class="mb-4">
+                    <h5 class="fw-bold"><i class="bi bi-geo-alt-fill text-primary me-2"></i>Address</h5>
+                    <p class="text-muted">123 Faith Avenue, Off Grace Boulevard<br>P.O. Box 1234-00100, Nairobi, Kenya</p>
+                </div>
+                <div class="mb-4">
+                    <h5 class="fw-bold"><i class="bi bi-telephone-fill text-primary me-2"></i>Phone</h5>
+                    <p class="text-muted">+254 (712) 345-678</p>
+                </div>
+                <div class="mb-4">
+                    <h5 class="fw-bold"><i class="bi bi-envelope-fill text-primary me-2"></i>Email</h5>
+                    <p class="text-muted">info@gracechurchmunyaka.org</p>
+                </div>
+                <div>
+                    <h5 class="fw-bold"><i class="bi bi-p-square-fill text-primary me-2"></i>Parking</h5>
+                    <p class="text-muted">Free parking available on premises. Overflow parking at the adjacent community center.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-primary bg-opacity-10 rounded-4 d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <div class="text-center p-4">
+                        <i class="bi bi-map display-1 text-primary mb-3"></i>
+                        <p class="text-muted fw-semibold">Interactive Map</p>
+                        <p class="text-muted small">Map embed would go here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 bg-primary text-white">
+    <div class="container py-4 text-center">
+        <h2 class="display-6 fw-bold mb-3">We Can't Wait to See You!</h2>
+        <p class="text-white-50 fs-5 mb-4">
+            Whether it's your first time or you've been away for a while, there's a place for you at Grace Church Munyaka.
+        </p>
+        <a href="{% url 'public:contact' %}" class="btn btn-accent btn-lg px-4 text-white">
+            <i class="bi bi-envelope me-2"></i>Let Us Know You're Coming
+        </a>
+    </div>
+</section>
+{% endblock %}

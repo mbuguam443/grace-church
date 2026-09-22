@@ -1,0 +1,157 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ sermon.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1"><i class="bi bi-broadcast-pin me-2"></i>{{ sermon.title }}</h1>
+            <p class="text-muted mb-0">Sermon details and media</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'sermons:sermon_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+            {% if user.can_manage_content %}
+            <a href="{% url 'sermons:sermon_edit' sermon.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+            <a href="{% url 'sermons:sermon_delete' sermon.pk %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-1"></i> Delete
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i>Sermon Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Preacher</label>
+                            <p class="mb-0 fs-5">{{ sermon.speaker }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Date</label>
+                            <p class="mb-0 fs-5">{{ sermon.date|date:"l, F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Bible Verse</label>
+                            <p class="mb-0 fs-5">{{ sermon.bible_verse|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Category</label>
+                            <p class="mb-0"><span class="badge bg-secondary fs-6">{{ sermon.get_category_display|default:"—" }}</span></p>
+                        </div>
+                        {% if sermon.series %}
+                        <div class="col-md-12">
+                            <label class="text-muted small text-uppercase fw-semibold">Series</label>
+                            <p class="mb-0">{{ sermon.series }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if sermon.description %}
+                    <hr>
+                    <div>
+                        <label class="text-muted small text-uppercase fw-semibold">Description</label>
+                        <p class="mb-0">{{ sermon.description|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                    {% if sermon.sermon_notes %}
+                    <hr>
+                    <div>
+                        <label class="text-muted small text-uppercase fw-semibold">Sermon Notes</label>
+                        <div class="bg-light p-3 rounded border">
+                            {{ sermon.sermon_notes|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-collection-play me-2"></i>Media Files</h5>
+                </div>
+                <div class="card-body">
+                    {% if sermon.youtube_url %}
+                    <div class="mb-3">
+                        <a href="{{ sermon.youtube_url }}" class="btn btn-danger w-100" target="_blank">
+                            <i class="bi bi-youtube me-1"></i> Watch on YouTube
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if sermon.audio_file %}
+                    <div class="mb-3">
+                        <label class="text-muted small text-uppercase fw-semibold"><i class="bi bi-file-earmark-music me-1"></i>Audio</label>
+                        <audio controls class="w-100 mt-1">
+                            <source src="{{ sermon.audio_file.url }}" type="audio/mpeg">
+                            Your browser does not support audio playback.
+                        </audio>
+                        <a href="{{ sermon.audio_file.url }}" class="btn btn-sm btn-outline-primary mt-1" download>
+                            <i class="bi bi-download me-1"></i> Download
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if sermon.video_file %}
+                    <div class="mb-3">
+                        <label class="text-muted small text-uppercase fw-semibold"><i class="bi bi-file-earmark-play me-1"></i>Video</label>
+                        <video controls class="w-100 mt-1 rounded" style="max-height: 200px;">
+                            <source src="{{ sermon.video_file.url }}" type="video/mp4">
+                            Your browser does not support video playback.
+                        </video>
+                        <a href="{{ sermon.video_file.url }}" class="btn btn-sm btn-outline-primary mt-1" download>
+                            <i class="bi bi-download me-1"></i> Download
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if sermon.pdf_file %}
+                    <div class="mb-3">
+                        <label class="text-muted small text-uppercase fw-semibold"><i class="bi bi-file-earmark-pdf me-1"></i>PDF Document</label>
+                        <a href="{{ sermon.pdf_file.url }}" class="btn btn-sm btn-outline-danger d-block mt-1" target="_blank">
+                            <i class="bi bi-box-arrow-up-right me-1"></i> Open PDF
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if not sermon.audio_file and not sermon.video_file and not sermon.pdf_file %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        No media files attached.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-clock-history me-2"></i>Metadata</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted">Created</span>
+                            <span>{{ sermon.created_at|date:"M d, Y H:i"|default:"—" }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2">
+                            <span class="text-muted">Last Updated</span>
+                            <span>{{ sermon.updated_at|date:"M d, Y H:i"|default:"—" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

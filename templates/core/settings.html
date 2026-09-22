@@ -1,0 +1,406 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Church Settings &mdash; {{ church_settings.church_name|default:"Church Admin" }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Church Settings</h1>
+        <p class="text-muted mb-0">Configure your church's identity and preferences.</p>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-building me-2"></i>Church Identity</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="{{ form.church_name.id_for_label }}" class="form-label">Church Name <span class="text-danger">*</span></label>
+                            {{ form.church_name }}
+                            {% if form.church_name.errors %}
+                            <div class="invalid-feedback d-block">{{ form.church_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.short_name.id_for_label }}" class="form-label">Short Name</label>
+                            {{ form.short_name }}
+                            {% if form.short_name.errors %}
+                            <div class="invalid-feedback d-block">{{ form.short_name.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Abbreviated name for compact displays.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.logo.id_for_label }}" class="form-label">Church Logo</label>
+                            {{ form.logo }}
+                            {% if form.logo.errors %}
+                            <div class="invalid-feedback d-block">{{ form.logo.errors.0 }}</div>
+                            {% endif %}
+                            <div class="mt-2 d-flex align-items-center">
+                                {% if form.instance.pk and form.instance.logo %}
+                                <img src="{{ form.instance.logo.url }}" alt="Church logo" class="me-2" height="48" style="object-fit:contain;">
+                                <span class="small text-muted">Current logo</span>
+                                {% else %}
+                                <img src="{% static 'img/logo.png' %}" alt="Default church logo" class="me-2" height="48" style="object-fit:contain;">
+                                <span class="small text-muted">Default GC logo</span>
+                                {% endif %}
+                            </div>
+                            <div class="form-text">Recommended: transparent PNG, at least 200x60px.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.favicon.id_for_label }}" class="form-label">Favicon</label>
+                            {{ form.favicon }}
+                            {% if form.favicon.errors %}
+                            <div class="invalid-feedback d-block">{{ form.favicon.errors.0 }}</div>
+                            {% endif %}
+                            <div class="mt-2 d-flex align-items-center">
+                                {% if form.instance.pk and form.instance.favicon %}
+                                <img src="{{ form.instance.favicon.url }}" alt="Favicon" class="me-2" height="32" style="object-fit:contain;">
+                                <span class="small text-muted">Current favicon</span>
+                                {% else %}
+                                <img src="{% static 'img/favicon.png' %}" alt="Default favicon" class="me-2" height="32" style="object-fit:contain;">
+                                <span class="small text-muted">Default GC favicon</span>
+                                {% endif %}
+                            </div>
+                            <div class="form-text">Recommended: 32x32 or 64x64 PNG/ICO.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.hero_image.id_for_label }}" class="form-label">Homepage Hero Image</label>
+                            {{ form.hero_image }}
+                            {% if form.hero_image.errors %}
+                            <div class="invalid-feedback d-block">{{ form.hero_image.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.instance.pk and form.instance.hero_image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.hero_image.url }}" alt="Hero" class="rounded" height="60" style="object-fit:contain;">
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Recommended: 1920x1080 or larger.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.events_image.id_for_label }}" class="form-label">Events Section Image</label>
+                            {{ form.events_image }}
+                            {% if form.events_image.errors %}
+                            <div class="invalid-feedback d-block">{{ form.events_image.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.instance.pk and form.instance.events_image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.events_image.url }}" alt="Events" class="rounded" height="60" style="object-fit:contain;">
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.sermons_image.id_for_label }}" class="form-label">Sermons Section Image</label>
+                            {{ form.sermons_image }}
+                            {% if form.sermons_image.errors %}
+                            <div class="invalid-feedback d-block">{{ form.sermons_image.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.instance.pk and form.instance.sermons_image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.sermons_image.url }}" alt="Sermons" class="rounded" height="60" style="object-fit:contain;">
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.cta_image.id_for_label }}" class="form-label">Call to Action Image</label>
+                            {{ form.cta_image }}
+                            {% if form.cta_image.errors %}
+                            <div class="invalid-feedback d-block">{{ form.cta_image.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.instance.pk and form.instance.cta_image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.cta_image.url }}" alt="CTA" class="rounded" height="60" style="object-fit:contain;">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-telephone me-2"></i>Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <div class="invalid-feedback d-block">{{ form.phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                            <div class="invalid-feedback d-block">{{ form.address.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <label for="{{ form.website.id_for_label }}" class="form-label">Website</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-globe"></i></span>
+                                {{ form.website }}
+                            </div>
+                            {% if form.website.errors %}
+                            <div class="invalid-feedback d-block">{{ form.website.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.timezone.id_for_label }}" class="form-label">Timezone</label>
+                            {{ form.timezone }}
+                            {% if form.timezone.errors %}
+                            <div class="invalid-feedback d-block">{{ form.timezone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-calendar-week me-2"></i>Service Times</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.service_times.id_for_label }}" class="form-label">Service Times</label>
+                            {{ form.service_times }}
+                            {% if form.service_times.errors %}
+                            <div class="invalid-feedback d-block">{{ form.service_times.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">E.g. Sunday 9:00 AM &amp; 11:00 AM, Wednesday 7:00 PM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-currency-exchange me-2"></i>Regional Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.currency.id_for_label }}" class="form-label">Currency</label>
+                            {{ form.currency }}
+                            {% if form.currency.errors %}
+                            <div class="invalid-feedback d-block">{{ form.currency.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Currency symbol or code (e.g. $, KES, &pound;).</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.timezone.id_for_label }}" class="form-label">Timezone</label>
+                            {{ form.timezone }}
+                            {% if form.timezone.errors %}
+                            <div class="invalid-feedback d-block">{{ form.timezone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-palette me-2"></i>Brand Colors</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="{{ form.primary_color.id_for_label }}" class="form-label">Primary Color</label>
+                            <div class="input-group">
+                                <span class="input-group-text color-preview" id="primary_color_preview" style="background-color: {{ form.primary_color.value|default:'#A8704A' }}; width: 40px;"></span>
+                                <input type="color" name="primary_color" id="{{ form.primary_color.id_for_label }}" value="{{ form.primary_color.value|default:'#A8704A' }}" class="form-control form-control-color" style="width:50px; padding:0.25rem;">
+                                <input type="text" name="primary_color_text" value="{{ form.primary_color.value|default:'#A8704A' }}" class="form-control color-hex-input" maxlength="7" style="max-width:90px;">
+                            </div>
+                            {% if form.primary_color.errors %}
+                            <div class="invalid-feedback d-block">{{ form.primary_color.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.secondary_color.id_for_label }}" class="form-label">Secondary Color</label>
+                            <div class="input-group">
+                                <span class="input-group-text color-preview" id="secondary_color_preview" style="background-color: {{ form.secondary_color.value|default:'#4E3A2C' }}; width: 40px;"></span>
+                                <input type="color" name="secondary_color" id="{{ form.secondary_color.id_for_label }}" value="{{ form.secondary_color.value|default:'#4E3A2C' }}" class="form-control form-control-color" style="width:50px; padding:0.25rem;">
+                                <input type="text" name="secondary_color_text" value="{{ form.secondary_color.value|default:'#4E3A2C' }}" class="form-control color-hex-input" maxlength="7" style="max-width:90px;">
+                            </div>
+                            {% if form.secondary_color.errors %}
+                            <div class="invalid-feedback d-block">{{ form.secondary_color.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.accent_color.id_for_label }}" class="form-label">Accent Color</label>
+                            <div class="input-group">
+                                <span class="input-group-text color-preview" id="accent_color_preview" style="background-color: {{ form.accent_color.value|default:'#B5651D' }}; width: 40px;"></span>
+                                <input type="color" name="accent_color" id="{{ form.accent_color.id_for_label }}" value="{{ form.accent_color.value|default:'#B5651D' }}" class="form-control form-control-color" style="width:50px; padding:0.25rem;">
+                                <input type="text" name="accent_color_text" value="{{ form.accent_color.value|default:'#B5651D' }}" class="form-control color-hex-input" maxlength="7" style="max-width:90px;">
+                            </div>
+                            {% if form.accent_color.errors %}
+                            <div class="invalid-feedback d-block">{{ form.accent_color.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label for="{{ form.gold_color.id_for_label }}" class="form-label">Gold Color</label>
+                            <div class="input-group">
+                                <span class="input-group-text color-preview" id="gold_color_preview" style="background-color: {{ form.gold_color.value|default:'#C9A24B' }}; width: 40px;"></span>
+                                <input type="color" name="gold_color" id="{{ form.gold_color.id_for_label }}" value="{{ form.gold_color.value|default:'#C9A24B' }}" class="form-control form-control-color" style="width:50px; padding:0.25rem;">
+                                <input type="text" name="gold_color_text" value="{{ form.gold_color.value|default:'#C9A24B' }}" class="form-control color-hex-input" maxlength="7" style="max-width:90px;">
+                            </div>
+                            {% if form.gold_color.errors %}
+                            <div class="invalid-feedback d-block">{{ form.gold_color.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4 sticky-top" style="top: 20px; z-index: 100;">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-eye me-2"></i>Preview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if form.instance.pk and form.instance.logo %}
+                            <img src="{{ form.instance.logo.url }}" alt="Logo" class="mb-2" height="40" style="object-fit: contain;">
+                        {% else %}
+                            <div class="rounded bg-light d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                                <i class="bi bi-building fs-3 text-muted"></i>
+                            </div>
+                        {% endif %}
+                        <h5 class="mb-0" id="preview_church_name">{{ form.church_name.value|default:"Church Name" }}</h5>
+                        <small class="text-muted" id="preview_short_name">{{ form.short_name.value|default:"Short Name" }}</small>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Color Palette</label>
+                        <div class="d-flex gap-2">
+                            <div class="color-swatch rounded" id="swatch_primary" style="width: 32px; height: 32px; background-color: {{ form.primary_color.value|default:'#A8704A' }};" title="Primary"></div>
+                            <div class="color-swatch rounded" id="swatch_secondary" style="width: 32px; height: 32px; background-color: {{ form.secondary_color.value|default:'#4E3A2C' }};" title="Secondary"></div>
+                            <div class="color-swatch rounded" id="swatch_accent" style="width: 32px; height: 32px; background-color: {{ form.accent_color.value|default:'#B5651D' }};" title="Accent"></div>
+                            <div class="color-swatch rounded" id="swatch_gold" style="width: 32px; height: 32px; background-color: {{ form.gold_color.value|default:'#C9A24B' }};" title="Gold"></div>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i> Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    form input, form select, form textarea {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    form input:focus, form select:focus, form textarea:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+    }
+    form input[type="color"] {
+        height: 38px;
+        padding: 0.25rem;
+        cursor: pointer;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+    }
+    form input[type="file"] {
+        padding: 0.375rem 0.75rem;
+    }
+    .color-swatch {
+        border: 1px solid rgba(0,0,0,.1);
+        transition: transform 0.15s ease;
+    }
+    .color-swatch:hover {
+        transform: scale(1.1);
+    }
+    .color-preview {
+        border: 1px solid #ced4da;
+        transition: background-color 0.2s ease;
+    }
+    .color-hex-input {
+        font-family: monospace;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorFields = ['primary_color', 'secondary_color', 'accent_color', 'gold_color'];
+        colorFields.forEach(function(field) {
+            const colorInput = document.querySelector('input[type="color"][name="' + field + '"]');
+            const textInput = document.querySelector('input[type="text"][name="' + field + '_text"]');
+            const preview = document.getElementById(field + '_preview');
+            const swatch = document.getElementById('swatch_' + field.replace('_color', ''));
+
+            if (colorInput && textInput) {
+                // Sync color picker to text input
+                colorInput.addEventListener('input', function() {
+                    textInput.value = this.value;
+                    if (preview) preview.style.backgroundColor = this.value;
+                    if (swatch) swatch.style.backgroundColor = this.value;
+                });
+
+                // Sync text input to color picker
+                textInput.addEventListener('input', function() {
+                    if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+                        colorInput.value = this.value;
+                        if (preview) preview.style.backgroundColor = this.value;
+                        if (swatch) swatch.style.backgroundColor = this.value;
+                    }
+                });
+            }
+        });
+
+        const churchNameInput = document.querySelector('[name="church_name"]');
+        if (churchNameInput) {
+            churchNameInput.addEventListener('input', function() {
+                const preview = document.getElementById('preview_church_name');
+                if (preview) preview.textContent = this.value || 'Church Name';
+            });
+        }
+
+        const shortNameInput = document.querySelector('[name="short_name"]');
+        if (shortNameInput) {
+            shortNameInput.addEventListener('input', function() {
+                const preview = document.getElementById('preview_short_name');
+                if (preview) preview.textContent = this.value || 'Short Name';
+            });
+        }
+    });
+</script>
+{% endblock %}

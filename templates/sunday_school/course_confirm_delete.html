@@ -1,0 +1,30 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Delete Course{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center shadow-sm">
+                <div class="card-body p-5">
+                    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">Delete Course?</h4>
+                    <p class="text-muted">
+                        You are about to delete <strong>{{ course.title }}</strong>.
+                        This will remove the lesson material for the Sunday school teachers. This action cannot be undone.
+                    </p>
+                    <form method="post" class="d-flex justify-content-center gap-2 mt-4">
+                        {% csrf_token %}
+                        <a href="{% url 'sunday_school:course_detail' course.pk %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-trash me-1"></i> Yes, Delete Course
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

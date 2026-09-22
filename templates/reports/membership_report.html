@@ -1,0 +1,249 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Membership Report | Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{% url 'reports:reports-home' %}">Reports</a></li>
+                    <li class="breadcrumb-item active">Membership</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-people-fill me-2"></i>Membership Report
+            </h1>
+        </div>
+        <a href="?export=csv{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" class="btn btn-outline-success">
+            <i class="bi bi-download me-1"></i>Export CSV
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="date_from" class="form-label">Date From</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ request.GET.date_from }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="date_to" class="form-label">Date To</label>
+                    <input type="date" class="form-control" id="date_to" name="date_to" value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All</option>
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select class="form-select" id="gender" name="gender">
+                        <option value="">All</option>
+                        <option value="male" {% if request.GET.gender == 'male' %}selected{% endif %}>Male</option>
+                        <option value="female" {% if request.GET.gender == 'female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-1"></i>Generate
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Total Members</h6>
+                            <h2 class="mb-0">{{ total_members|default:"1,245" }}</h2>
+                        </div>
+                        <i class="bi bi-people-fill fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Active Members</h6>
+                            <h2 class="mb-0">{{ active_members|default:"1,089" }}</h2>
+                        </div>
+                        <i class="bi bi-person-check-fill fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">New This Period</h6>
+                            <h2 class="mb-0">{{ new_members|default:"34" }}</h2>
+                        </div>
+                        <i class="bi bi-person-plus-fill fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white-50">Departed</h6>
+                            <h2 class="mb-0">{{ departed_members|default:"12" }}</h2>
+                        </div>
+                        <i class="bi bi-person-dash-fill fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>By Gender</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Gender</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="bi bi-gender-male text-primary me-1"></i>Male</td>
+                                    <td class="text-end">542</td>
+                                    <td class="text-end">43.5%</td>
+                                </tr>
+                                <tr>
+                                    <td><i class="bi bi-gender-female text-danger me-1"></i>Female</td>
+                                    <td class="text-end">703</td>
+                                    <td class="text-end">56.5%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>By Age Group</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Age Group</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>0-12</td><td class="text-end">156</td><td class="text-end">12.5%</td></tr>
+                                <tr><td>13-17</td><td class="text-end">134</td><td class="text-end">10.8%</td></tr>
+                                <tr><td>18-35</td><td class="text-end">389</td><td class="text-end">31.3%</td></tr>
+                                <tr><td>36-55</td><td class="text-end">342</td><td class="text-end">27.5%</td></tr>
+                                <tr><td>56+</td><td class="text-end">224</td><td class="text-end">18.0%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-diagram-3 me-2"></i>By Department</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th class="text-end">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Ushering</td><td class="text-end">45</td></tr>
+                                <tr><td>Choir</td><td class="text-end">38</td></tr>
+                                <tr><td>Media</td><td class="text-end">22</td></tr>
+                                <tr><td>Sunday School</td><td class="text-end">67</td></tr>
+                                <tr><td>Youth</td><td class="text-end">89</td></tr>
+                                <tr><td>Evangelism</td><td class="text-end">34</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0"><i class="bi bi-table me-2"></i>Member Details</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                            <th>Department</th>
+                            <th>Date Joined</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td class="fw-medium">{{ member.get_full_name }}</td>
+                            <td>{{ member.get_gender_display|default:"—" }}</td>
+                            <td>{{ member.phone|default:"—" }}</td>
+                            <td>{{ member.department|default:"—" }}</td>
+                            <td>{{ member.date_joined|date:"M d, Y"|default:"—" }}</td>
+                            <td>
+                                {% if member.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No members found for the selected criteria.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

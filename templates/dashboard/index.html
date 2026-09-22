@@ -1,0 +1,233 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - {{ church_settings.short_name|default:"GC" }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% if is_admin_view %}Dashboard{% else %}My Portal{% endif %}</h2>
+    <nav class="breadcrumb">
+        <a href="{% url 'dashboard:index' %}">Home</a> / {% if is_admin_view %}Dashboard{% else %}My Portal{% endif %}
+    </nav>
+</div>
+
+{% if is_admin_view %}
+<!-- ADMIN DASHBOARD -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--primary);"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-info"><h3>{{ total_members }}</h3><p>Total Members</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #28a745;"><i class="bi bi-person-check-fill"></i></div>
+            <div class="stat-info"><h3>{{ active_members }}</h3><p>Active Members</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--gold);"><i class="bi bi-person-plus-fill"></i></div>
+            <div class="stat-info"><h3>{{ visitors_count }}</h3><p>Visitors</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--accent);"><i class="bi bi-calendar-check"></i></div>
+            <div class="stat-info"><h3>{{ today_attendance }}</h3><p>Today's Attendance</p></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #20c997;"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="stat-info"><h3>{{ currency }} {{ monthly_giving|default:"0" }}</h3><p>This Month's Giving</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #fd7e14;"><i class="bi bi-graph-down-arrow"></i></div>
+            <div class="stat-info"><h3>{{ currency }} {{ monthly_expenses|default:"0" }}</h3><p>This Month's Expenses</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #6f42c1;"><i class="bi bi-calendar3"></i></div>
+            <div class="stat-info"><h3>{{ upcoming_events|length }}</h3><p>Upcoming Events</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e83e8c;"><i class="bi bi-chat-heart-fill"></i></div>
+            <div class="stat-info"><h3>{{ pending_prayers|length }}</h3><p>Pending Prayers</p></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-people"></i> Upcoming Events</div>
+            <div class="card-body">
+                {% if upcoming_events %}
+                <table class="table">
+                    <thead><tr><th>Event</th><th>Date</th><th>Location</th></tr></thead>
+                    <tbody>
+                        {% for event in upcoming_events %}
+                        <tr>
+                            <td><a href="{% url 'events:event-detail' event.pk %}">{{ event.name }}</a></td>
+                            <td>{{ event.date|date:"M d, Y" }}</td>
+                            <td>{{ event.location|default:"-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-calendar-x"></i><p>No upcoming events</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-megaphone"></i> Announcements</div>
+            <div class="card-body">
+                {% if recent_announcements %}
+                <ul class="list-unstyled">
+                    {% for ann in recent_announcements %}
+                    <li class="mb-3 pb-3 border-bottom">
+                        <strong>{{ ann.title }}</strong>
+                        <p class="mb-0 text-muted small">{{ ann.message|truncatewords:15 }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-megaphone"></i><p>No announcements</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- MEMBER PORTAL -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--primary);"><i class="bi bi-person-badge"></i></div>
+            <div class="stat-info"><h3>{{ member.member_number|default:"-" }}</h3><p>Member ID</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #28a745;"><i class="bi bi-check-circle"></i></div>
+            <div class="stat-info"><h3>{{ member.get_membership_status_display|default:"-" }}</h3><p>Status</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--gold);"><i class="bi bi-people"></i></div>
+            <div class="stat-info"><h3>{{ my_groups|length }}</h3><p>My Groups</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #20c997;"><i class="bi bi-calendar3"></i></div>
+            <div class="stat-info"><h3>{{ my_events|length }}</h3><p>Upcoming Events</p></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-graph-up"></i> My Giving History</div>
+            <div class="card-body">
+                {% if my_giving %}
+                <table class="table">
+                    <thead><tr><th>Date</th><th>Category</th><th class="text-end">Amount</th></tr></thead>
+                    <tbody>
+                        {% for giving in my_giving %}
+                        <tr>
+                            <td>{{ giving.date|date:"M d, Y" }}</td>
+                            <td>{{ giving.get_giving_category_display }}</td>
+                            <td class="text-end">{{ currency }} {{ giving.amount }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-receipt"></i><p>No giving records yet</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-check2-square"></i> My Attendance</div>
+            <div class="card-body">
+                {% if my_attendance %}
+                <table class="table">
+                    <thead><tr><th>Service</th><th>Date</th></tr></thead>
+                    <tbody>
+                        {% for att in my_attendance %}
+                        <tr>
+                            <td>{{ att.service.name }}</td>
+                            <td>{{ att.service.date|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-calendar-x"></i><p>No attendance records yet</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-3">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-people"></i> My Groups</div>
+            <div class="card-body">
+                {% if my_groups %}
+                <ul class="list-unstyled">
+                    {% for group in my_groups %}
+                    <li class="mb-2 pb-2 border-bottom">
+                        <strong>{{ group.name }}</strong>
+                        <br><small class="text-muted">Meets: {{ group.meeting_day|default:"TBA" }} at {{ group.meeting_time|default:"TBA"|time:"H:i" }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-people"></i><p>Not in any groups yet</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-megaphone"></i> Announcements</div>
+            <div class="card-body">
+                {% if recent_announcements %}
+                <ul class="list-unstyled">
+                    {% for ann in recent_announcements %}
+                    <li class="mb-3 pb-3 border-bottom">
+                        <strong>{{ ann.title }}</strong>
+                        <p class="mb-0 text-muted small">{{ ann.message|truncatewords:15 }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-megaphone"></i><p>No announcements</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

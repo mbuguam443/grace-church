@@ -1,0 +1,154 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit Booking{% else %}New Booking{% endif %} | Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-calendar-check me-2"></i>{% if form.instance.pk %}Edit Booking{% else %}New Facility Booking{% endif %}
+            </h1>
+            <p class="text-muted mb-0">{% if form.instance.pk %}Update booking details{% else %}Reserve a facility for an event{% endif %}</p>
+        </div>
+        <a href="{% url 'facilities:booking-list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for error in form.non_field_errors %}
+            <p class="mb-0"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-calendar-event me-2"></i>Event Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="{{ form.event_name.id_for_label }}" class="form-label">Event Name <span class="text-danger">*</span></label>
+                                {{ form.event_name }}
+                                {% if form.event_name.errors %}
+                                <div class="invalid-feedback d-block">{{ form.event_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.facility.id_for_label }}" class="form-label">Facility <span class="text-danger">*</span></label>
+                                {{ form.facility }}
+                                {% if form.facility.errors %}
+                                <div class="invalid-feedback d-block">{{ form.facility.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.booked_by.id_for_label }}" class="form-label">Booked By <span class="text-danger">*</span></label>
+                                {{ form.booked_by }}
+                                {% if form.booked_by.errors %}
+                                <div class="invalid-feedback d-block">{{ form.booked_by.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.date.id_for_label }}" class="form-label">Date <span class="text-danger">*</span></label>
+                                {{ form.date }}
+                                {% if form.date.errors %}
+                                <div class="invalid-feedback d-block">{{ form.date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.start_time.id_for_label }}" class="form-label">Start Time <span class="text-danger">*</span></label>
+                                {{ form.start_time }}
+                                {% if form.start_time.errors %}
+                                <div class="invalid-feedback d-block">{{ form.start_time.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.end_time.id_for_label }}" class="form-label">End Time <span class="text-danger">*</span></label>
+                                {{ form.end_time }}
+                                {% if form.end_time.errors %}
+                                <div class="invalid-feedback d-block">{{ form.end_time.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label for="{{ form.purpose.id_for_label }}" class="form-label">Purpose</label>
+                                {{ form.purpose }}
+                                {% if form.purpose.errors %}
+                                <div class="invalid-feedback d-block">{{ form.purpose.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">{{ form.notes.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-gear me-2"></i>Booking Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                        <div class="invalid-feedback d-block">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>{% if form.instance.pk %}Update Booking{% else %}Create Booking{% endif %}
+                            </button>
+                            <a href="{% url 'facilities:booking-list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg me-1"></i>Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    input, select, textarea {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 0.375rem;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    input:focus, select:focus, textarea:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+    }
+    textarea { min-height: 80px; }
+</style>
+{% endblock %}

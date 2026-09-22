@@ -1,0 +1,151 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ child.first_name }} {{ child.last_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1"><i class="bi bi-person me-2"></i>{{ child.first_name }} {{ child.last_name }}</h1>
+            <p class="text-muted mb-0">Child profile and information</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'children:child_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+            {% if user.can_manage_content %}
+            <a href="{% url 'children:child_edit' child.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+            {% endif %}
+            {% if user.can_manage_content %}
+            <a href="{% url 'children:child_delete' child.pk %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-1"></i> Delete
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    {% if child.photo %}
+                    <img src="{{ child.photo.url }}" alt="{{ child.first_name }}" class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;">
+                    {% else %}
+                    <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                        <i class="bi bi-person text-secondary" style="font-size: 3rem;"></i>
+                    </div>
+                    {% endif %}
+                    <h4 class="mb-1">{{ child.first_name }} {{ child.last_name }}</h4>
+                    <p class="text-muted mb-2">
+                        {% if child.gender == 'male' %}
+                        <i class="bi bi-gender-male"></i> Male
+                        {% elif child.gender == 'female' %}
+                        <i class="bi bi-gender-female"></i> Female
+                        {% endif %}
+                    </p>
+                    {% if child.is_active %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                    {% else %}
+                    <span class="badge bg-secondary"><i class="bi bi-pause-circle me-1"></i>Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i>Personal Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Date of Birth</label>
+                            <p class="mb-0">{{ child.date_of_birth|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Age</label>
+                            <p class="mb-0">{{ child.age }} years old</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Gender</label>
+                            <p class="mb-0">
+                                {% if child.gender == 'male' %}
+                                <i class="bi bi-gender-male text-info"></i> Male
+                                {% elif child.gender == 'female' %}
+                                <i class="bi bi-gender-female text-warning"></i> Female
+                                {% else %}
+                                &mdash;
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Status</label>
+                            <p class="mb-0">
+                                {% if child.is_active %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary"><i class="bi bi-pause-circle me-1"></i>Inactive</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-building me-2"></i>School Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">School Class</label>
+                            <p class="mb-0">{{ child.school_class|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Teacher</label>
+                            <p class="mb-0">{{ child.teacher|default:"—" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-shield-check me-2"></i>Parent & Emergency</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Parent/Guardian</label>
+                            <p class="mb-0">{{ child.parent|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase fw-semibold">Emergency Contact</label>
+                            <p class="mb-0">
+                                {% if child.emergency_contact %}
+                                <a href="tel:{{ child.emergency_contact }}"><i class="bi bi-telephone me-1"></i>{{ child.emergency_contact }}</a>
+                                {% else %}
+                                &mdash;
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if child.allergies %}
+                        <div class="col-12">
+                            <label class="text-muted small text-uppercase fw-semibold">Allergies</label>
+                            <div class="alert alert-warning mb-0 py-2">
+                                <i class="bi bi-exclamation-triangle me-1"></i>{{ child.allergies }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

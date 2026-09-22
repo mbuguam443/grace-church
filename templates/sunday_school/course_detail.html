@@ -1,0 +1,79 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }} - Sunday School{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2>{{ course.title }}</h2>
+        <nav class="breadcrumb">
+            <a href="{% url 'dashboard:index' %}">Home</a> /
+            <a href="{% url 'sunday_school:course_list' %}">Sunday School</a> /
+            {{ course.title }}
+        </nav>
+    </div>
+    {% if user.can_manage_content %}
+    <div class="btn-group">
+        <a href="{% url 'sunday_school:course_edit' course.pk %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'sunday_school:course_delete' course.pk %}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Delete
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="bi bi-journal-text"></i> Lesson Material</h5>
+                <span class="badge bg-info text-dark">{{ course.get_age_group_display }}</span>
+            </div>
+            <div class="card-body">
+                {% if course.memory_verse %}
+                <blockquote class="blockquote border-start border-3 ps-3 mb-4">
+                    <p class="mb-1 fst-italic">{{ course.memory_verse }}</p>
+                    {% if course.scripture %}<footer class="blockquote-footer">{{ course.scripture }}</footer>{% endif %}
+                </blockquote>
+                {% endif %}
+                <div class="lesson-content">
+                    {{ course.lesson|linebreaks }}
+                </div>
+            </div>
+        </div>
+        {% if course.activities %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-palette"></i> Activities &amp; Crafts</h5>
+            </div>
+            <div class="card-body">
+                {{ course.activities|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="text-muted small text-uppercase">Age Group</h6>
+                <p class="fw-semibold">{{ course.get_age_group_display }}</p>
+                <h6 class="text-muted small text-uppercase">Lesson Date</h6>
+                <p class="fw-semibold">{{ course.lesson_date|date:"l, M d, Y"|default:"Any time" }}</p>
+                {% if course.scripture %}
+                <h6 class="text-muted small text-uppercase">Scripture</h6>
+                <p class="fw-semibold">{{ course.scripture }}</p>
+                {% endif %}
+                <h6 class="text-muted small text-uppercase">Posted By</h6>
+                <p class="fw-semibold">{{ course.posted_by.get_full_name|default:course.posted_by|default:"—" }}</p>
+                <hr>
+                <a href="{% url 'sunday_school:course_list' %}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-left me-1"></i> All Courses
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit Service{% else %}Add Service{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-calendar-plus-fill me-2"></i>{% if form.instance.pk %}Edit Service{% else %}Add New Service{% endif %}
+            </h1>
+            <p class="text-muted mb-0">{% if form.instance.pk %}Update service details{% else %}Schedule a new church service{% endif %}</p>
+        </div>
+        <a href="{% url 'services:service_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                <p class="mb-0"><i class="bi bi-exclamation-triangle me-1"></i>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- Service Details -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-info-circle me-2"></i>Service Details
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Service Name <span class="text-danger">*</span></label>
+                                <input type="text" name="{{ form.name.html_name }}" id="{{ form.name.id_for_label }}" class="form-control {% if form.name.errors %}is-invalid{% endif %}" value="{{ form.name.value|default:'' }}" placeholder="e.g. Sunday Morning Service">
+                                {% for error in form.name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.date.id_for_label }}" class="form-label">Date <span class="text-danger">*</span></label>
+                                <input type="date" name="{{ form.date.html_name }}" id="{{ form.date.id_for_label }}" class="form-control {% if form.date.errors %}is-invalid{% endif %}" value="{{ form.date.value|date:'Y-m-d'|default:'' }}">
+                                {% for error in form.date.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                    <input type="text" name="{{ form.location.html_name }}" id="{{ form.location.id_for_label }}" class="form-control {% if form.location.errors %}is-invalid{% endif %}" value="{{ form.location.value|default:'' }}" placeholder="e.g. Main Sanctuary">
+                                </div>
+                                {% for error in form.location.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.start_time.id_for_label }}" class="form-label">Start Time <span class="text-danger">*</span></label>
+                                <input type="time" name="{{ form.start_time.html_name }}" id="{{ form.start_time.id_for_label }}" class="form-control {% if form.start_time.errors %}is-invalid{% endif %}" value="{{ form.start_time.value|time:'H:i'|default:'' }}">
+                                {% for error in form.start_time.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.end_time.id_for_label }}" class="form-label">End Time <span class="text-danger">*</span></label>
+                                <input type="time" name="{{ form.end_time.html_name }}" id="{{ form.end_time.id_for_label }}" class="form-control {% if form.end_time.errors %}is-invalid{% endif %}" value="{{ form.end_time.value|time:'H:i'|default:'' }}">
+                                {% for error in form.end_time.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Content -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-book me-2"></i>Service Content
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="{{ form.preacher.id_for_label }}" class="form-label">Preacher</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" name="{{ form.preacher.html_name }}" id="{{ form.preacher.id_for_label }}" class="form-control {% if form.preacher.errors %}is-invalid{% endif %}" value="{{ form.preacher.value|default:'' }}" placeholder="e.g. Pastor John Doe">
+                                </div>
+                                {% for error in form.preacher.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-12">
+                                <label for="{{ form.theme.id_for_label }}" class="form-label">Theme / Topic</label>
+                                <input type="text" name="{{ form.theme.html_name }}" id="{{ form.theme.id_for_label }}" class="form-control {% if form.theme.errors %}is-invalid{% endif %}" value="{{ form.theme.value|default:'' }}" placeholder="e.g. Walking in Faith">
+                                {% for error in form.theme.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-12">
+                                <label for="{{ form.bible_verse.id_for_label }}" class="form-label">Bible Verse</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-bookmark"></i></span>
+                                    <input type="text" name="{{ form.bible_verse.html_name }}" id="{{ form.bible_verse.id_for_label }}" class="form-control {% if form.bible_verse.errors %}is-invalid{% endif %}" value="{{ form.bible_verse.value|default:'' }}" placeholder="e.g. Hebrews 11:1">
+                                </div>
+                                {% for error in form.bible_verse.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-12">
+                                <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                                <textarea name="{{ form.notes.html_name }}" id="{{ form.notes.id_for_label }}" class="form-control {% if form.notes.errors %}is-invalid{% endif %}" rows="3" placeholder="Additional notes about the service...">{{ form.notes.value|default:'' }}</textarea>
+                                {% for error in form.notes.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-between mt-2">
+            <a href="{% url 'services:service_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check-circle me-1"></i>{% if form.instance.pk %}Update Service{% else %}Save Service{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

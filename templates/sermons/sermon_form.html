@@ -1,0 +1,160 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit Sermon{% else %}Add Sermon{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                <i class="bi bi-broadcast-pin me-2"></i>
+                {% if form.instance.pk %}Edit Sermon{% else %}Add New Sermon{% endif %}
+            </h1>
+            <p class="text-muted mb-0">{% if form.instance.pk %}Update sermon details{% else %}Create a new sermon record{% endif %}</p>
+        </div>
+        <a href="{% url 'sermons:sermon_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger d-flex align-items-start" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 mt-1"></i>
+            <div>
+                <strong>Please correct the errors below:</strong>
+                <ul class="mb-0 mt-1">
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i>Sermon Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                                <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}" class="form-control {% if form.title.errors %}is-invalid{% endif %}" value="{{ form.title.value|default:'' }}" placeholder="Enter sermon title" required>
+                                {% if form.title.errors %}<div class="invalid-feedback">{{ form.title.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.speaker.id_for_label }}" class="form-label fw-semibold">Preacher <span class="text-danger">*</span></label>
+                                <input type="text" name="{{ form.speaker.name }}" id="{{ form.speaker.id_for_label }}" class="form-control {% if form.speaker.errors %}is-invalid{% endif %}" value="{{ form.speaker.value|default:'' }}" placeholder="Who gave the sermon" required>
+                                {% if form.speaker.errors %}<div class="invalid-feedback">{{ form.speaker.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.date.id_for_label }}" class="form-label fw-semibold">Date <span class="text-danger">*</span></label>
+                                <input type="date" name="{{ form.date.name }}" id="{{ form.date.id_for_label }}" class="form-control {% if form.date.errors %}is-invalid{% endif %}" value="{{ form.date.value|date:'Y-m-d'|default:'' }}" required>
+                                {% if form.date.errors %}<div class="invalid-feedback">{{ form.date.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.bible_verse.id_for_label }}" class="form-label fw-semibold">Bible Verse</label>
+                                <input type="text" name="{{ form.bible_verse.name }}" id="{{ form.bible_verse.id_for_label }}" class="form-control {% if form.bible_verse.errors %}is-invalid{% endif %}" value="{{ form.bible_verse.value|default:'' }}" placeholder="e.g., John 3:16">
+                                {% if form.bible_verse.errors %}<div class="invalid-feedback">{{ form.bible_verse.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.category.id_for_label }}" class="form-label fw-semibold">Category</label>
+                                <select name="{{ form.category.name }}" id="{{ form.category.id_for_label }}" class="form-select {% if form.category.errors %}is-invalid{% endif %}">
+                                    <option value="">Select category</option>
+                                    {% for value, label in form.fields.category.choices %}
+                                    {% if value %}
+                                    <option value="{{ value }}" {% if form.category.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                                {% if form.category.errors %}<div class="invalid-feedback">{{ form.category.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-12">
+                                <label for="{{ form.series.id_for_label }}" class="form-label fw-semibold">Series</label>
+                                <input type="text" name="{{ form.series.name }}" id="{{ form.series.id_for_label }}" class="form-control" value="{{ form.series.value|default:'' }}" placeholder="e.g. Faith that Works">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="{{ form.youtube_url.id_for_label }}" class="form-label fw-semibold">YouTube URL</label>
+                                <input type="url" name="{{ form.youtube_url.name }}" id="{{ form.youtube_url.id_for_label }}" class="form-control" value="{{ form.youtube_url.value|default:'' }}" placeholder="https://youtube.com/...">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">Description</label>
+                                <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" class="form-control {% if form.description.errors %}is-invalid{% endif %}" rows="4" placeholder="Sermon description or summary">{{ form.description.value|default:'' }}</textarea>
+                                {% if form.description.errors %}<div class="invalid-feedback">{{ form.description.errors.0 }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-12">
+                                <label for="{{ form.sermon_notes.id_for_label }}" class="form-label fw-semibold">Sermon Notes</label>
+                                <textarea name="{{ form.sermon_notes.name }}" id="{{ form.sermon_notes.id_for_label }}" class="form-control {% if form.sermon_notes.errors %}is-invalid{% endif %}" rows="6" placeholder="Detailed sermon notes">{{ form.sermon_notes.value|default:'' }}</textarea>
+                                {% if form.sermon_notes.errors %}<div class="invalid-feedback">{{ form.sermon_notes.errors.0 }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0"><i class="bi bi-cloud-upload me-2"></i>Media Files</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="{{ form.audio_file.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-file-earmark-music me-1"></i>Audio File
+                            </label>
+                            <input type="file" name="{{ form.audio_file.name }}" id="{{ form.audio_file.id_for_label }}" class="form-control {% if form.audio_file.errors %}is-invalid{% endif %}" accept="audio/*">
+                            {% if form.instance.pk and form.instance.audio_file %}
+                            <div class="form-text">
+                                <i class="bi bi-paperclip me-1"></i>Current: <a href="{{ form.instance.audio_file.url }}" target="_blank">{{ form.instance.audio_file.name|cut:"sermons/audio/" }}</a>
+                            </div>
+                            {% endif %}
+                            {% if form.audio_file.errors %}<div class="invalid-feedback">{{ form.audio_file.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.video_file.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-file-earmark-play me-1"></i>Video File
+                            </label>
+                            <input type="file" name="{{ form.video_file.name }}" id="{{ form.video_file.id_for_label }}" class="form-control {% if form.video_file.errors %}is-invalid{% endif %}" accept="video/*">
+                            {% if form.instance.pk and form.instance.video_file %}
+                            <div class="form-text">
+                                <i class="bi bi-paperclip me-1"></i>Current: <a href="{{ form.instance.video_file.url }}" target="_blank">{{ form.instance.video_file.name|cut:"sermons/video/" }}</a>
+                            </div>
+                            {% endif %}
+                            {% if form.video_file.errors %}<div class="invalid-feedback">{{ form.video_file.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-0">
+                            <label for="{{ form.pdf_file.id_for_label }}" class="form-label fw-semibold">
+                                <i class="bi bi-file-earmark-pdf me-1"></i>PDF File
+                            </label>
+                            <input type="file" name="{{ form.pdf_file.name }}" id="{{ form.pdf_file.id_for_label }}" class="form-control {% if form.pdf_file.errors %}is-invalid{% endif %}" accept=".pdf">
+                            {% if form.instance.pk and form.instance.pdf_file %}
+                            <div class="form-text">
+                                <i class="bi bi-paperclip me-1"></i>Current: <a href="{{ form.instance.pdf_file.url }}" target="_blank">{{ form.instance.pdf_file.name|cut:"sermons/pdf/" }}</a>
+                            </div>
+                            {% endif %}
+                            {% if form.pdf_file.errors %}<div class="invalid-feedback">{{ form.pdf_file.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'sermons:sermon_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg me-1"></i> Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> {% if form.instance.pk %}Update Sermon{% else %}Create Sermon{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

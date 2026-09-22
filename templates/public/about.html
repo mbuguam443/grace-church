@@ -1,0 +1,285 @@
+{% extends "public/base.html" %}
+{% load static %}
+
+{% block title %}About Us - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container py-5 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-3">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">About Us</li>
+            </ol>
+        </nav>
+        <h1 class="display-4 fw-bold">About Our Church</h1>
+        <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+            Learn about our history, mission, vision, and the people who make Grace Church Munyaka a beacon of hope.
+        </p>
+    </div>
+</section>
+
+<!-- Our Story Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h6 class="text-accent fw-bold text-uppercase ls-2">Our Story</h6>
+                <h2 class="display-5 fw-bold text-secondary mb-4">A Legacy of Faith Since 1995</h2>
+                <p class="text-muted">
+                    Grace Church Munyaka is a growing branch of Fruitful Brethren Ministry International
+                    (FBMI). FBMI was founded in 1995 by Pastor John and Mrs. Mary Mbugua with a small group of
+                    25 believers meeting in a rented hall. What began as a humble gathering has grown into a
+                    thriving movement of over 2,000 members, touching countless lives across the nation
+                    and beyond.
+                </p>
+                <p class="text-muted">
+                    Our journey has been marked by God's faithfulness, miraculous breakthroughs, and an
+                    unwavering commitment to spreading the Gospel. From our first permanent building in 2002
+                    to our current state-of-the-art worship center, every milestone testifies to the
+                    goodness of God.
+                </p>
+                <p class="text-muted">
+                    Today, Grace Church Munyaka stands as a beacon of hope in the Munyaka community, a center
+                    of excellence in ministry, and a place where lives are transformed by the power of the
+                    Holy Spirit.
+                </p>
+                <div class="d-flex gap-4 mt-4">
+                    <div class="text-center">
+                        <h3 class="display-5 fw-bold text-primary">2,000+</h3>
+                        <p class="text-muted small">Members</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="display-5 fw-bold text-primary">29</h3>
+                        <p class="text-muted small">Years of Ministry</p>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="display-5 fw-bold text-primary">12</h3>
+                        <p class="text-muted small">Branch Churches</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-image-wrapper position-relative">
+                    <div class="rounded-4 overflow-hidden shadow-lg" style="height: 450px;">
+                        <img src="{% static 'img/hero-church.jpg' %}" alt="Grace Church Munyaka Building" class="w-100 h-100" style="object-fit: cover;">
+                    </div>
+                    <div class="position-absolute bottom-0 start-0 end-0 p-3 text-white" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                        <p class="fw-semibold mb-0"><i class="bi bi-geo-alt me-1"></i>Grace Church Munyaka Headquarters</p>
+                        <p class="small mb-0 opacity-75">Our worship center since 2015</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Vision Section -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-bullseye fs-3 text-primary"></i>
+                        </div>
+                        <h3 class="fw-bold text-secondary mb-0">Our Mission</h3>
+                    </div>
+                    <p class="text-muted fs-5">
+                        "To win souls for the Kingdom of God, equip believers for the work of ministry,
+                        and transform communities through the demonstration of God's love, power, and truth."
+                    </p>
+                    <p class="text-muted">
+                        We are committed to reaching the lost, discipling the found, and sending equipped
+                        believers to impact every sphere of society for the glory of God.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100 p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-box bg-accent bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-eye fs-3 text-accent"></i>
+                        </div>
+                        <h3 class="fw-bold text-secondary mb-0">Our Vision</h3>
+                    </div>
+                    <p class="text-muted fs-5">
+                        "To be a Spirit-led, multi-generational church that raises world changers
+                        and establishes God's Kingdom in every nation."
+                    </p>
+                    <p class="text-muted">
+                        We envision a church that transcends cultural and generational barriers,
+                        united in purpose and passionate about fulfilling the Great Commission.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Values Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">What We Stand For</h6>
+            <h2 class="display-5 fw-bold text-secondary">Our Core Values</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                These foundational principles guide everything we do as a church family.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 p-4 value-card">
+                    <div class="mb-3"><i class="bi bi-book-fill display-4 text-primary"></i></div>
+                    <h5 class="fw-bold">God's Word</h5>
+                    <p class="text-muted small">We believe the Bible is the inspired, authoritative, and sufficient Word of God.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 p-4 value-card">
+                    <div class="mb-3"><i class="bi bi-fire display-4 text-accent"></i></div>
+                    <h5 class="fw-bold">Holy Spirit</h5>
+                    <p class="text-muted small">We depend on the Holy Spirit for power, guidance, and spiritual gifts in ministry.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 p-4 value-card">
+                    <div class="mb-3"><i class="bi bi-people-fill display-4 text-gold"></i></div>
+                    <h5 class="fw-bold">Community</h5>
+                    <p class="text-muted small">We foster authentic relationships where every person finds belonging and purpose.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 p-4 value-card">
+                    <div class="mb-3"><i class="bi bi-globe display-4 text-secondary"></i></div>
+                    <h5 class="fw-bold">Great Commission</h5>
+                    <p class="text-muted small">We are committed to local and global missions to reach every nation with the Gospel.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Leadership Section -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Our Leaders</h6>
+            <h2 class="display-5 fw-bold text-secondary">Meet Our Pastors</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">
+                God has entrusted our flock to these dedicated servants who lead with wisdom, humility, and passion.
+            </p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 leader-card">
+                    <div class="card-body p-4">
+                        <div class="leader-avatar mx-auto mb-3 rounded-circle overflow-hidden" style="width: 120px; height: 120px;">
+                            <img src="{% static 'img/congregation.jpg' %}" alt="Pastor John Mbugua" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                        <h5 class="fw-bold mb-1">Pastor John Mbugua</h5>
+                        <p class="text-accent small fw-semibold mb-2">Senior Pastor</p>
+                        <p class="text-muted small">Founding pastor and visionary leader of FBMI Church since 1995, whose leadership Grace Church Munyaka continues.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 leader-card">
+                    <div class="card-body p-4">
+                        <div class="leader-avatar mx-auto mb-3 rounded-circle overflow-hidden" style="width: 120px; height: 120px;">
+                            <img src="{% static 'img/hero-cross.jpg' %}" alt="Rev. Mary Mbugua" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                        <h5 class="fw-bold mb-1">Rev. Mary Mbugua</h5>
+                        <p class="text-accent small fw-semibold mb-2">Co-Pastor</p>
+                        <p class="text-muted small">Co-founder and lead pastor of the Women's Ministry.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 leader-card">
+                    <div class="card-body p-4">
+                        <div class="leader-avatar mx-auto mb-3 rounded-circle overflow-hidden" style="width: 120px; height: 120px;">
+                            <img src="{% static 'img/hero-bible.jpg' %}" alt="Rev. Sarah Kimani" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                        <h5 class="fw-bold mb-1">Rev. Sarah Kimani</h5>
+                        <p class="text-accent small fw-semibold mb-2">Associate Pastor</p>
+                        <p class="text-muted small">Leads discipleship and spiritual formation programs.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="card border-0 shadow-sm text-center h-100 leader-card">
+                    <div class="card-body p-4">
+                        <div class="leader-avatar mx-auto mb-3 rounded-circle overflow-hidden" style="width: 120px; height: 120px;">
+                            <img src="{% static 'img/church-building.jpg' %}" alt="Pastor David Ochieng" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                        <h5 class="fw-bold mb-1">Pastor David Ochieng</h5>
+                        <p class="text-accent small fw-semibold mb-2">Youth Pastor</p>
+                        <p class="text-muted small">Passionate about raising the next generation of God's leaders.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Beliefs Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Statement of Faith</h6>
+            <h2 class="display-5 fw-bold text-secondary">What We Believe</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="d-flex mb-3">
+                    <i class="bi bi-check-circle-fill text-primary fs-4 me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">The Bible</h6>
+                        <p class="text-muted small">We believe the Bible is the inspired, infallible, and authoritative Word of God (2 Timothy 3:16).</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="bi bi-check-circle-fill text-primary fs-4 me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">The Trinity</h6>
+                        <p class="text-muted small">We believe in one God, eternally existent in three persons: Father, Son, and Holy Spirit.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="bi bi-check-circle-fill text-primary fs-4 me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Jesus Christ</h6>
+                        <p class="text-muted small">We believe in the deity of Christ, His virgin birth, sinless life, miracles, atoning death, and bodily resurrection.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex mb-3">
+                    <i class="bi bi-check-circle-fill text-primary fs-4 me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Salvation</h6>
+                        <p class="text-muted small">We believe salvation is by grace through faith in Jesus Christ, not by works (Ephesians 2:8-9).</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="bi bi-check-circle-fill text-primary fs-4 me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">The Church</h6>
+                        <p class="text-muted small">We believe the Church is the Body of Christ, called to worship, fellowship, discipleship, and mission.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <i class="bi bi-check-circle-fill text-primary fs-4 me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">The Second Coming</h6>
+                        <p class="text-muted small">We believe in the personal, visible return of Jesus Christ and the hope of eternal life for believers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

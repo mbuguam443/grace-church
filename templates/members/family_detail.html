@@ -1,0 +1,160 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}{{ family.name }} - Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-house-heart-fill me-2"></i>Family Details
+            </h1>
+            <p class="text-muted mb-0">{{ family.name }}</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'members:family-list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+            <a href="{% url 'members:family-update' family.pk %}" class="btn btn-warning">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+            <a href="{% url 'members:family-delete' family.pk %}" class="btn btn-danger">
+                <i class="bi bi-trash me-1"></i>Delete
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3"
+                         style="width:80px;height:80px">
+                        <i class="bi bi-house-heart-fill text-primary" style="font-size:2rem"></i>
+                    </div>
+                    <h4 class="mb-1">{{ family.name }}</h4>
+                    <p class="text-muted mb-3">{{ family.address|default:"No address on file" }}</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <div class="text-center">
+                            <h5 class="mb-0">{{ family.member_count|default:0 }}</h5>
+                            <small class="text-muted">Members</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Family Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Family Name</label>
+                            <p class="fw-semibold mb-0">{{ family.name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Phone</label>
+                            <p class="fw-semibold mb-0">
+                                {% if family.phone %}
+                                <a href="tel:{{ family.phone }}">{{ family.phone }}</a>
+                                {% else %}-{% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Email</label>
+                            <p class="fw-semibold mb-0">
+                                {% if family.email %}
+                                <a href="mailto:{{ family.email }}">{{ family.email }}</a>
+                                {% else %}-{% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small text-uppercase">Address</label>
+                            <p class="fw-semibold mb-0">{{ family.address|default:"-" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-people me-2"></i>Family Members
+                    </h5>
+                    <a href="{% url 'members:member-create' %}?family={{ family.pk }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i>Add Member
+                    </a>
+                </div>
+                {% if family.members.all %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Member #</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th class="text-center" style="width:80px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in family.members.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if member.photo %}
+                                        <img src="{{ member.photo.url }}" alt="{{ member.first_name }}"
+                                             class="rounded-circle me-2" width="32" height="32"
+                                             style="object-fit:cover">
+                                        {% else %}
+                                        <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center me-2"
+                                             style="width:32px;height:32px">
+                                            <i class="bi bi-person text-secondary small"></i>
+                                        </div>
+                                        {% endif %}
+                                        <span>{{ member.first_name }} {{ member.last_name }}</span>
+                                    </div>
+                                </td>
+                                <td><span class="fw-semibold">{{ member.member_number }}</span></td>
+                                <td>{{ member.phone|default:"-" }}</td>
+                                <td>
+                                    {% if member.membership_status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% elif member.membership_status == 'inactive' %}
+                                    <span class="badge bg-warning text-dark">Inactive</span>
+                                    {% elif member.membership_status == 'visitor' %}
+                                    <span class="badge bg-info text-dark">Visitor</span>
+                                    {% elif member.membership_status == 'transferred' %}
+                                    <span class="badge bg-secondary">Transferred</span>
+                                    {% elif member.membership_status == 'deceased' %}
+                                    <span class="badge bg-dark">Deceased</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{% url 'members:member-detail' member.pk %}"
+                                       class="btn btn-sm btn-outline-info" title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-people fs-1 d-block mb-2 text-muted"></i>
+                    <p class="text-muted mb-0">No members in this family yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

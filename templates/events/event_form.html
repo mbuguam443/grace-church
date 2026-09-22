@@ -1,0 +1,162 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit Event{% else %}Add Event{% endif %} - GC{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2>
+            {% if form.instance.pk %}
+                <i class="bi bi-pencil-square"></i> Edit Event
+            {% else %}
+                <i class="bi bi-plus-circle"></i> Add Event
+            {% endif %}
+        </h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'events:event-list' %}">Events</a></li>
+                <li class="breadcrumb-item active">{% if form.instance.pk %}Edit{% else %}Add{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="{% url 'events:event-list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> Event Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label fw-semibold">Event Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="id_name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" value="{{ form.name.value|default:'' }}" placeholder="Enter event name" required>
+                        {% if form.name.errors %}
+                        <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label fw-semibold">Description</label>
+                        <textarea name="description" id="id_description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" rows="4" placeholder="Describe the event">{{ form.description.value|default:'' }}</textarea>
+                        {% if form.description.errors %}
+                        <div class="invalid-feedback">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_date" class="form-label fw-semibold">Start Date <span class="text-danger">*</span></label>
+                            <input type="date" name="date" id="id_date" class="form-control {% if form.date.errors %}is-invalid{% endif %}" value="{{ form.date.value|date:'Y-m-d'|default:'' }}" required>
+                            {% if form.date.errors %}
+                            <div class="invalid-feedback">{{ form.date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_time" class="form-label fw-semibold">Start Time</label>
+                            <input type="time" name="time" id="id_time" class="form-control {% if form.time.errors %}is-invalid{% endif %}" value="{{ form.time.value|default:'' }}">
+                            {% if form.time.errors %}
+                            <div class="invalid-feedback">{{ form.time.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_end_date" class="form-label fw-semibold">End Date</label>
+                            <input type="date" name="end_date" id="id_end_date" class="form-control {% if form.end_date.errors %}is-invalid{% endif %}" value="{{ form.end_date.value|date:'Y-m-d'|default:'' }}">
+                            {% if form.end_date.errors %}
+                            <div class="invalid-feedback">{{ form.end_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_location" class="form-label fw-semibold">Location</label>
+                            <input type="text" name="location" id="id_location" class="form-control {% if form.location.errors %}is-invalid{% endif %}" value="{{ form.location.value|default:'' }}" placeholder="Enter event location">
+                            {% if form.location.errors %}
+                            <div class="invalid-feedback">{{ form.location.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_organizer" class="form-label fw-semibold">Organizer</label>
+                            <select name="organizer" id="id_organizer" class="form-select {% if form.organizer.errors %}is-invalid{% endif %}">
+                                <option value="">-- Select Organizer --</option>
+                                {% for member in form.organizer.field.queryset %}
+                                <option value="{{ member.pk }}" {% if form.organizer.value|stringformat:'s' == member.pk|stringformat:'s' %}selected{% endif %}>{{ member }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.organizer.errors %}
+                            <div class="invalid-feedback">{{ form.organizer.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_speaker" class="form-label fw-semibold">Speaker</label>
+                            <input type="text" name="speaker" id="id_speaker" class="form-control {% if form.speaker.errors %}is-invalid{% endif %}" value="{{ form.speaker.value|default:'' }}" placeholder="Enter speaker name">
+                            {% if form.speaker.errors %}
+                            <div class="invalid-feedback">{{ form.speaker.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_capacity" class="form-label fw-semibold">Capacity</label>
+                            <input type="number" name="capacity" id="id_capacity" class="form-control {% if form.capacity.errors %}is-invalid{% endif %}" value="{{ form.capacity.value|default:'0' }}" min="0">
+                            <div class="form-text">0 for unlimited capacity.</div>
+                            {% if form.capacity.errors %}
+                            <div class="invalid-feedback">{{ form.capacity.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch mt-4">
+                                <input type="checkbox" name="registration_required" id="id_registration_required" class="form-check-input" {% if form.registration_required.value %}checked{% endif %}>
+                                <label class="form-check-label fw-semibold" for="id_registration_required">Registration Required</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="is_active" id="id_is_active" class="form-check-input" {% if form.is_active.value or form.is_active.value is None %}checked{% endif %}>
+                            <label class="form-check-label fw-semibold" for="id_is_active">Active</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> {% if form.instance.pk %}Update{% else %}Create{% endif %} Event
+                        </button>
+                        <a href="{% url 'events:event-list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-lightbulb"></i> Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Use a descriptive event name.</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Set capacity to 0 for unlimited.</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Enable registration to track attendance.</li>
+                    <li><i class="bi bi-check2 text-success"></i> Add a speaker if applicable.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends "admin/base.html" %}
+{% load static humanize %}
+
+{% block title %}Giving Records{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-gift text-primary"></i> Giving Records
+            </h1>
+            <p class="text-muted mb-0">Track tithes, offerings, and donations</p>
+        </div>
+        <a href="{% url 'giving:giving-create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Record Giving
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-cash-stack text-primary fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Giving</h6>
+                            <h4 class="mb-0">KSh {{ total_amount|default:"0"|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-people text-success fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Contributors</h6>
+                            <h4 class="mb-0">{{ contributor_count|default:"0" }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-calendar-check text-info fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">This Month</h6>
+                            <h4 class="mb-0">KSh {{ monthly_total|default:"0"|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-graph-up text-warning fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Average</h6>
+                            <h4 class="mb-0">KSh {{ average_amount|default:"0"|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+            <h6 class="mb-0">
+                <i class="bi bi-funnel"></i> Filters
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-2">
+                    <label for="id_category" class="form-label small text-muted">Category</label>
+                    <select name="category" id="id_category" class="form-select form-select-sm">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="id_payment_method" class="form-label small text-muted">Payment Method</label>
+                    <select name="payment_method" id="id_payment_method" class="form-select form-select-sm">
+                        <option value="">All Methods</option>
+                        <option value="cash" {% if request.GET.payment_method == 'cash' %}selected{% endif %}>Cash</option>
+                        <option value="mpesa" {% if request.GET.payment_method == 'mpesa' %}selected{% endif %}>M-Pesa</option>
+                        <option value="bank_transfer" {% if request.GET.payment_method == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
+                        <option value="cheque" {% if request.GET.payment_method == 'cheque' %}selected{% endif %}>Cheque</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="id_date_from" class="form-label small text-muted">From</label>
+                    <input type="date" name="date_from" id="id_date_from" class="form-control form-control-sm" value="{{ request.GET.date_from }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="id_date_to" class="form-label small text-muted">To</label>
+                    <input type="date" name="date_to" id="id_date_to" class="form-control form-control-sm" value="{{ request.GET.date_to }}">
+                </div>
+                <div class="col-md-3">
+                    <label for="id_search" class="form-label small text-muted">Search</label>
+                    <input type="text" name="search" id="id_search" class="form-control form-control-sm" placeholder="Search member..." value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            {% if request.GET.category or request.GET.payment_method or request.GET.date_from or request.GET.date_to or request.GET.search %}
+            <div class="mt-2">
+                <a href="{% url 'giving:giving-list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Member</th>
+                            <th>Category</th>
+                            <th class="text-end">Amount</th>
+                            <th>Payment Method</th>
+                            <th>Reference</th>
+                            <th>Notes</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for giving in givings %}
+                        <tr>
+                            <td>{{ giving.date|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                        <i class="bi bi-person text-primary small"></i>
+                                    </div>
+                                    <span class="fw-medium">{{ giving.member.get_full_name|default:giving.member }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary">{{ giving.giving_category }}</span>
+                            </td>
+                            <td class="text-end fw-semibold text-success">KSh {{ giving.amount|intcomma }}</td>
+                            <td>
+                                {% if giving.payment_method == 'cash' %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary"><i class="bi bi-cash"></i> Cash</span>
+                                {% elif giving.payment_method == 'mpesa' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-phone"></i> M-Pesa</span>
+                                {% elif giving.payment_method == 'bank_transfer' %}
+                                    <span class="badge bg-info bg-opacity-10 text-info"><i class="bi bi-bank"></i> Bank</span>
+                                {% elif giving.payment_method == 'cheque' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning"><i class="bi bi-receipt"></i> Cheque</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">{{ giving.payment_method }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted font-monospace">{{ giving.reference_number|default:"--" }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ giving.notes|truncatechars:25 }}</small>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                     <a href="{% url 'giving:giving-update' giving.pk %}" class="btn btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                     <a href="{% url 'giving:giving-delete' giving.pk %}" class="btn btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                <h5>No giving records found</h5>
+                                <p class="small">Try adjusting your filters or record a new giving entry.</p>
+                                 <a href="{% url 'giving:giving-create' %}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-plus-lg"></i> Record Giving
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if givings %}
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="fw-semibold">Total</td>
+                            <td class="text-end fw-semibold text-success">KSh {{ total_amount|default:"0"|intcomma }}</td>
+                            <td colspan="4"></td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+        {% if is_paginated %}
+        <div class="card-footer bg-white border-0">
+            <nav aria-label="Giving pagination">
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-left"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i></span></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-right"></i></span></li>
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-double-right"></i></span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

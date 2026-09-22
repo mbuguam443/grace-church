@@ -1,0 +1,1257 @@
+PROJECT: GRACE CHURCH MUNYAKA (GC)
+CHURCH MANAGEMENT SYSTEM
+
+You are a senior full-stack Django developer and UI/UX designer.
+
+I want you to build a COMPLETE, PRODUCTION-READY Church Management System for:
+
+GRACE CHURCH MUNYAKA
+Abbreviation: GC
+
+TECHNOLOGY REQUIREMENTS
+=======================
+
+Backend:
+- Python
+- Django
+- Django REST Framework where appropriate
+
+Database:
+- SQLite for the initial version
+- Structure the project so PostgreSQL can easily be introduced later
+
+Frontend:
+- Django Templates
+- HTML5
+- CSS3
+- Bootstrap 5
+- JavaScript
+- Bootstrap Icons or another professional icon library
+
+Do NOT use Django's default admin interface as the main administration interface.
+
+IMPORTANT:
+Build a completely CUSTOM ADMIN DASHBOARD from scratch.
+
+The system must be beautiful, responsive, modern and professional.
+
+==================================================
+1. BRANDING / DESIGN SYSTEM
+==================================================
+
+The supplied GC logo is the main branding reference.
+
+Church name:
+GRACE CHURCH MUNYAKA
+
+Short name:
+GC
+
+Primary color:
+#A8704A
+
+Secondary/deep brown:
+#4E3A2C
+
+Accent copper:
+#B5651D
+
+Gold:
+#C9A24B
+
+Dark text:
+#343A40
+
+White:
+#FFFFFF
+
+Use the colors consistently throughout the entire application.
+
+Do NOT make the entire application red.
+
+The main visual identity should be:
+- Professional
+- Christian/church-oriented
+- Clean
+- Peaceful
+- Modern
+- Elegant
+- Trustworthy
+- Easy to use
+
+Use the GC logo throughout appropriate parts of the system.
+
+Create:
+- Login page
+- Admin dashboard
+- Member portal
+- Public website
+- Navigation
+- Sidebar
+- Cards
+- Buttons
+- Tables
+- Forms
+- Modals
+- Alerts
+- Reports
+
+with a consistent design system.
+
+The interface must look like a professionally developed commercial application, NOT a basic Django project.
+
+==================================================
+2. VERY IMPORTANT — COMPLETE THE ENTIRE SYSTEM
+==================================================
+
+DO NOT BUILD A HALF-FINISHED SYSTEM.
+
+You must implement EVERY module described in this specification.
+
+For every feature:
+- Create the database models
+- Create migrations
+- Create views
+- Create URLs
+- Create templates
+- Create forms
+- Create validation
+- Create permissions
+- Create navigation
+- Create dashboard integration
+- Create CRUD operations where applicable
+- Create search/filter functionality where applicable
+- Create pagination where applicable
+- Create success/error messages
+- Create empty states
+- Create loading states where appropriate
+- Create responsive UI
+
+Do not create placeholder buttons that do nothing.
+
+Do not create fake statistics.
+
+Do not create pages saying:
+"Coming soon"
+"Under construction"
+"TODO"
+"Implement later"
+
+If a feature appears in the navigation, it MUST actually work.
+
+Every button must perform its intended action.
+
+Every form must save data correctly.
+
+Every delete action must have confirmation.
+
+Every important action must provide feedback to the user.
+
+==================================================
+3. PROJECT ARCHITECTURE
+==================================================
+
+Create a clean modular Django architecture.
+
+Suggested applications:
+
+accounts
+members
+families
+attendance
+services
+ministries
+groups
+events
+finance
+giving
+communication
+sermons
+prayer
+children
+assets
+facilities
+reports
+dashboard
+core
+
+You may adjust the architecture if you have a better professional structure.
+
+Use reusable components.
+
+Avoid putting the entire project into one Django app.
+
+Use:
+- Base templates
+- Reusable components
+- Template inheritance
+- Reusable forms
+- Reusable tables
+- Utility functions
+- Proper model relationships
+
+==================================================
+4. AUTHENTICATION
+==================================================
+
+Create a custom user system.
+
+User roles:
+
+SUPER ADMIN
+ADMIN
+PASTOR
+SECRETARY
+FINANCE OFFICER
+MINISTRY LEADER
+GROUP LEADER
+MEDIA
+USHER
+MEMBER
+
+Implement role-based access control.
+
+Users must only see features they are authorized to access.
+
+Examples:
+
+Finance Officer:
+- Finance
+- Giving
+- Financial reports
+
+Group Leader:
+- Their groups
+- Group members
+- Group attendance
+- Group reports
+
+Pastor:
+- Members
+- Pastoral information
+- Prayer requests
+- Groups
+- Reports
+
+Member:
+- Own profile
+- Own giving
+- Own attendance
+- Events
+- Sermons
+- Prayer requests
+- Announcements
+
+SUPER ADMIN:
+- Full access
+
+Do NOT rely only on hiding menu items.
+Implement actual backend permission checks.
+
+==================================================
+5. CUSTOM ADMIN DASHBOARD
+==================================================
+
+This is one of the most important requirements.
+
+Do NOT use the default Django admin as the primary administration interface.
+
+Build a beautiful custom dashboard.
+
+Layout:
+
+Sidebar:
+- Dashboard
+- Members
+- Families
+- Attendance
+- Services
+- Ministries
+- Groups
+- Events
+- Finance
+- Giving
+- Prayer Requests
+- Sermons
+- Children
+- Communication
+- Assets
+- Facilities
+- Reports
+- Users
+- Settings
+
+Top bar:
+- Search
+- Notifications
+- User profile
+- Logout
+
+Dashboard cards:
+
+Total Members
+Active Members
+Visitors
+Today's Attendance
+This Month's Giving
+This Month's Expenses
+Upcoming Events
+Pending Prayer Requests
+
+Add useful charts:
+
+- Membership growth
+- Attendance trends
+- Giving trends
+- Income vs expenses
+- Member distribution
+- Department statistics
+
+Make the dashboard responsive.
+
+Desktop:
+Sidebar + dashboard
+
+Tablet:
+Collapsible sidebar
+
+Mobile:
+Mobile navigation
+
+==================================================
+6. MEMBER MANAGEMENT
+==================================================
+
+Implement complete member management.
+
+Member fields should include appropriate information such as:
+
+- Member number
+- First name
+- Middle name
+- Last name
+- Gender
+- Date of birth
+- Phone
+- Email
+- Address
+- Photo
+- Date joined
+- Membership status
+- Membership type
+- Baptism status
+- Baptism date
+- Salvation/conversion date
+- Marital status
+- Occupation
+- Emergency contact
+- Notes
+
+Member statuses:
+- Active
+- Inactive
+- Visitor
+- Transferred
+- Deceased
+
+Features:
+- Add member
+- Edit member
+- View member
+- Delete/archive member
+- Search
+- Filter
+- Pagination
+- Member profile
+- Member history
+- Attendance history
+- Giving history
+- Group memberships
+- Family information
+
+Generate unique member numbers.
+
+==================================================
+7. FAMILY MANAGEMENT
+==================================================
+
+Create family/household management.
+
+A family can contain:
+
+Father
+Mother
+Children
+Other household members
+
+Implement:
+- Create family
+- Add members
+- Remove members
+- Family profile
+- Family contact
+- Family address
+
+Display family members in a clean family profile.
+
+==================================================
+8. VISITOR MANAGEMENT
+==================================================
+
+Create visitor management.
+
+Record:
+- Name
+- Phone
+- Email
+- Visit date
+- Service attended
+- How they heard about church
+- Follow-up status
+- Assigned person
+- Notes
+
+Follow-up statuses:
+- New
+- Contacted
+- Follow-up required
+- Joined
+- Not interested
+
+==================================================
+9. CHURCH SERVICES
+==================================================
+
+Create service management.
+
+Examples:
+- Sunday Service
+- Wednesday Service
+- Friday Prayer
+- Youth Service
+- Special Service
+
+Service fields:
+- Name
+- Date
+- Start time
+- End time
+- Location
+- Preacher
+- Theme
+- Bible verse
+- Notes
+
+Allow attendance to be attached to each service.
+
+==================================================
+10. ATTENDANCE
+==================================================
+
+Implement complete attendance management.
+
+Track:
+- Members
+- Visitors
+- Children
+- Groups
+- Departments
+- Services
+
+Provide:
+
+Daily attendance
+Weekly attendance
+Monthly attendance
+Annual attendance
+
+Dashboard:
+- Attendance today
+- Attendance this week
+- Attendance this month
+
+Charts:
+- Attendance trends
+- Service attendance
+- Member attendance
+
+Allow manual attendance entry.
+
+Design the system so QR-code attendance can be added later.
+
+==================================================
+11. MINISTRIES / DEPARTMENTS
+==================================================
+
+Create ministry management.
+
+Examples:
+
+- Youth Ministry
+- Men's Ministry
+- Women's Ministry
+- Children's Ministry
+- Worship
+- Media
+- Ushers
+- Hospitality
+- Evangelism
+- Finance
+- Prayer
+- ICT
+
+Each ministry should have:
+- Name
+- Description
+- Leader
+- Members
+- Activities
+- Attendance
+
+==================================================
+12. GROUP / CELL MANAGEMENT
+==================================================
+
+Create small group/cell management.
+
+Each group should have:
+- Name
+- Leader
+- Assistant leader
+- Meeting day
+- Meeting time
+- Location
+- Description
+- Members
+
+Features:
+- Add members
+- Remove members
+- Group attendance
+- Group reports
+- Group activities
+
+==================================================
+13. EVENTS
+==================================================
+
+Create complete event management.
+
+Examples:
+- Conferences
+- Retreats
+- Seminars
+- Youth events
+- Fundraisers
+- Bible studies
+- Prayer meetings
+
+Event fields:
+- Name
+- Description
+- Date
+- Time
+- Location
+- Organizer
+- Speaker
+- Capacity
+- Registration status
+
+Implement event registration.
+
+==================================================
+14. FINANCE
+==================================================
+
+Create complete church financial management.
+
+Income categories:
+- Tithe
+- Offering
+- Donation
+- Building Fund
+- Missions
+- Special Contribution
+- Other
+
+Expense categories:
+- Salaries
+- Rent
+- Electricity
+- Water
+- Transport
+- Equipment
+- Maintenance
+- Events
+- Other
+
+Implement:
+- Income recording
+- Expense recording
+- Categories
+- Transactions
+- Financial dashboard
+- Monthly reports
+- Income reports
+- Expense reports
+- Balance calculation
+
+Never allow users without finance permission to modify financial records.
+
+==================================================
+15. GIVING / TITHE MANAGEMENT
+==================================================
+
+Create member giving records.
+
+Each transaction:
+- Member
+- Amount
+- Giving category
+- Date
+- Payment method
+- Reference number
+- Notes
+
+Payment methods:
+- Cash
+- M-Pesa
+- Bank
+- Card
+- Other
+
+Member should be able to view their own giving history.
+
+==================================================
+16. M-PESA READY
+==================================================
+
+Prepare the architecture for M-Pesa integration.
+
+Do not hard-code M-Pesa credentials.
+
+Use environment variables/settings for:
+- Consumer key
+- Consumer secret
+- Shortcode
+- Passkey
+
+Create a clean payment service layer so M-Pesa can later be connected without rewriting the finance system.
+
+When integrated:
+STK Push
+Callback
+Transaction recording
+Receipt
+Payment status
+
+==================================================
+17. PRAYER REQUESTS
+==================================================
+
+Create prayer request management.
+
+Members can submit prayer requests.
+
+Fields:
+- Member
+- Title
+- Request
+- Category
+- Date
+- Status
+- Assigned pastor/leader
+- Notes
+- Confidential/private flag
+
+Statuses:
+- New
+- Assigned
+- In Progress
+- Completed
+
+Confidential requests must only be visible to authorized users.
+
+==================================================
+18. SERMON MANAGEMENT
+==================================================
+
+Create sermon management.
+
+Fields:
+- Title
+- Speaker
+- Date
+- Bible verse
+- Description
+- Sermon notes
+- Audio
+- Video
+- PDF
+
+Allow members to browse sermons.
+
+Add:
+- Search
+- Categories
+- Filtering
+
+==================================================
+19. CHILDREN'S MINISTRY
+==================================================
+
+Create a dedicated children's module.
+
+Track:
+- Child
+- Parent/guardian
+- Age
+- Class
+- Teacher
+- Attendance
+
+Create secure check-in/check-out architecture.
+
+Do not expose unnecessary child information to ordinary users.
+
+==================================================
+20. COMMUNICATION
+==================================================
+
+Create church communication module.
+
+Announcements:
+- Title
+- Message
+- Target audience
+- Publish date
+- Expiry date
+
+Target:
+- Everyone
+- Members
+- Youth
+- Men
+- Women
+- Ministry
+- Group
+
+Prepare architecture for:
+- SMS
+- Email
+- Push notifications
+
+==================================================
+21. ASSET MANAGEMENT
+==================================================
+
+Create church asset management.
+
+Examples:
+- Chairs
+- Projectors
+- Cameras
+- Computers
+- Vehicles
+- Musical instruments
+- Sound equipment
+
+Track:
+- Asset name
+- Category
+- Serial number
+- Purchase date
+- Value
+- Condition
+- Location
+- Assigned department
+- Notes
+
+==================================================
+22. FACILITY / ROOM BOOKING
+==================================================
+
+Create facility management.
+
+Facilities:
+- Main hall
+- Conference room
+- Classrooms
+- Offices
+- Grounds
+
+Users with permission can book facilities.
+
+Prevent conflicting bookings.
+
+Show calendar/list of bookings.
+
+==================================================
+23. REPORTING
+==================================================
+
+Create a complete reports section.
+
+Reports:
+
+Membership report
+Attendance report
+Giving report
+Income report
+Expense report
+Visitor report
+Group report
+Ministry report
+Event report
+
+Allow filtering by:
+- Date
+- Ministry
+- Group
+- Category
+
+Provide print-friendly reports.
+
+Prepare architecture for PDF/Excel export.
+
+==================================================
+24. PUBLIC WEBSITE
+==================================================
+
+Create a public-facing church website.
+
+Homepage:
+
+Hero section
+GC logo
+Church name
+Welcome message
+Upcoming events
+Latest sermons
+Church ministries
+Service times
+Announcements
+Contact information
+Footer
+
+Pages:
+
+Home
+About Us
+Ministries
+Services
+Events
+Sermons
+Contact
+Give
+
+The public website must use the same GC branding.
+
+==================================================
+25. MEMBER PORTAL
+==================================================
+
+Create a separate member experience.
+
+After login, members see:
+
+Welcome message
+
+My Profile
+My Family
+My Attendance
+My Giving
+My Groups
+My Events
+Prayer Requests
+Sermons
+Announcements
+Notifications
+
+Members must NOT access administrative functions.
+
+==================================================
+26. SEARCH
+==================================================
+
+Implement global search where useful.
+
+Search members by:
+- Name
+- Phone
+- Email
+- Member number
+
+Search sermons.
+
+Search events.
+
+Search groups.
+
+Search transactions where authorized.
+
+==================================================
+27. NOTIFICATIONS
+==================================================
+
+Create notification infrastructure.
+
+Notifications for:
+- New announcements
+- Event reminders
+- Prayer request updates
+- Important church messages
+- Administrative notifications
+
+Create notification bell in the dashboard.
+
+==================================================
+28. SECURITY
+==================================================
+
+Implement:
+
+- CSRF protection
+- Authentication
+- Authorization
+- Role-based permissions
+- Secure password handling
+- Input validation
+- File upload validation
+- Proper logout
+- Session security
+- Protection of private member information
+- Protection of financial information
+- Protection of children's information
+
+Do not expose sensitive information in URLs unnecessarily.
+
+==================================================
+29. DATABASE
+==================================================
+
+Use SQLite initially.
+
+Create proper relational models.
+
+Use:
+- ForeignKey
+- OneToOneField
+- ManyToManyField
+
+Add:
+- created_at
+- updated_at
+
+where appropriate.
+
+Use database constraints where useful.
+
+Create migrations.
+
+Run migrations successfully.
+
+==================================================
+30. ADMIN SETTINGS
+==================================================
+
+Create custom system settings.
+
+Allow administrators to configure:
+
+Church name
+Church logo
+Church address
+Phone
+Email
+Website
+Service times
+Currency
+Timezone
+Theme settings
+
+Default currency:
+KES
+
+Default timezone:
+Africa/Nairobi
+
+==================================================
+31. CUSTOM ERROR PAGES
+==================================================
+
+Create beautiful:
+
+404 page
+403 page
+500 page
+
+Do not show raw Django error pages to users in production.
+
+==================================================
+32. RESPONSIVE DESIGN
+==================================================
+
+The entire system MUST work on:
+
+Desktop
+Laptop
+Tablet
+Mobile
+
+Test navigation and tables on small screens.
+
+Do not create a desktop-only dashboard.
+
+==================================================
+33. SAMPLE DATA
+==================================================
+
+Create a management command or seed mechanism for demo data.
+
+Include realistic sample:
+- Members
+- Families
+- Ministries
+- Groups
+- Services
+- Attendance
+- Events
+- Giving
+- Expenses
+- Sermons
+
+Do NOT hard-code sample data directly into production models.
+
+==================================================
+34. DASHBOARD UX
+==================================================
+
+Use beautiful:
+
+Cards
+Charts
+Tables
+Badges
+Avatars
+Icons
+Dropdowns
+Modals
+Alerts
+Empty states
+
+Avoid excessive rounded cards everywhere.
+
+Maintain good spacing and typography.
+
+Make the system feel like a modern SaaS application.
+
+==================================================
+35. TESTING
+==================================================
+
+Create automated tests.
+
+Test:
+
+Authentication
+Permissions
+Member creation
+Member editing
+Member deletion/archive
+Family management
+Attendance
+Events
+Giving
+Finance
+Prayer requests
+Groups
+Sermons
+Role restrictions
+
+Run:
+
+python manage.py test
+
+Fix ALL test failures.
+
+==================================================
+36. CODE QUALITY
+==================================================
+
+Use clean, maintainable code.
+
+Do not duplicate code unnecessarily.
+
+Use:
+- Class-based views where appropriate
+- Forms
+- Services for complex business logic
+- Utility functions
+- Reusable templates
+
+Add comments only where they are useful.
+
+==================================================
+37. DOCUMENTATION
+==================================================
+
+Create:
+
+README.md
+
+Include:
+
+Project description
+Features
+Requirements
+Installation
+Virtual environment setup
+Dependencies
+Database setup
+Migrations
+Creating superuser
+Running server
+Demo data
+Configuration
+M-Pesa configuration
+Deployment notes
+
+Also create:
+
+.env.example
+
+Never put secrets in Git.
+
+==================================================
+38. FINAL COMPLETION CHECKLIST
+==================================================
+
+THIS SECTION IS MANDATORY.
+
+Before telling me the project is finished, inspect the ENTIRE project.
+
+Check every item below.
+
+[ ] Project starts successfully
+[ ] Database works
+[ ] Migrations work
+[ ] Login works
+[ ] Logout works
+[ ] Registration works if implemented
+[ ] Permissions work
+[ ] Custom admin works
+[ ] Dashboard works
+[ ] Members work
+[ ] Families work
+[ ] Visitors work
+[ ] Services work
+[ ] Attendance works
+[ ] Ministries work
+[ ] Groups work
+[ ] Events work
+[ ] Finance works
+[ ] Giving works
+[ ] Prayer requests work
+[ ] Sermons work
+[ ] Children's module works
+[ ] Communication works
+[ ] Assets work
+[ ] Facilities work
+[ ] Reports work
+[ ] Member portal works
+[ ] Public website works
+[ ] Search works
+[ ] Notifications work
+[ ] Settings work
+[ ] Responsive layout works
+[ ] 404 works
+[ ] 403 works
+[ ] 500 works
+[ ] Tests pass
+[ ] No broken URLs
+[ ] No broken templates
+[ ] No missing static files
+[ ] No placeholder pages
+[ ] No TODO features presented as completed
+[ ] No fake buttons
+[ ] No fake statistics
+[ ] No "Coming Soon" features
+[ ] No obvious console errors
+[ ] README exists
+[ ] .env.example exists
+
+==================================================
+39. IMPORTANT DEVELOPMENT RULE
+==================================================
+
+DO NOT STOP AFTER CREATING THE MODELS.
+
+Do not stop after creating the backend.
+
+Do not stop after creating the dashboard.
+
+Do not stop after creating a few pages.
+
+The project is considered incomplete until the frontend, backend, database, authentication, permissions, CRUD operations, navigation, reports, member portal and public website are connected and functional.
+
+Whenever you encounter an error during development:
+
+1. Read the error.
+2. Identify the cause.
+3. Fix it.
+4. Run the relevant test again.
+5. Continue development.
+
+Do not simply report an error and leave it for me.
+
+==================================================
+40. FINAL VERIFICATION
+==================================================
+
+At the end, perform a full application walkthrough as if you were a real user.
+
+Test:
+
+Admin login
+Member login
+Create member
+Edit member
+View member
+Create family
+Create ministry
+Create group
+Create service
+Record attendance
+Create event
+Record income
+Record expense
+Record giving
+Submit prayer request
+Create sermon
+Create announcement
+View reports
+Check permissions
+Check mobile layout
+Check public website
+
+Fix anything that fails.
+
+ONLY after all of this should you say:
+
+"Grace Church Munyaka Management System completed."
+
+Then provide:
+
+1. Project structure
+2. Features implemented
+3. How to run it
+4. Default/demo login credentials
+5. Test results
+6. Any configuration required
+
+Again:
+
+I DO NOT WANT A PARTIAL IMPLEMENTATION.
+
+BUILD THE COMPLETE WORKING SYSTEM.

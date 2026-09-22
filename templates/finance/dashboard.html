@@ -1,0 +1,303 @@
+{% extends "admin/base.html" %}
+{% load static humanize %}
+
+{% block title %}Finance Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-graph-up-arrow text-primary"></i> Finance Dashboard
+            </h1>
+            <p class="text-muted mb-0">Overview of church finances</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'finance:transaction-create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> New Transaction
+            </a>
+            <a href="{% url 'finance:transaction-list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-list-ul"></i> View All
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-arrow-down-circle text-success fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Income</h6>
+                            <h3 class="mb-0 text-success">KSh {{ total_income|default:"0"|intcomma }}</h3>
+                            <small class="text-muted">This month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-danger bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-arrow-up-circle text-danger fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Expenses</h6>
+                            <h3 class="mb-0 text-danger">KSh {{ total_expense|default:"0"|intcomma }}</h3>
+                            <small class="text-muted">This month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-wallet2 text-info fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Net Balance</h6>
+                            <h3 class="mb-0 {% if net_balance >= 0 %}text-info{% else %}text-danger{% endif %}">
+                                KSh {{ net_balance|default:"0"|intcomma }}
+                            </h3>
+                            <small class="text-muted">Income - Expenses</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-cash-stack text-warning fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Transactions</h6>
+                            <h3 class="mb-0">{{ transaction_count|default:"0" }}</h3>
+                            <small class="text-muted">This month</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history"></i> Recent Transactions
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in recent_transactions %}
+                                <tr>
+                                    <td>{{ transaction.date|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if transaction.transaction_type == 'income' %}
+                                            <span class="badge bg-success bg-opacity-10 text-success">
+                                                <i class="bi bi-arrow-down-circle"></i> Income
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger">
+                                                <i class="bi bi-arrow-up-circle"></i> Expense
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ transaction.category }}</td>
+                                    <td>{{ transaction.description|truncatechars:40 }}</td>
+                                    <td class="text-end fw-semibold">
+                                        {% if transaction.transaction_type == 'income' %}
+                                            <span class="text-success">+KSh {{ transaction.amount|intcomma }}</span>
+                                        {% else %}
+                                            <span class="text-danger">-KSh {{ transaction.amount|intcomma }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                        No transactions found
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 text-end">
+                    <a href="{% url 'finance:transaction-list' %}" class="btn btn-sm btn-outline-primary">
+                        View All Transactions <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pie-chart"></i> Income by Category
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for category in income_by_category %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="fw-medium">{{ category.category }}</span>
+                            <br>
+                            <small class="text-muted">{{ category.percentage }}%</small>
+                        </div>
+                        <span class="fw-semibold text-success">KSh {{ category.total|intcomma }}</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ category.percentage }}%" aria-valuenow="{{ category.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-pie-chart fs-2 d-block mb-2"></i>
+                        No income data available
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pie-chart"></i> Expenses by Category
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for category in expense_by_category %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="fw-medium">{{ category.category }}</span>
+                            <br>
+                            <small class="text-muted">{{ category.percentage }}%</small>
+                        </div>
+                        <span class="fw-semibold text-danger">KSh {{ category.total|intcomma }}</span>
+                    </div>
+                    <div class="progress mb-3" style="height: 6px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ category.percentage }}%" aria-valuenow="{{ category.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-pie-chart fs-2 d-block mb-2"></i>
+                        No expense data available
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-calendar-month"></i> Monthly Summary
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Month</th>
+                                    <th class="text-end">Income</th>
+                                    <th class="text-end">Expense</th>
+                                    <th class="text-end">Net</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for month in monthly_summary %}
+                                <tr>
+                                    <td>{{ month.month }}</td>
+                                    <td class="text-end text-success">KSh {{ month.income|intcomma }}</td>
+                                    <td class="text-end text-danger">KSh {{ month.expense|intcomma }}</td>
+                                    <td class="text-end fw-semibold {% if month.net >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        KSh {{ month.net|intcomma }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-3 text-muted">No data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightning"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="{% url 'finance:transaction-create' %}" class="btn btn-outline-success w-100 py-3">
+                                <i class="bi bi-plus-circle fs-4 d-block mb-2"></i>
+                                Add Income
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'finance:transaction-create' %}" class="btn btn-outline-danger w-100 py-3">
+                                <i class="bi bi-dash-circle fs-4 d-block mb-2"></i>
+                                Add Expense
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'giving:giving-list' %}" class="btn btn-outline-primary w-100 py-3">
+                                <i class="bi bi-gift fs-4 d-block mb-2"></i>
+                                Manage Giving
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="#" class="btn btn-outline-secondary w-100 py-3">
+                                <i class="bi bi-file-earmark-spreadsheet fs-4 d-block mb-2"></i>
+                                Export Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
