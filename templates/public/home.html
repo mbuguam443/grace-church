@@ -38,6 +38,25 @@
     </div>
 </section>
 
+<!-- Autoplay Sermon Player -->
+<div class="gc-audio-player">
+    <div class="gc-audio-info">
+        <i class="bi bi-music-note-beamed gc-audio-icon"></i>
+        <div>
+            <strong>WEAK MEN VS DISTORTED WOMEN</strong>
+            <span>Pastor T Mwangi</span>
+            <span id="gcAudioMode">Excerpt playing</span>
+        </div>
+    </div>
+    <div class="gc-audio-controls">
+        <audio id="gcHomeAudio" controls preload="auto"
+               src="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
+               data-clip="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
+               data-full="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
+        <button type="button" id="gcAudioToggle">Full sermon</button>
+    </div>
+</div>
+
 <!-- Upcoming Events Section -->
 <section id="upcoming-events" class="section bg-light">
     <div class="container">
@@ -313,32 +332,12 @@
     </div>
 </section>
 
-<!-- Autoplay Sermon Player -->
-<div class="gc-audio-player">
-    <div class="gc-audio-info">
-        <i class="bi bi-music-note-beamed gc-audio-icon"></i>
-        <div>
-            <strong>WEAK MEN VS DISTORTED WOMEN</strong>
-            <span>Pastor T Mwangi</span>
-            <span id="gcAudioMode">Excerpt playing</span>
-        </div>
-    </div>
-    <div class="gc-audio-controls">
-        <audio id="gcHomeAudio" controls preload="auto"
-               src="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
-               data-clip="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
-               data-full="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
-        <button type="button" id="gcAudioToggle">Full sermon</button>
-    </div>
-</div>
 <style>
     .gc-audio-player {
-        position: fixed; left: 16px; bottom: 16px; z-index: 1050;
-        display: flex; align-items: center; gap: 12px;
+        display: flex; align-items: center; justify-content: center; gap: 16px;
         background: var(--secondary, #4E3A2C); color: #fff;
-        padding: 10px 14px; border-radius: 14px;
-        box-shadow: 0 8px 24px rgba(0,0,0,.35);
-        max-width: min(92vw, 540px);
+        padding: 12px 16px; width: 100%;
+        border-bottom: 3px solid var(--gold, #C9A24B);
     }
     .gc-audio-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .gc-audio-icon { color: var(--gold, #C9A24B); font-size: 1.4rem; }
@@ -355,7 +354,7 @@
     .gc-audio-controls button:hover { opacity: .9; }
     #gcHomeAudio { height: 36px; width: 200px; flex-shrink: 0; }
     @media (max-width: 575px) {
-        .gc-audio-player { left: 8px; right: 8px; bottom: 8px; max-width: none; }
+        .gc-audio-player { flex-wrap: wrap; text-align: center; }
         .gc-audio-info { flex: 1; }
         #gcHomeAudio { width: 100%; }
     }
