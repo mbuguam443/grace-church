@@ -6,7 +6,7 @@
     --gold: #C9A24B;
     --dark: #3A3129;
     --light: #f8f4ef;
-    --white: #ffffff;
+    --white: #FDFBF7;
     --sidebar-width: 260px;
     --sidebar-collapsed: 70px;
     --topbar-height: 65px;
@@ -53,6 +53,7 @@ a:hover { color: var(--primary-dark); }
     padding: 16px 20px; font-weight: 600; font-size: 16px;
 }
 .card-body { padding: 20px; }
+.bg-white { background-color: var(--white) !important; }
 
 .table { width: 100%; border-collapse: collapse; }
 .table th { background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #eee; }

@@ -10,7 +10,7 @@
     --gold-light: #E6D39A;
     --dark: #3A3129;
     --light: #f8f4ef;
-    --white: #ffffff;
+    --white: #FDFBF7;
     --gradient-primary: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
     --gradient-hero: linear-gradient(135deg, rgba(78,58,44,0.92) 0%, rgba(168,112,74,0.88) 100%);
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
@@ -100,13 +100,13 @@ nav.navbar ul.navbar-nav a.btn-outline-light {
     background: transparent !important; padding: 6px 18px !important;
 }
 nav.navbar ul.navbar-nav a.btn-outline-light:hover {
-    background: white !important; color: var(--secondary) !important;
+    background: #FDFBF7 !important; color: var(--secondary) !important;
 }
 nav.navbar.scrolled ul.navbar-nav a.btn-outline-light {
     border-color: rgba(255,255,255,0.85) !important; color: white !important;
 }
 nav.navbar.scrolled ul.navbar-nav a.btn-outline-light:hover {
-    background: white !important; color: var(--primary-dark) !important;
+    background: #FDFBF7 !important; color: var(--primary-dark) !important;
 }
 
 /* ==================== HERO ==================== */
@@ -162,7 +162,7 @@ nav.navbar.scrolled ul.navbar-nav a.btn-outline-light:hover {
     border: 2px solid rgba(255,255,255,0.7); color: white; background: transparent;
 }
 .hero-buttons .btn-outline-light:hover {
-    background: white; color: var(--secondary); transform: translateY(-3px);
+    background: #FDFBF7; color: var(--secondary); transform: translateY(-3px);
 }
 .hero-service-times {
     margin-top: 40px; animation: fadeInUp 1s ease 0.6s both;
@@ -228,11 +228,12 @@ nav.navbar.scrolled ul.navbar-nav a.btn-outline-light:hover {
 
 /* ==================== CARDS ==================== */
 .card {
-    background: white; border-radius: var(--radius-md); overflow: hidden;
+    background: #FDFBF7; border-radius: var(--radius-md); overflow: hidden;
     box-shadow: var(--shadow-sm); border: none; transition: all 0.4s ease;
 }
 .card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
 .card-body { padding: 28px; }
+.bg-white { background-color: var(--white) !important; }
 .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
 
 /* Event Cards */
@@ -372,7 +373,7 @@ footer a:hover { color: var(--gold); }
     }
     nav.navbar ul.navbar-nav {
         display: none !important; position: absolute; top: 100%; left: 0; right: 0;
-        background: white; flex-direction: column !important; padding: 20px;
+        background: #FDFBF7; flex-direction: column !important; padding: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 0 0 var(--radius-md) var(--radius-md);
     }
     nav.navbar ul.navbar-nav.show { display: flex !important; }
