@@ -59,27 +59,18 @@ CHURCH_SHORT_NAME=GC
 ```
 Alternatively create a `.env` in the app root with the same keys (`settings.py` uses `python-dotenv`; `settings_production.py` reads `os.environ`, so prefer the Setup Python App env vars for production).
 
-## Step 7: Run setup (file-based, browser)
-Open in your browser:
-```
-http://gracechurch.schones-heim-builders.co.ke/setup.php
-```
-Click **Run All Setup** — this runs, in order:
-1. `migrate` (creates tables in MySQL via PyMySQL)
-2. `collectstatic` (Whitenoise serves CSS/JS/images)
-3. `seed_data` (optional demo data)
-4. `setup_media.py` + `link_media.py` (make uploads public)
+## Step 7: Start the app — first start auto-syncs the database
+`passenger_wsgi.py` runs `migrate` + `collectstatic` automatically on the **first** app start (writes a `.dbsynced` marker so it only runs once). So after creating the Python app and installing requirements, just **Restart** it (Step 9) and the tables are created in MySQL.
 
-You can also use `manage.php` for individual steps (migrate / collectstatic / seed).
+> Why not `setup.php`? When a Python app is created at the subdomain **root**, Passenger serves *every* request to Django, so `.php` files in the app root are not reachable (they return 404). The auto-migrate startup replaces the PHP "Run All Setup" flow for this layout.
+>
+> `setup.php` / `manage.php` are still valid if you instead create the Python app under a sub-path (e.g. app URL `/gc` at app root `~/gc`) and keep the PHP helpers in the subdomain document root outside it.
 
-Both scripts auto-detect your virtualenv Python (`venv/bin/python` or `VIRTUAL_ENV`), falling back to `python3`.
+Check the sync result anytime: open `startup.log` in File Manager. If the first start failed (e.g. wrong DB password), it says so there and retries on every restart until `.dbsynced` exists.
 
-## Step 8: Make media uploads public
-Open in your browser:
-```
-http://gracechurch.schones-heim-builders.co.ke/manage.php?action=setup_media
-```
-(or use `setup.php?action=media`) — it runs `setup_media.py` + `link_media.py`, which symlink `media/` so uploaded images are served at `/media/`.
+## Step 8: Media uploads
+First-start sync does not need media setup — `media/` is created automatically when anything is uploaded.
+Serving uploads publicly at `/media/` while the app sits at the Passenger root needs a small Django media URL (not covered here); until then, uploads work inside the admin/dashboard (Django stores them, whitenoise serves only `/static/`).
 
 ## Step 9: Restart the app
 cPanel → **Setup Python App** → your app → **Restart**
@@ -115,6 +106,10 @@ After seeding:
 1. Re-run `setup.php?action=migrate`
 2. Confirm DB name/user/password in Setup Python App env vars match Step 1
 3. Confirm the user has ALL PRIVILEGES on the database
+
+### "An error occurred during installation of modules" (content-type mismatch on check)
+Common cPanel false positive. The modules DID install ("the operation was performed"). The availability check compares the homepage before/after pip install (`text/html` vs `text/html; charset=utf-8`) — a harmless string mismatch, or the homepage 500s because `migrate` hasn't run yet.
+Fix: open `startup.log` (see Step 7) and verify `.dbsynced` exists, then **Restart** the app from Setup Python App and reload the homepage. Once it returns 200 the error can be ignored.
 
 ### `python`/`python3` not found from setup.php
 The scripts fall back through `venv/bin/python` → `$VIRTUAL_ENV/bin/python` → `python3` → `python`. If all fail, set the `VIRTUAL_ENV` environment variable in Setup Python App to your virtualenv path.

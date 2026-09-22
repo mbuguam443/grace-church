@@ -14,3 +14,4 @@ env/
 .vscode/
 *.pyc
 cpanel error.txt
+.dbsynced
