@@ -18,7 +18,7 @@
     <link href="{% static 'css/public.css' %}?v=4" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif; }
-        h1, h2, h3, h4, h5, h6 { font-family: 'Museo', 'Poppins', sans-serif; letter-spacing: 0.2px; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif; font-weight: 600; }
         :root {
             --primary: {{ church_settings.primary_color|default:'#A8704A' }};
             --secondary: {{ church_settings.secondary_color|default:'#4E3A2C' }};

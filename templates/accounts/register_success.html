@@ -48,11 +48,7 @@
 <body>
     <div class="login-card">
         <div class="login-logo">
-            {% if church_settings.logo %}
-            <img src="{{ church_settings.logo.url }}" alt="{{ church_settings.short_name }}">
-            {% else %}
-            <img src="{% static 'img/logo.png' %}" alt="{{ church_settings.short_name|default:'GC' }}">
-            {% endif %}
+            <img src="{% static 'img/login-logo.png' %}" alt="Grace Church Munyaka">
         </div>
         <div class="icon-circle"><i class="bi bi-check-lg"></i></div>
         <h2 class="mb-2">Registration Received</h2>
