@@ -72,6 +72,32 @@
                             <div class="form-text">Recommended: 32x32 or 64x64 PNG/ICO.</div>
                         </div>
                         <div class="col-12">
+                            <label for="{{ form.audio_file.id_for_label }}" class="form-label">Homepage Audio</label>
+                            {{ form.audio_file }}
+                            {% if form.audio_file.errors %}
+                            <div class="invalid-feedback d-block">{{ form.audio_file.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.instance.pk and form.instance.audio_file %}
+                            <div class="mt-2">
+                                <audio controls preload="none" src="{% url 'public:audio' form.instance.audio_basename %}" style="height:38px;"></audio>
+                                <span class="small text-muted ms-2">Current audio ({{ form.instance.audio_basename }})</span>
+                            </div>
+                            {% else %}
+                            <div class="form-text small">No custom audio set — homepage uses the default sermon player.</div>
+                            {% endif %}
+                            <div class="form-text">MP3 recommended, keep under ~10MB. Upload blank if you want the default player back.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.audio_title.id_for_label }}" class="form-label">Audio Title</label>
+                            {{ form.audio_title }}
+                            <div class="form-text">Shown above the player (e.g. sermon title).</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.audio_speaker.id_for_label }}" class="form-label">Audio Speaker</label>
+                            {{ form.audio_speaker }}
+                            <div class="form-text">Who is speaking (e.g. Pastor T Mwangi).</div>
+                        </div>
+                        <div class="col-12">
                             <label for="{{ form.hero_image.id_for_label }}" class="form-label">Homepage Hero Image</label>
                             {{ form.hero_image }}
                             {% if form.hero_image.errors %}

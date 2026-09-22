@@ -18,7 +18,8 @@ class SettingsView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     fields = ['church_name', 'short_name', 'logo', 'favicon', 'hero_image', 'events_image',
               'sermons_image', 'cta_image', 'email', 'phone', 'address',
               'website', 'currency', 'timezone', 'primary_color', 'secondary_color',
-              'accent_color', 'gold_color', 'service_times']
+              'accent_color', 'gold_color', 'audio_file', 'audio_title', 'audio_speaker',
+              'service_times']
 
     def get_object(self):
         return ChurchSetting.get_settings()

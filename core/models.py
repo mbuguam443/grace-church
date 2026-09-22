@@ -43,6 +43,9 @@ class ChurchSetting(models.Model):
     secondary_color = models.CharField(max_length=7, default='#4E3A2C')
     accent_color = models.CharField(max_length=7, default='#B5651D')
     gold_color = models.CharField(max_length=7, default='#C9A24B')
+    audio_file = models.FileField(upload_to='church/audio/', blank=True, null=True, help_text='Homepage sermon player audio (MP3 recommended, keep under ~10MB)')
+    audio_title = models.CharField(max_length=120, blank=True)
+    audio_speaker = models.CharField(max_length=120, blank=True)
     service_times = models.TextField(blank=True, help_text='One per line')
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -57,6 +60,12 @@ class ChurchSetting(models.Model):
     def get_settings(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+    @property
+    def audio_basename(self):
+        if not self.audio_file:
+            return ''
+        return self.audio_file.name.rsplit('/', 1)[-1]
 
 
 class Notification(models.Model):

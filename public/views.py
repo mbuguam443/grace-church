@@ -1,3 +1,4 @@
+import mimetypes
 import os
 import re
 from datetime import date
@@ -7,6 +8,7 @@ from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpRespons
 from django.views.generic import ListView, TemplateView
 
 from communication.models import Announcement
+from core.models import ChurchSetting
 from events.models import Event
 from ministries.models import Ministry
 from sermons.models import Sermon
@@ -107,13 +109,27 @@ def _range_chunks(filepath, start, end):
             yield data
 
 
+def _resolve_audio(filename):
+    base = os.path.basename(filename)
+    if base in _ALLOWED_AUDIO:
+        return os.path.join(settings.STATICFILES_DIRS[0], 'audio', base)
+    try:
+        church = ChurchSetting.get_settings()
+    except Exception:
+        return None
+    if church.audio_file and church.audio_basename == base:
+        return os.path.join(settings.MEDIA_ROOT, church.audio_file.name)
+    return None
+
+
 def stream_audio(request, filename):
-    if filename not in _ALLOWED_AUDIO or not filename.endswith('.mp3'):
-        return HttpResponseNotFound('Not found')
-    filepath = os.path.join(settings.STATICFILES_DIRS[0], 'audio', filename)
-    if not os.path.isfile(filepath):
+    base = os.path.basename(filename)
+    filepath = _resolve_audio(base)
+    if not filepath or not os.path.isfile(filepath):
         return HttpResponseNotFound('Not found')
 
+    content_type, _ = mimetypes.guess_type(filepath)
+    content_type = content_type or 'audio/mpeg'
     size = os.path.getsize(filepath)
     start, end = 0, size - 1
     has_range = False
@@ -137,11 +153,11 @@ def stream_audio(request, filename):
     length = end - start + 1
     resp = StreamingHttpResponse(
         _range_chunks(filepath, start, end),
-        content_type='audio/mpeg',
+        content_type=content_type,
     )
     resp['Accept-Ranges'] = 'bytes'
     resp['Content-Length'] = str(length)
-    resp['Content-Disposition'] = 'inline; filename="%s"' % filename
+    resp['Content-Disposition'] = 'inline; filename="%s"' % base
     if has_range:
         resp.status_code = 206
         resp['Content-Range'] = 'bytes %d-%d/%d' % (start, end, size)

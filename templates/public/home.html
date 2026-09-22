@@ -30,17 +30,28 @@
                     <div class="gc-audio-info">
                         <i class="bi bi-music-note-beamed gc-audio-icon"></i>
                         <div>
+                            {% if church_settings.audio_file %}
+                            <strong>{{ church_settings.audio_title|default:church_settings.church_name }}</strong>
+                            <span>{{ church_settings.audio_speaker }}</span>
+                            <span id="gcAudioMode">Tap to play</span>
+                            {% else %}
                             <strong>WEAK MEN VS DISTORTED WOMEN</strong>
                             <span>Pastor T Mwangi</span>
                             <span id="gcAudioMode">Tap to play</span>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="gc-audio-controls">
+                        {% if church_settings.audio_file %}
+                        <audio id="gcHomeAudio" controls preload="auto"
+                               src="{% url 'public:audio' church_settings.audio_basename %}"></audio>
+                        {% else %}
                         <audio id="gcHomeAudio" controls preload="auto"
                                src="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
                                data-clip="{% url 'public:audio' 'weak-men-vs-distorted-women.mp3' %}"
                                data-full="{% url 'public:audio' 'weak-men-vs-distorted-women-full.mp3' %}"></audio>
                         <button type="button" id="gcAudioToggle">Full sermon</button>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="hero-service-times">
@@ -367,14 +378,16 @@
     var btn = document.getElementById('gcAudioToggle');
     var modeTag = document.getElementById('gcAudioMode');
     var fullUrl = audio.getAttribute('data-full');
+    var clipUrl = audio.getAttribute('data-clip');
     var fullOn = false;
     audio.volume = 0.75;
     var started = false;
     var evts = ['click', 'pointerdown', 'touchend', 'mousedown', 'keydown', 'scroll'];
     function setMode(full) {
+        if (!fullUrl) return;
         fullOn = full;
-        audio.src = full ? fullUrl : audio.getAttribute('data-clip');
-        btn.textContent = full ? 'Play excerpt' : 'Full sermon';
+        audio.src = full ? fullUrl : clipUrl;
+        if (btn) btn.textContent = full ? 'Play excerpt' : 'Full sermon';
         modeTag.textContent = full ? 'Full sermon playing' : 'Excerpt playing';
     }
     function tryPlay() {
@@ -395,14 +408,16 @@
     }
     audio.addEventListener('play', function () {
         started = true;
-        modeTag.textContent = fullOn ? 'Full sermon playing' : 'Excerpt playing';
+        modeTag.textContent = fullUrl ? (fullOn ? 'Full sermon playing' : 'Excerpt playing') : 'Playing';
         unbind();
     });
-    btn.addEventListener('click', function () {
-        setMode(!fullOn);
-        var p = audio.play();
-        if (p && p.catch) { p.catch(function () {}); }
-    });
+    if (btn) {
+        btn.addEventListener('click', function () {
+            setMode(!fullOn);
+            var p = audio.play();
+            if (p && p.catch) { p.catch(function () {}); }
+        });
+    }
     evts.forEach(function (e) { document.addEventListener(e, onInteract); });
     tryPlay();
 })();
