@@ -10,6 +10,7 @@ from .views import (
     PublicMinistriesView,
     PublicSermonsView,
     PublicServicesView,
+    serve_media,
     stream_audio,
 )
 
@@ -25,5 +26,6 @@ urlpatterns = [
     path('contact-us/', PublicContactView.as_view(), name='contact'),
     path('give-now/', PublicGiveView.as_view(), name='give'),
     path('image-test/', TemplateView.as_view(template_name='public/image_test.html'), name='image_test'),
+    path('media/<path:filepath>', serve_media, name='media'),
     path('audio/<str:filename>', stream_audio, name='audio'),
 ]

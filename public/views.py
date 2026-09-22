@@ -126,14 +126,7 @@ def _resolve_audio(filename):
     return None
 
 
-def stream_audio(request, filename):
-    base = os.path.basename(filename)
-    filepath = _resolve_audio(base)
-    if not filepath or not os.path.isfile(filepath):
-        return HttpResponseNotFound('Not found')
-
-    content_type, _ = mimetypes.guess_type(filepath)
-    content_type = content_type or 'audio/mpeg'
+def _serve_file(request, filepath, content_type, base):
     size = os.path.getsize(filepath)
     start, end = 0, size - 1
     has_range = False
@@ -166,3 +159,27 @@ def stream_audio(request, filename):
         resp.status_code = 206
         resp['Content-Range'] = 'bytes %d-%d/%d' % (start, end, size)
     return resp
+
+
+def stream_audio(request, filename):
+    base = os.path.basename(filename)
+    filepath = _resolve_audio(base)
+    if not filepath or not os.path.isfile(filepath):
+        return HttpResponseNotFound('Not found')
+
+    content_type, _ = mimetypes.guess_type(filepath)
+    return _serve_file(request, filepath, content_type or 'audio/mpeg', base)
+
+
+def serve_media(request, filepath):
+    """Serve uploaded files from MEDIA_ROOT through Django so /media/ works
+    without relying on a public_html symlink in production (DEBUG off)."""
+    base = os.path.basename(filepath)
+    media_root = os.path.realpath(settings.MEDIA_ROOT)
+    full = os.path.realpath(os.path.join(media_root, filepath))
+    is_within = os.path.commonpath([media_root, full]) == media_root
+    if not is_within or not os.path.isfile(full):
+        return HttpResponseNotFound('Not found')
+
+    content_type, _ = mimetypes.guess_type(full)
+    return _serve_file(request, full, content_type or 'application/octet-stream', base)
