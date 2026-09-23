@@ -159,13 +159,61 @@
             </div>
         </div>
         {% if event.registration_required %}
-        <form method="post" action="{% url 'events:event-register' event.pk %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-success w-100 mb-3" {% if event.is_full %}disabled{% endif %}>
-                <i class="bi bi-person-plus"></i>
-                {% if event.is_full %}Event Full{% else %}Register Member{% endif %}
-            </button>
-        </form>
+        <button type="button" class="btn btn-success w-100 mb-3" data-bs-toggle="modal" data-bs-target="#registerModal" {% if event.is_full %}disabled{% endif %}>
+            <i class="bi bi-person-plus"></i>
+            {% if event.is_full %}Event Full{% else %}Register Member{% endif %}
+        </button>
+
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="post" action="{% url 'events:event-register' event.pk %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="bi bi-person-plus"></i> Register member</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="text-muted small mb-3">
+                                Register for <strong>{{ event.name }}</strong>
+                                {% if event.capacity > 0 %}({{ event.registrations_count }}/{{ event.capacity }} registered){% endif %}.
+                            </p>
+                            {% if request.user.can_manage_content %}
+                                {% if registerable_members %}
+                                <label for="register-member" class="form-label fw-semibold">Register another member</label>
+                                <select name="member_id" id="register-member" class="form-select mb-3">
+                                    <option value="">-- Select member --</option>
+                                    {% for member in registerable_members %}
+                                    <option value="{{ member.pk }}">{{ member.first_name }} {{ member.last_name }}{% if member.member_number %} ({{ member.member_number }}){% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" class="btn btn-success w-100" id="register-submit">
+                                    <i class="bi bi-check-lg"></i> Register selected member
+                                </button>
+                                {% else %}
+                                <div class="alert alert-secondary mb-3">All active members are already registered for this event.</div>
+                                {% endif %}
+                                {% if self_member and not self_registered %}
+                                <hr class="my-3">
+                                {% endif %}
+                            {% endif %}
+                            {% if self_member and not self_registered %}
+                            <button type="submit" name="member_id" value="" class="btn btn-outline-success w-100">
+                                <i class="bi bi-person-check"></i> Register myself ({{ self_member.first_name }} {{ self_member.last_name }})
+                            </button>
+                            {% elif not self_member and not request.user.can_manage_content %}
+                            <div class="alert alert-warning mb-0">
+                                No member profile is linked to this account. Ask an admin to register you.
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
         {% endif %}
     </div>
 </div>
@@ -216,4 +264,23 @@
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var submit = document.getElementById('register-submit');
+    var select = document.getElementById('register-member');
+    if (submit && select) {
+        submit.addEventListener('click', function () {
+            if (!select.value) {
+                alert('Please select a member first.');
+                return;
+            }
+            submit.type = 'submit';
+            submit.click();
+        });
+    }
+});
+</script>
 {% endblock %}

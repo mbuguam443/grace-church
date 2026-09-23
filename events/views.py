@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 
 from accounts.views import ContentWriteMixin
+from members.models import Member
 from .models import Event, EventRegistration
 
 
@@ -18,6 +19,18 @@ class EventDetailView(LoginRequiredMixin, DetailView):
     model = Event
     template_name = 'events/event_detail.html'
     context_object_name = 'event'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        event = ctx['event']
+        registered_ids = list(event.registrations.values_list('member_id', flat=True))
+        ctx['registerable_members'] = Member.objects.filter(
+            membership_status='active'
+        ).exclude(id__in=registered_ids).order_by('first_name', 'last_name')
+        self_member = getattr(self.request.user, 'member_profile', None)
+        ctx['self_member'] = self_member
+        ctx['self_registered'] = bool(self_member and self_member.id in registered_ids)
+        return ctx
 
 
 class EventCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
@@ -61,15 +74,33 @@ class EventRegisterView(LoginRequiredMixin, View):
             messages.error(request, 'This event is already at full capacity.')
             return redirect('events:event-detail', pk=event.pk)
 
+        member_id = request.POST.get('member_id')
+
+        if member_id:
+            if not (request.user.is_authenticated and request.user.can_manage_content):
+                messages.error(request, 'Only an admin or leader can register another member.')
+                return redirect('events:event-detail', pk=event.pk)
+            member = get_object_or_404(Member, pk=member_id)
+        else:
+            membership = getattr(request.user, 'member_profile', None)
+            if membership is None:
+                messages.error(
+                    request,
+                    'No member profile is linked to your account, so you cannot register yourself. '
+                    'Ask an admin to register you instead.',
+                )
+                return redirect('events:event-detail', pk=event.pk)
+            member = membership
+
         registration, created = EventRegistration.objects.get_or_create(
             event=event,
-            member=request.user.member_profile,
+            member=member,
         )
 
         if created:
-            messages.success(self.request, 'You have successfully registered for this event.')
+            messages.success(request, f'{member} has been registered for this event.')
         else:
-            messages.info(self.request, 'You are already registered for this event.')
+            messages.info(request, f'{member} is already registered for this event.')
 
         return redirect('events:event-detail', pk=event.pk)
 
