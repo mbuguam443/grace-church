@@ -45,13 +45,11 @@
 
                     <div class="mb-3">
                         <label for="id_image" class="form-label fw-semibold">Event Image</label>
-                        {% if form.instance.pk and form.instance.image %}
-                        <div class="mb-2">
-                            <img src="{{ form.instance.image.url }}" alt="Event image" class="img-thumbnail rounded" style="max-height:140px;">
+                        <div class="mb-2 {% if not form.instance.image %}d-none{% endif %}" id="image-preview-wrap">
+                            <img id="image-preview" src="{% if form.instance.image %}{{ form.instance.image.url }}{% endif %}" alt="Event image" class="img-thumbnail rounded" style="max-height:160px;">
                         </div>
-                        {% endif %}
                         <input type="file" name="image" id="id_image" class="form-control {% if form.image.errors %}is-invalid{% endif %}" accept="image/*">
-                        <div class="form-text">Optional. Upload a photo or poster for this event. PNG/JPG recommended.</div>
+                        <div class="form-text">Optional. Choose a photo or poster &mdash; a crop box will open so you can frame it before uploading (recommended 3:2).</div>
                         {% if form.image.errors %}
                         <div class="invalid-feedback">{{ form.image.errors.0 }}</div>
                         {% endif %}
@@ -173,4 +171,127 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-crop"></i> Crop Event Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 d-flex align-items-center gap-2">
+                    <label for="crop-ratio" class="form-label fw-semibold mb-0">Aspect ratio</label>
+                    <select id="crop-ratio" class="form-select form-select-sm" style="max-width:220px;">
+                        <option value="1.5">3:2 (recommended)</option>
+                        <option value="1.7777778">16:9</option>
+                        <option value="1">1:1 (square)</option>
+                        <option value="free">Free</option>
+                    </select>
+                </div>
+                <div style="max-height:60vh;overflow:hidden;">
+                    <img id="crop-image" alt="Crop preview">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Skip crop
+                </button>
+                <button type="button" class="btn btn-primary" id="crop-apply">
+                    <i class="bi bi-check-lg"></i> Apply &amp; upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+<script>
+(function () {
+    var input = document.getElementById('id_image');
+    var previewWrap = document.getElementById('image-preview-wrap');
+    var previewImg = document.getElementById('image-preview');
+    var cropModalEl = document.getElementById('cropModal');
+    var cropImage = document.getElementById('crop-image');
+    var ratioSel = document.getElementById('crop-ratio');
+    var applyBtn = document.getElementById('crop-apply');
+    var modal = new bootstrap.Modal(cropModalEl);
+    var cropper = null;
+    var pendingFile = null;
+    var pendingName = 'event.png';
+
+    function currentRatio() {
+        var v = ratioSel.value;
+        return v === 'free' ? NaN : parseFloat(v);
+    }
+
+    input.addEventListener('change', function () {
+        var file = input.files && input.files[0];
+        if (!file) return;
+        if (!file.type || file.type.indexOf('image/') !== 0) {
+            alert('Please choose an image file.');
+            input.value = '';
+            return;
+        }
+        pendingName = file.name;
+        pendingFile = file;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            cropImage.src = e.target.result;
+            modal.show();
+            cropModalEl.addEventListener('shown.bs.modal', initCropper, { once: true });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function initCropper() {
+        if (cropper) { cropper.destroy(); }
+        cropper = new Cropper(cropImage, {
+            aspectRatio: currentRatio(),
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false
+        });
+    }
+
+    ratioSel.addEventListener('change', function () {
+        if (cropper) cropper.setAspectRatio(currentRatio());
+    });
+
+    cropModalEl.addEventListener('hidden.bs.modal', function () {
+        if (cropper) { cropper.destroy(); cropper = null; }
+    });
+
+    cropModalEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); applyBtn.click(); }
+    });
+
+    applyBtn.addEventListener('click', function () {
+        if (!cropper) return;
+        var canvas = cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1920 });
+        if (!canvas) return;
+        var mime = (pendingFile && pendingFile.type) || 'image/png';
+        var ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpeg';
+        canvas.toBlob(function (blob) {
+            if (!blob) { alert('Could not process the image.'); return; }
+            var base = (pendingName || 'event').replace(/\.[^.]+$/, '');
+            var croppedFile = new File([blob], base + '.' + ext, { type: mime });
+            if (window.DataTransfer) {
+                var dt = new DataTransfer();
+                dt.items.add(croppedFile);
+                input.files = dt.files;
+            }
+            previewImg.src = URL.createObjectURL(croppedFile);
+            previewWrap.classList.remove('d-none');
+            modal.hide();
+        }, mime, 0.92);
+    });
+})();
+</script>
 {% endblock %}
