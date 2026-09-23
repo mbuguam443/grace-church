@@ -75,126 +75,36 @@
             </p>
         </div>
         <div class="row g-4">
+            {% for event in events %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 event-card">
-                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/congregation.jpg' %}') center/cover;"></div>
+                    <div class="card-img-top" style="height:150px;background:url('{% if event.image %}{{ event.image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;"></div>
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start">
                             <div class="event-date-box text-center me-3 flex-shrink-0">
-                                <span class="d-block text-white fw-bold fs-3">15</span>
-                                <span class="d-block text-uppercase small text-muted">Oct</span>
+                                <span class="d-block text-white fw-bold fs-3">{{ event.date|date:"d" }}</span>
+                                <span class="d-block text-uppercase small text-muted">{{ event.date|date:"M" }}</span>
                             </div>
                             <div>
-                                <h5 class="fw-bold mb-1">Annual Harvest Festival</h5>
-                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2 text-primary"></i><span>10:00 AM - 4:00 PM</span></p>
-                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i><span>Church Grounds</span></p>
+                                <h5 class="fw-bold mb-1">{{ event.name }}</h5>
+                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2 text-primary"></i><span>{{ event.time|default:"TBA" }}</span></p>
+                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i><span>{{ event.location|default:"Main Sanctuary" }}</span></p>
                             </div>
                         </div>
-                        <p class="text-muted mt-3">A day of praise, food, games, and fellowship as we celebrate God's abundant blessings. Bring your family and friends!</p>
-                        <span class="badge bg-primary bg-opacity-10 text-primary">All Ages</span>
+                        <p class="text-muted mt-3">{{ event.description|default:"Join us for this upcoming event."|truncatewords:25 }}</p>
+                        {% if event.speaker %}<span class="badge bg-accent">Speaker: {{ event.speaker }}</span>{% endif %}
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 event-card">
-                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/hero-church.jpg' %}') center/cover;"></div>
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start">
-                            <div class="event-date-box text-center me-3 flex-shrink-0">
-                                <span class="d-block text-white fw-bold fs-3">22</span>
-                                <span class="d-block text-uppercase small text-muted">Oct</span>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Youth Conference 2024</h5>
-                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>9:00 AM - 5:00 PM</span></p>
-                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Main Sanctuary</span></p>
-                            </div>
-                        </div>
-                        <p class="text-muted mt-3">Theme: "Arise and Shine." A transformative conference for young people aged 13-25 featuring worship, workshops, and guest speakers.</p>
-                        <span class="badge bg-gold bg-opacity-25 text-gold">Youth</span>
-                    </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm p-5 text-center">
+                    <i class="bi bi-calendar-x display-4 text-muted d-block mb-3"></i>
+                    <h5 class="fw-bold">No Upcoming Events</h5>
+                    <p class="text-muted mb-0">Check back soon — we're planning something great!</p>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 event-card">
-                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/hero-bible.jpg' %}') center/cover;"></div>
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start">
-                            <div class="event-date-box text-center me-3 flex-shrink-0">
-                                <span class="d-block text-white fw-bold fs-3">29</span>
-                                <span class="d-block text-uppercase small text-muted">Oct</span>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Prayer & Fasting Week</h5>
-                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>All Week</span></p>
-                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Church & Home</span></p>
-                            </div>
-                        </div>
-                        <p class="text-muted mt-3">A week dedicated to spiritual renewal through prayer, fasting, and intensive Bible study. Daily prayer sessions at 6:00 AM and 6:00 PM.</p>
-                        <span class="badge bg-secondary bg-opacity-10 text-secondary">All Members</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 event-card">
-                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/hero-cross.jpg' %}') center/cover;"></div>
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start">
-                            <div class="event-date-box text-center me-3 flex-shrink-0">
-                                <span class="d-block text-white fw-bold fs-3">05</span>
-                                <span class="d-block text-uppercase small text-muted">Nov</span>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Men's Fellowship Breakfast</h5>
-                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>8:00 AM - 11:00 AM</span></p>
-                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Fellowship Hall</span></p>
-                            </div>
-                        </div>
-                        <p class="text-muted mt-3">Men gather for a hearty breakfast, fellowship, and a powerful devotion on leadership and integrity in the home and workplace.</p>
-                        <span class="badge bg-primary bg-opacity-10 text-primary">Men</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 event-card">
-                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/church-building.jpg' %}') center/cover;"></div>
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start">
-                            <div class="event-date-box text-center me-3 flex-shrink-0">
-                                <span class="d-block text-white fw-bold fs-3">11</span>
-                                <span class="d-block text-uppercase small text-muted">Nov</span>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Revival Crusade (Night 1)</h5>
-                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>6:00 PM - 9:00 PM</span></p>
-                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Main Sanctuary</span></p>
-                            </div>
-                        </div>
-                        <p class="text-muted mt-3">Night 1 of our 5-night Annual Revival Crusade. Guest speaker: Bishop Michael Okonkwo. Come expecting a miracle!</p>
-                        <span class="badge bg-accent">Special Event</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 event-card">
-                    <div class="card-img-top" style="height:150px;background:url('{% static 'img/cross-sunset.jpg' %}') center/cover;"></div>
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-start">
-                            <div class="event-date-box text-center me-3 flex-shrink-0">
-                                <span class="d-block text-white fw-bold fs-3">25</span>
-                                <span class="d-block text-uppercase small text-muted">Nov</span>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1">Christmas Carol Night</h5>
-                                <p class="text-muted small mb-2"><i class="bi bi-clock me-2" class="text-primary" ></i><span>6:00 PM - 9:00 PM</span></p>
-                                <p class="text-muted small mb-2"><i class="bi bi-geo-alt me-2" class="text-primary" ></i><span>Main Sanctuary</span></p>
-                            </div>
-                        </div>
-                        <p class="text-muted mt-3">A beautiful evening of Christmas carols, drama, and celebration of the birth of our Savior. Featuring our choir and drama team.</p>
-                        <span class="badge bg-primary bg-opacity-10 text-primary">All Ages</span>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 </section>

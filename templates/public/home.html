@@ -83,7 +83,7 @@
                 {% for event in upcoming_events %}
                 <div class="col-md-6 col-lg-4">
                     <div class="card event-card h-100">
-                        <div class="card-img-top" style="height:160px;background:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;border-radius:12px 12px 0 0;"></div>
+                        <div class="card-img-top" style="height:160px;background:url('{% if event.image %}{{ event.image.url }}{% elif church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;border-radius:12px 12px 0 0;"></div>
                         <div class="card-body p-4">
                             <div class="d-flex align-items-start mb-3">
                                 <div class="event-date-box text-center me-3">

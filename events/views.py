@@ -23,7 +23,7 @@ class EventDetailView(LoginRequiredMixin, DetailView):
 class EventCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
     model = Event
     template_name = 'events/event_form.html'
-    fields = ['name', 'description', 'date', 'time', 'end_date', 'location', 'organizer', 'speaker', 'capacity', 'registration_required', 'is_active']
+    fields = ['name', 'image', 'description', 'date', 'time', 'end_date', 'location', 'organizer', 'speaker', 'capacity', 'registration_required', 'is_active']
     success_url = reverse_lazy('events:event-list')
 
     def form_valid(self, form):
@@ -34,7 +34,7 @@ class EventCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
 class EventUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
     model = Event
     template_name = 'events/event_form.html'
-    fields = ['name', 'description', 'date', 'time', 'end_date', 'location', 'organizer', 'speaker', 'capacity', 'registration_required', 'is_active']
+    fields = ['name', 'image', 'description', 'date', 'time', 'end_date', 'location', 'organizer', 'speaker', 'capacity', 'registration_required', 'is_active']
     success_url = reverse_lazy('events:event-list')
 
     def form_valid(self, form):

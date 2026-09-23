@@ -141,6 +141,11 @@
         </div>
     </div>
     <div class="col-lg-4">
+        {% if event.image %}
+        <div class="card mb-4">
+            <img src="{{ event.image.url }}" alt="{{ event.name }}" class="card-img-top rounded-top" style="max-height:220px;object-fit:cover;">
+        </div>
+        {% endif %}
         <div class="card mb-4">
             <div class="card-body text-center">
                 <div class="display-4 text-primary mb-2">{{ event.registrations_count }}</div>

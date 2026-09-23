@@ -5,6 +5,7 @@ from members.models import Member
 class Event(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='events/', blank=True, null=True)
     date = models.DateField()
     time = models.TimeField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)

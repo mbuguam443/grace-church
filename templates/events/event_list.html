@@ -71,9 +71,14 @@
                 {% for event in events %}
                 <tr>
                     <td>
-                        <a href="{% url 'events:event-detail' event.pk %}" class="fw-semibold text-decoration-none">
-                            {{ event.name }}
-                        </a>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if event.image %}
+                            <img src="{{ event.image.url }}" alt="{{ event.name }}" class="rounded flex-shrink-0" style="width:44px;height:44px;object-fit:cover;">
+                            {% endif %}
+                            <a href="{% url 'events:event-detail' event.pk %}" class="fw-semibold text-decoration-none">
+                                {{ event.name }}
+                            </a>
+                        </div>
                     </td>
                     <td>
                         <i class="bi bi-calendar-event text-muted"></i>
