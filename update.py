@@ -67,41 +67,43 @@ def main():
             "'Git Version Control'. Alternatively keep deploying via the zip."
         )
 
-    # 1) Convert to a git checkout on first run
-    if not os.path.isdir(os.path.join(BASE_DIR, ".git")):
+    # 1) Convert to a git checkout on first run (or update on later runs)
+    first_run = not os.path.isdir(os.path.join(BASE_DIR, ".git"))
+    if first_run:
         print("\n[1/5] First run - adopting this folder as a git checkout ...")
         git("init")
-        git("checkout", "-B", "main", check=False)  # deterministic branch name
         git("remote", "add", "origin", GIT_URL, check=False)
-        git("fetch", "origin")
+    else:
+        print("\n[1/5] Updating from GitHub ...")
+
+    git("fetch", "origin")
+
+    # Always use the repo's own .gitignore (from the code being deployed) so
+    # server-only files (media/, .env, db.sqlite3, *.log, staticfiles/, venv,
+    # .dbsynced, etc.) are never staged or overwritten - this both protects
+    # them and avoids git errors about ignored pathspecs on newer git builds.
+    r = git("show", "origin/main:.gitignore", check=False)
+    if r.returncode == 0:
+        with open(os.path.join(BASE_DIR, ".gitignore"), "w") as f:
+            f.write(r.stdout)
+        print("    Repo .gitignore in place (server files protected).")
+
+    git("checkout", "-B", "main", check=False)  # deterministic branch name
+
+    if first_run:
         # Adopt the current server files as a local commit so the reset below
-        # can overwrite them cleanly. Server-only files are excluded HERE so
-        # they survive even if this folder never got the repo's .gitignore:
-        excludes = [
-            ":(exclude).env",
-            ":(exclude)media",
-            ":(exclude)db.sqlite3",
-            ":(exclude)*.sqlite3",
-            ":(exclude)*.log",
-            ":(exclude)staticfiles",
-            ":(exclude)venv",
-            ":(exclude)__pycache__",
-            ":(exclude)*.pyc",
-            ":(exclude).dbsynced",
-        ]
-        git("add", "-A", "--", ".", *excludes)
+        # can overwrite them cleanly. .gitignore already keeps server-only
+        # files out; ignored files are silently skipped.
+        git("add", "-A", "--", ".")
         git(
             "-c", "user.name=Deployer",
             "-c", "user.email=deploy@gracechurch",
             "commit", "-m", "Adopt server tree (pre-git install)",
             check=False,
         )
-        git("reset", "--hard", "origin/main")
-        print("    Checkout ready.")
-    else:
-        print("\n[1/5] Updating from GitHub ...")
-        git("fetch", "origin")
-        git("reset", "--hard", "origin/main")
+
+    git("reset", "--hard", "origin/main")
+    print("    Checkout ready.")
 
     commit = git("rev-parse", "--short", "HEAD", check=False)
     print("    Now at origin/main @ %s" % commit.stdout.strip())
