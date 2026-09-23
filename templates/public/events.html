@@ -79,7 +79,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 event-card">
                     <div class="card-img-top" style="height:150px;background:url('{% if event.image %}{{ event.image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;"></div>
-                    <div class="card-body p-4">
+                    <div class="card-body p-4 d-flex flex-column">
                         <div class="d-flex align-items-start">
                             <div class="event-date-box text-center me-3 flex-shrink-0">
                                 <span class="d-block text-white fw-bold fs-3">{{ event.date|date:"d" }}</span>
@@ -93,6 +93,11 @@
                         </div>
                         <p class="text-muted mt-3">{{ event.description|default:"Join us for this upcoming event."|truncatewords:25 }}</p>
                         {% if event.speaker %}<span class="badge bg-accent">Speaker: {{ event.speaker }}</span>{% endif %}
+                        <div class="mt-auto pt-3">
+                            <a href="{% url 'public:event-detail' event.pk %}" class="btn btn-sm btn-outline-primary">
+                                View &amp; Register <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

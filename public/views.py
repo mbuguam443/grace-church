@@ -4,12 +4,16 @@ import re
 from datetime import date
 
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
-from django.views.generic import ListView, TemplateView
+from django.shortcuts import get_object_or_404, redirect
+from django.views import View
+from django.views.generic import DetailView, ListView, TemplateView
 
 from communication.models import Announcement
 from core.models import ChurchSetting
-from events.models import Event
+from events.models import Event, EventRegistration
 from ministries.models import Ministry
 from sermons.models import Sermon
 from services.models import Service
@@ -76,6 +80,59 @@ class PublicEventsView(ListView):
             date__gte=date.today(),
             is_active=True
         ).order_by('date', 'time')
+
+
+class PublicEventDetailView(DetailView):
+    model = Event
+    template_name = 'public/event_detail.html'
+    context_object_name = 'event'
+
+    def get_queryset(self):
+        return Event.objects.filter(is_active=True)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            profile = getattr(user, 'member_profile', None)
+            ctx['is_registered'] = bool(
+                profile and self.get_object().registrations.filter(member=profile).exists()
+            ) or self.get_object().registrations.filter(user=user).exists()
+        else:
+            ctx['is_registered'] = False
+        return ctx
+
+
+class PublicEventRegisterView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        event = get_object_or_404(Event.objects.filter(is_active=True), pk=pk)
+
+        if event.date < date.today():
+            messages.error(request, 'This event has already taken place.')
+            return redirect('public:event-detail', pk=event.pk)
+
+        if event.is_full:
+            messages.error(request, 'This event is already at full capacity.')
+            return redirect('public:event-detail', pk=event.pk)
+
+        profile = getattr(request.user, 'member_profile', None)
+        if profile is not None:
+            registration, created = EventRegistration.objects.get_or_create(
+                event=event,
+                member=profile,
+            )
+        else:
+            registration, created = EventRegistration.objects.get_or_create(
+                event=event,
+                user=request.user,
+            )
+
+        if created:
+            messages.success(request, 'You have been registered for this event. See you there!')
+        else:
+            messages.info(request, 'You are already registered for this event.')
+
+        return redirect('public:event-detail', pk=event.pk)
 
 
 class PublicSermonsView(ListView):

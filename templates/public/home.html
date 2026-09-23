@@ -97,7 +97,7 @@
                                 </div>
                             </div>
                             <p class="text-muted">{{ event.description|truncatewords:20 }}</p>
-                            <a href="{% url 'public:events' %}" class="text-accent fw-semibold">
+                            <a href="{% url 'public:event-detail' event.pk %}" class="text-accent fw-semibold">
                                 Learn More <i class="bi bi-arrow-right ms-1"></i>
                             </a>
                         </div>

@@ -239,9 +239,14 @@
                 <tr>
                     <td>
                         <i class="bi bi-person-circle text-muted"></i>
-                        <a href="#" class="text-decoration-none fw-medium">{{ registration.member }}</a>
+                        {% if registration.member %}
+                        <a href="#" class="text-decoration-none fw-medium">{{ registration.display_name }}</a>
+                        {% else %}
+                        <span class="fw-medium">{{ registration.display_name }}</span>
+                        <span class="badge bg-secondary ms-1">Non-member</span>
+                        {% endif %}
                     </td>
-                    <td>{{ registration.member.email|default:"-" }}</td>
+                    <td>{{ registration.email|default:"-" }}</td>
                     <td>{{ registration.registered_at|date:"M d, Y H:i" }}</td>
                     <td>
                         {% if registration.attended %}

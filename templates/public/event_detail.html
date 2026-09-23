@@ -1,0 +1,130 @@
+{% extends "public/base.html" %}
+{% load static %}
+
+{% block title %}{{ event.name }} - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-5">
+    <div class="container py-4 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-3">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'public:events' %}" class="text-white">Events</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">{{ event.name }}</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold">{{ event.name }}</h1>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container py-4">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card border-0 shadow-lg overflow-hidden">
+            <div class="row g-0">
+                <div class="col-lg-6">
+                    <div style="min-height:320px;background:url('{% if event.image %}{{ event.image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;"></div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card-body p-4 p-lg-5 h-100 d-flex flex-column">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            {% if event.is_full %}
+                            <span class="badge bg-danger"><i class="bi bi-exclamation-circle"></i> Event Full</span>
+                            {% elif event.registration_required %}
+                            <span class="badge bg-accent"><i class="bi bi-clipboard-check"></i> Registration Required</span>
+                            {% else %}
+                            <span class="badge bg-gold"><i class="bi bi-unlock"></i> Open to All</span>
+                            {% endif %}
+                            {% if not event.is_active %}
+                            <span class="badge bg-secondary"><i class="bi bi-pause-circle"></i> Inactive</span>
+                            {% endif %}
+                        </div>
+                        <h2 class="fw-bold text-secondary mb-3">{{ event.name }}</h2>
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <p class="mb-1 d-flex align-items-start"><i class="bi bi-calendar-event text-primary me-2 fs-5"></i><span><strong>Date:</strong> {{ event.date|date:"l, M d, Y" }}{% if event.end_date %} &mdash; {{ event.end_date|date:"M d, Y" }}{% endif %}</span></p>
+                                {% if event.time %}
+                                <p class="mb-1 d-flex align-items-start"><i class="bi bi-clock text-primary me-2 fs-5"></i><span><strong>Time:</strong> {{ event.time|time:"H:i" }}</span></p>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                {% if event.location %}
+                                <p class="mb-1 d-flex align-items-start"><i class="bi bi-geo-alt text-primary me-2 fs-5"></i><span><strong>Venue:</strong> {{ event.location }}</span></p>
+                                {% endif %}
+                                {% if event.speaker %}
+                                <p class="mb-1 d-flex align-items-start"><i class="bi bi-mic text-primary me-2 fs-5"></i><span><strong>Speaker:</strong> {{ event.speaker }}</span></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if event.description %}
+                        <p class="text-muted mb-4">{{ event.description|linebreaks }}</p>
+                        {% endif %}
+
+                        <div class="mt-auto">
+                            {% if event.capacity > 0 %}
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>{{ event.registrations_count }} registered</span>
+                                <span>Capacity {{ event.capacity }}</span>
+                            </div>
+                            <div class="progress mb-3" style="height:8px;">
+                                <div class="progress-bar bg-{% if event.is_full %}danger{% else %}success{% endif %}" style="width:{% if event.capacity > 0 %}{% widthratio event.registrations_count event.capacity 100 %}{% else %}0{% endif %}%"></div>
+                            </div>
+                            {% endif %}
+
+                            {% if event.registration_required %}
+                                {% if not request.user.is_authenticated %}
+                                <div class="card border-0 bg-light p-3">
+                                    <p class="mb-3">You need to be <strong>logged in</strong> to register for this event.</p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary">
+                                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to Register
+                                        </a>
+                                        <a href="{% url 'accounts:register' %}" class="btn btn-outline-primary">
+                                            <i class="bi bi-person-plus me-2"></i>Create Account
+                                        </a>
+                                    </div>
+                                </div>
+                                {% elif is_registered %}
+                                <div class="alert alert-success mb-0">
+                                    <i class="bi bi-check-circle me-2"></i><strong>You are registered for this event.</strong>
+                                </div>
+                                {% elif event.is_full %}
+                                <div class="alert alert-danger mb-0">
+                                    <i class="bi bi-exclamation-circle me-2"></i><strong>This event is already full.</strong>
+                                </div>
+                                {% else %}
+                                <form method="post" action="{% url 'public:event-register' event.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-accent text-white btn-lg w-100">
+                                        <i class="bi bi-person-plus me-2"></i>Register for this Event
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% else %}
+                            <div class="alert alert-info mb-0">
+                                <i class="bi bi-unlock me-2"></i>No registration needed &mdash; everyone is welcome to attend.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{% url 'public:events' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to All Events
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

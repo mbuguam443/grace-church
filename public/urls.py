@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 from .views import (
     PublicAboutView,
     PublicContactView,
+    PublicEventDetailView,
+    PublicEventRegisterView,
     PublicEventsView,
     PublicGiveView,
     PublicHomeView,
@@ -22,6 +24,8 @@ urlpatterns = [
     path('our-ministries/', PublicMinistriesView.as_view(), name='ministries'),
     path('service-times/', PublicServicesView.as_view(), name='services'),
     path('upcoming-events/', PublicEventsView.as_view(), name='events'),
+    path('upcoming-events/<int:pk>/', PublicEventDetailView.as_view(), name='event-detail'),
+    path('upcoming-events/<int:pk>/register/', PublicEventRegisterView.as_view(), name='event-register'),
     path('our-sermons/', PublicSermonsView.as_view(), name='sermons'),
     path('contact-us/', PublicContactView.as_view(), name='contact'),
     path('give-now/', PublicGiveView.as_view(), name='give'),
