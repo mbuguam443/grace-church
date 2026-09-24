@@ -213,8 +213,22 @@
             var holder = (card && card.querySelector('.sermon-media')) || btn.closest('.sermon-media');
             if (!holder) return;
             var kind = btn.getAttribute('data-kind');
-            if (holder.querySelector('iframe, video, audio')) return;
+            var existing = holder.querySelector('iframe, video, audio');
+            if (existing) {
+                var existingKind = existing.tagName === 'IFRAME' ? 'youtube' : existing.tagName.toLowerCase();
+                if (existingKind === kind) return;
+            }
             holder.innerHTML = buildEmbed(kind, btn.getAttribute('data-src') || '');
+            var mediaEl = holder.querySelector('audio, video');
+            if (mediaEl && kind !== 'youtube') {
+                function tryPlay() {
+                    var pr = mediaEl.play();
+                    if (pr && pr.catch) pr.catch(function () {});
+                }
+                mediaEl.addEventListener('canplay', tryPlay);
+                if (mediaEl.readyState >= 3) tryPlay();
+                mediaEl.volume = 1;
+            }
             holder.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
     </script>
