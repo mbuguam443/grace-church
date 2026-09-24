@@ -1,22 +1,20 @@
 {% extends "public/base.html" %}
 {% load static %}
 
-{% block title %}Sermons - Grace Church Munyaka{% endblock %}
+{% block title %}Watch Sermons - Grace Church Munyaka{% endblock %}
 
 {% block content %}
 <!-- Page Header -->
-<section class="page-header bg-primary text-white py-5">
-    <div class="container py-5 text-center">
+<section class="page-header bg-primary text-white py-4">
+    <div class="container py-3 text-center">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center mb-3">
+            <ol class="breadcrumb justify-content-center mb-2">
                 <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
-                <li class="breadcrumb-item active text-white-50" aria-current="page">Sermons</li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">Watch</li>
             </ol>
         </nav>
-        <h1 class="display-4 fw-bold">Sermons</h1>
-        <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
-            Be nourished and equipped by the Word of God. Watch, listen, or read our sermon library.
-        </p>
+        <h1 class="display-5 fw-bold mb-1">Watch</h1>
+        <p class="text-white-50 mb-0">Watch or listen to the Word of God, one message at a time.</p>
     </div>
 </section>
 
@@ -36,162 +34,147 @@
 {% if latest %}
 <!-- Featured Sermon -->
 <section class="py-5">
-    <div class="container py-4">
-        <div class="card border-0 shadow-lg overflow-hidden">
-            <div class="row g-0">
-                <div class="col-lg-5">
-                    {% if latest.youtube_url %}
-                    <div class="sermon-media rounded-4 overflow-hidden shadow position-relative" style="min-height:350px;background:url('{% if latest.thumbnail_url %}{{ latest.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
-                        <button type="button" class="sermon-play position-absolute top-0 start-0 w-100 h-100 border-0"
-                                data-kind="youtube" data-src="{{ latest.youtube_url }}"
-                                aria-label="Play {{ latest.title }}" style="background:rgba(0,0,0,0.3);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:4rem;"></i>
-                        </button>
-                        <span class="badge bg-accent position-absolute top-0 start-0 m-3 fs-6">Latest</span>
-                    </div>
-                    {% elif latest.video_file %}
-                    <div class="sermon-media h-100">
-                        <video src="{{ latest.video_file.url }}" controls preload="metadata" class="w-100 h-100" style="object-fit:cover;"></video>
-                    </div>
-                    {% elif latest.audio_file %}
-                    <div class="rounded-4 overflow-hidden shadow position-relative" style="min-height:350px;background:url('{% if latest.thumbnail_url %}{{ latest.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
-                        <div class="position-absolute bottom-0 start-0 w-100 p-3" style="background:rgba(0,0,0,0.6);">
-                            <audio src="{{ latest.audio_file.url }}" controls preload="none" class="w-100"></audio>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="rounded-4 overflow-hidden shadow" style="min-height:350px;background:url('{% if latest.thumbnail_url %}{{ latest.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;"></div>
+    <div class="container py-2">
+        <div class="row g-4 g-lg-5 align-items-center">
+            <div class="col-lg-7">
+                <div class="sermon-media rounded-3 overflow-hidden shadow-sm position-relative" style="aspect-ratio:16/9;background:url('{% if latest.thumbnail_url %}{{ latest.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                    {% if latest.youtube_url or latest.video_file or latest.audio_file %}
+                    <button type="button" class="sermon-play position-absolute top-0 start-0 w-100 h-100 border-0"
+                            data-kind="{% if latest.youtube_url %}youtube{% elif latest.video_file %}video{% else %}audio{% endif %}"
+                            data-src="{% if latest.youtube_url %}{{ latest.youtube_url }}{% elif latest.video_file %}{{ latest.video_file.url }}{% else %}{{ latest.audio_file.url }}{% endif %}"
+                            aria-label="Play {{ latest.title }}" style="background:rgba(0,0,0,0.15);">
+                        <span class="featured-play">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                        </span>
+                    </button>
                     {% endif %}
-                </div>
-                <div class="col-lg-7">
-                    <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center h-100">
-                        <h6 class="text-accent fw-bold text-uppercase">Latest Message</h6>
-                        <h2 class="fw-bold text-secondary mb-3">{{ latest.title }}</h2>
-                        {% if latest.description %}
-                        <p class="text-muted mb-3">{{ latest.description|linebreaksbr }}</p>
-                        {% endif %}
-                        <div class="mb-4">
-                            <p class="mb-1"><i class="bi bi-person-fill text-primary me-2"></i><strong>{{ latest.speaker }}</strong></p>
-                            <p class="mb-1 text-muted small"><i class="bi bi-calendar-event text-primary me-2"></i>{{ latest.date|date:"F j, Y" }}</p>
-                            {% if latest.bible_verse %}
-                            <p class="mb-0 text-muted small"><i class="bi bi-book me-2 text-primary"></i>{{ latest.bible_verse }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="d-flex flex-wrap gap-2">
-                            {% if latest.youtube_url %}
-                            <button type="button" class="btn btn-primary sermon-play" data-kind="youtube" data-src="{{ latest.youtube_url }}">
-                                <i class="bi bi-play-fill me-2"></i>Watch
-                            </button>
-                            {% endif %}
-                            {% if latest.sermon_notes %}
-                            <button type="button" class="btn btn-outline-secondary notes-btn" data-id="{{ latest.pk }}" data-title="{{ latest.title }}">
-                                <i class="bi bi-file-earmark-text me-2"></i>Read Notes
-                            </button>
-                            {% endif %}
-                            {% if latest.pdf_file %}
-                            <a href="{{ latest.pdf_file.url }}" target="_blank" class="btn btn-outline-secondary">
-                                <i class="bi bi-file-pdf me-2"></i>Download PDF
-                            </a>
-                            {% endif %}
-                        </div>
-                        <div class="d-none" id="notes-{{ latest.pk }}">{{ latest.sermon_notes|linebreaksbr }}</div>
-                    </div>
+                    <span class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-1">
+                        {% if latest.category %}<span class="badge bg-light text-dark px-3 py-2 small">{{ latest.get_category_display }}</span>{% endif %}
+                        {% if latest.series %}<span class="badge bg-accent text-white px-3 py-2 small">{{ latest.series }}</span>{% endif %}
+                    </span>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-{% endif %}
-
-{% if series_list %}
-<!-- Sermon Series -->
-<section class="py-5 bg-light">
-    <div class="container py-4">
-        <div class="text-center mb-5">
-            <h6 class="text-accent fw-bold text-uppercase ls-2">Sermon Series</h6>
-            <h2 class="display-5 fw-bold text-secondary">Browse by Series</h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">
-                Dive deeper into a topic with one of our teaching series.
-            </p>
-        </div>
-        <div class="d-flex flex-wrap justify-content-center gap-2">
-            {% for s in series_list %}
-            <a href="?series={{ s|urlencode }}" class="btn btn-outline-primary {% if series == s %}active{% endif %}">
-                <i class="bi bi-collection-play me-1"></i>{{ s }}
-            </a>
-            {% endfor %}
+            <div class="col-lg-5">
+                <div class="text-secondary small fw-semibold text-uppercase ls-2 mb-2">Featured Sermon</div>
+                <h2 class="display-6 fw-bold mb-3">{{ latest.title }}</h2>
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-calendar3 me-2"></i>{{ latest.date|date:"F j, Y" }}
+                    {% if latest.speaker %}<span class="mx-2 text-body-secondary">&middot;</span><i class="bi bi-person me-2"></i>{{ latest.speaker }}{% endif %}
+                </p>
+                {% if latest.bible_verse %}
+                <p class="text-muted small mb-3"><i class="bi bi-book me-2"></i>{{ latest.bible_verse }}</p>
+                {% endif %}
+                {% if latest.description %}
+                <p class="text-muted mb-4">{{ latest.description|truncatewords:45 }}</p>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-2">
+                    {% if latest.youtube_url or latest.video_file %}
+                    <button type="button" class="btn btn-primary px-4 py-2 sermon-play"
+                            data-kind="{% if latest.youtube_url %}youtube{% else %}video{% endif %}"
+                            data-src="{% if latest.youtube_url %}{{ latest.youtube_url }}{% else %}{{ latest.video_file.url }}{% endif %}">
+                        <i class="bi bi-play-fill me-2"></i>Watch Now
+                    </button>
+                    {% elif latest.audio_file %}
+                    <button type="button" class="btn btn-primary px-4 py-2 sermon-play" data-kind="audio" data-src="{{ latest.audio_file.url }}">
+                        <i class="bi bi-headphones me-2"></i>Listen Now
+                    </button>
+                    {% endif %}
+                    {% if latest.sermon_notes %}
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2 notes-btn" data-id="{{ latest.pk }}" data-title="{{ latest.title }}">
+                        <i class="bi bi-journal-text me-2"></i>Notes
+                    </button>
+                    {% endif %}
+                    {% if latest.pdf_file %}
+                    <a href="{{ latest.pdf_file.url }}" target="_blank" class="btn btn-outline-secondary px-4 py-2">
+                        <i class="bi bi-file-pdf me-2"></i>PDF
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="d-none" id="notes-{{ latest.pk }}">{{ latest.sermon_notes|linebreaksbr }}</div>
+            </div>
         </div>
     </div>
 </section>
 {% endif %}
 
 <!-- Sermon Library -->
-<section class="py-5">
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+<section class="py-5 bg-light">
+    <div class="container py-3">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
             <div>
-                <h6 class="text-accent fw-bold text-uppercase ls-2">Sermon Library</h6>
-                <h2 class="display-5 fw-bold text-secondary mb-0">All Messages</h2>
+                <h2 class="h3 fw-bold text-secondary mb-1">From the Pulpit</h2>
+                <p class="text-muted small mb-0">Our recent messages from God's Word.</p>
             </div>
-            <form method="get" class="d-flex gap-2 flex-wrap">
-                {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
-                {% if speaker %}<input type="hidden" name="speaker" value="{{ speaker }}">{% endif %}
-                {% if series %}<input type="hidden" name="series" value="{{ series }}">{% endif %}
-                {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
-                <select class="form-select form-select-sm" name="series" style="width:auto;" onchange="this.form.submit()">
-                    <option value="">All Series</option>
-                    {% for s in series_list %}
-                    <option value="{{ s }}" {% if series == s %}selected{% endif %}>{{ s }}</option>
-                    {% endfor %}
-                </select>
-                <select class="form-select form-select-sm" name="speaker" style="width:auto;" onchange="this.form.submit()">
-                    <option value="">All Speakers</option>
-                    {% for sp in speakers %}
-                    <option value="{{ sp }}" {% if speaker == sp %}selected{% endif %}>{{ sp }}</option>
-                    {% endfor %}
-                </select>
-                <select class="form-select form-select-sm" name="category" style="width:auto;" onchange="this.form.submit()">
-                    <option value="">All Categories</option>
-                    {% for value, label in categories %}
-                    <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-                <div class="input-group input-group-sm" style="width:220px;">
-                    <input type="text" class="form-control" name="q" placeholder="Search sermons..." value="{{ q }}">
-                    <button class="btn btn-primary" type="submit" aria-label="Search"><i class="bi bi-search"></i></button>
-                </div>
-                {% if q or category or series or speaker %}
-                <a href="{% url 'public:sermons' %}" class="btn btn-sm btn-outline-secondary">Clear</a>
-                {% endif %}
-            </form>
+            <a href="{% url 'public:sermons' %}" class="fw-semibold text-accent text-decoration-none">
+                View All <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body py-3">
+                <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+                    {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+                    {% if speaker %}<input type="hidden" name="speaker" value="{{ speaker }}">{% endif %}
+                    {% if series %}<input type="hidden" name="series" value="{{ series }}">{% endif %}
+                    {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
+                    <select class="form-select form-select-sm" name="series" style="width:auto;min-width:160px;" onchange="this.form.submit()">
+                        <option value="">All Series</option>
+                        {% for s in series_list %}
+                        <option value="{{ s }}" {% if series == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-select form-select-sm" name="speaker" style="width:auto;min-width:160px;" onchange="this.form.submit()">
+                        <option value="">All Speakers</option>
+                        {% for sp in speakers %}
+                        <option value="{{ sp }}" {% if speaker == sp %}selected{% endif %}>{{ sp }}</option>
+                        {% endfor %}
+                    </select>
+                    <select class="form-select form-select-sm" name="category" style="width:auto;min-width:160px;" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        {% for value, label in categories %}
+                        <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group input-group-sm" style="width:220px;">
+                        <input type="text" class="form-control" name="q" placeholder="Search sermons..." value="{{ q }}">
+                        <button class="btn btn-primary" type="submit" aria-label="Search"><i class="bi bi-search"></i></button>
+                    </div>
+                    {% if q or category or series or speaker %}
+                    <a href="{% url 'public:sermons' %}" class="btn btn-sm btn-outline-secondary">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
         </div>
 
         <div class="row g-4">
             {% for sermon in sermons %}
             <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="sermon-media position-relative" style="height:180px;background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                <div class="card border-0 shadow-sm h-100 gty-card overflow-hidden">
+                    <div class="sermon-media position-relative" style="aspect-ratio:16/9;background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
                         {% if sermon.youtube_url or sermon.video_file or sermon.audio_file %}
                         <button type="button" class="sermon-play position-absolute top-0 start-0 w-100 h-100 border-0"
                                 data-kind="{% if sermon.youtube_url %}youtube{% elif sermon.video_file %}video{% else %}audio{% endif %}"
                                 data-src="{% if sermon.youtube_url %}{{ sermon.youtube_url }}{% elif sermon.video_file %}{{ sermon.video_file.url }}{% else %}{{ sermon.audio_file.url }}{% endif %}"
-                                aria-label="Play {{ sermon.title }}"
-                                style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
+                                aria-label="Play {{ sermon.title }}" style="background:rgba(0,0,0,0.12);">
+                            <span class="card-play">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                            </span>
                         </button>
                         {% endif %}
-                        {% if sermon.category %}
-                        <span class="badge bg-primary position-absolute top-0 end-0 m-2">{{ sermon.get_category_display }}</span>
+                        {% if not sermon.youtube_url and not sermon.video_file and not sermon.audio_file %}
+                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.15);">
+                            <i class="bi bi-volume-up text-white" style="font-size:2rem;"></i>
+                        </div>
+                        {% endif %}
+                        {% if series and sermon.series == series %}
+                        <span class="position-absolute top-0 end-0 m-2"><span class="badge bg-accent text-white">{{ sermon.series }}</span></span>
                         {% endif %}
                     </div>
-                    <div class="card-body p-4 d-flex flex-column">
-                        <h5 class="card-title fw-bold">{{ sermon.title }}</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>{{ sermon.speaker }} | {{ sermon.date|date:"M j, Y" }}
-                        </p>
-                        {% if sermon.bible_verse %}<p class="text-muted small mb-1"><i class="bi bi-book me-1"></i>{{ sermon.bible_verse }}</p>{% endif %}
-                        {% if sermon.description %}<p class="text-muted small mb-3">{{ sermon.description|truncatewords:25 }}</p>{% else %}<p class="mb-3"></p>{% endif %}
-                        <div class="d-flex flex-wrap gap-2 mt-auto">
+                    <div class="card-body p-4">
+                        <h5 class="fw-semibold mb-2 gty-title">{{ sermon.title }}</h5>
+                        <p class="text-muted small mb-1"><i class="bi bi-calendar3 me-2"></i>{{ sermon.date|date:"F j, Y" }}</p>
+                        {% if sermon.bible_verse %}<p class="text-muted small mb-2"><i class="bi bi-book me-2"></i>{{ sermon.bible_verse }}</p>{% endif %}
+                        <div class="d-flex flex-wrap gap-2 pt-1 border-top pt-3">
                             {% if sermon.youtube_url %}
                             <button type="button" class="btn btn-sm btn-outline-primary sermon-play" data-kind="youtube" data-src="{{ sermon.youtube_url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
                             {% elif sermon.video_file %}
@@ -247,11 +230,9 @@
 
 <!-- Subscribe Section -->
 <section class="py-5 bg-primary text-white">
-    <div class="container py-4 text-center">
-        <h2 class="display-6 fw-bold mb-3">Never Miss a Message</h2>
-        <p class="text-white-50 fs-5 mb-4">
-            Reach out to join our mailing list and receive new sermons directly in your inbox every Monday morning.
-        </p>
+    <div class="container py-3 text-center">
+        <h2 class="h3 fw-bold mb-3">Never Miss a Message</h2>
+        <p class="text-white-50 mb-4">Reach out to join our mailing list and receive new sermons directly in your inbox every Monday morning.</p>
         <a href="{% url 'public:contact' %}" class="btn btn-accent btn-lg text-white">
             <i class="bi bi-bell me-2"></i>Join the Mailing List
         </a>
@@ -270,4 +251,21 @@ document.addEventListener('click', function (e) {
     new bootstrap.Modal(document.getElementById('notesModal')).show();
 });
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .gty-card { transition: transform .18s ease, box-shadow .18s ease; }
+    .gty-card:hover { transform: translateY(-4px); box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.12) !important; }
+    .gty-title { line-height: 1.35; }
+    .card-play, .featured-play {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 38px; height: 38px; border-radius: 50%;
+        background: rgba(0,0,0,.55); color: #fff;
+        transition: transform .15s ease, background .15s ease;
+    }
+    .featured-play { width: 64px; height: 64px; background: rgba(0,0,0,.45); }
+    .gty-card:hover .card-play, .card-play:hover { background: var(--accent); transform: scale(1.08); }
+    .featured-play:hover { background: var(--accent); }
+</style>
 {% endblock %}
