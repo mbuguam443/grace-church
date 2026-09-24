@@ -37,20 +37,6 @@
                 <div class="rounded-4 overflow-hidden shadow-lg" style="height: 450px;">
                     <img src="{% if church_settings.about_history_image %}{{ church_settings.about_history_image.url }}{% else %}{% static 'img/about-page.jpeg' %}{% endif %}" alt="Grace Church Munyaka" class="w-100 h-100" style="object-fit: cover;">
                 </div>
-                <div class="row g-3 mt-4 text-center">
-                    <div class="col-4">
-                        <h3 class="fw-bold text-primary mb-0">2025</h3>
-                        <p class="text-muted small mb-0">Church Planted</p>
-                    </div>
-                    <div class="col-4">
-                        <h3 class="fw-bold text-primary mb-0">Zone-T</h3>
-                        <p class="text-muted small mb-0">Ruiru East, Kiambu</p>
-                    </div>
-                    <div class="col-4">
-                        <h3 class="fw-bold text-primary mb-0">FBMI</h3>
-                        <p class="text-muted small mb-0">Ruiru Cover</p>
-                    </div>
-                </div>
             </div>
             <div class="col-lg-6">
                 {% for paragraph in church_settings.history_paragraphs %}
