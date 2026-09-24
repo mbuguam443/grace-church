@@ -64,18 +64,20 @@
                 <p class="text-muted mb-4">{{ latest.description|truncatewords:45 }}</p>
                 {% endif %}
                 <div class="d-flex flex-wrap gap-2">
-                    {% if listen_mode and latest.audio_file %}
+                    {% if latest.audio_file and listen_mode %}
                     <button type="button" class="btn btn-primary px-4 py-2 sermon-play" data-kind="audio" data-src="{{ latest.audio_file.url }}">
                         <i class="bi bi-headphones me-2"></i>Listen Now
                     </button>
-                    {% elif latest.youtube_url or latest.video_file %}
-                    <a href="{% url 'public:sermon-detail' latest.pk %}" class="btn btn-primary px-4 py-2">
+                    {% endif %}
+                    {% if latest.youtube_url or latest.video_file %}
+                    <a href="{% url 'public:sermon-detail' latest.pk %}" class="btn {% if latest.audio_file and listen_mode %}btn-outline-secondary{% else %}btn-primary{% endif %} px-4 py-2">
                         <i class="bi bi-play-fill me-2"></i>Watch Now
                     </a>
-                    {% elif latest.audio_file %}
-                    <a href="{% url 'public:sermon-detail' latest.pk %}" class="btn btn-primary px-4 py-2">
+                    {% endif %}
+                    {% if latest.audio_file and not listen_mode %}
+                    <button type="button" class="btn {% if latest.youtube_url or latest.video_file %}btn-outline-secondary{% else %}btn-primary{% endif %} px-4 py-2 sermon-play" data-kind="audio" data-src="{{ latest.audio_file.url }}">
                         <i class="bi bi-headphones me-2"></i>Listen Now
-                    </a>
+                    </button>
                     {% endif %}
                     {% if latest.sermon_notes %}
                     <button type="button" class="btn btn-outline-secondary px-4 py-2 notes-btn" data-id="{{ latest.pk }}" data-title="{{ latest.title }}">
