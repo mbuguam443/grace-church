@@ -70,12 +70,12 @@
                 <i class="bi bi-list"></i>
             </button>
             <ul class="navbar-nav" id="navMenu">
-                <li class="nav-item"><a class="nav-link" href="{% url 'public:sermons' %}?mode=listen" data-nav="listen">Listen</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'public:sermons' %}" data-nav="watch">Watch</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:home' %}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'public:about' %}">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'public:ministries' %}">Ministries</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'public:services' %}">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'public:events' %}">Events</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:sermons' %}">Sermons</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'public:contact' %}">Contact</a></li>
                 {% if user.is_authenticated %}
                 <li class="nav-item"><a class="btn btn-outline-light btn-sm ms-2" href="{% url 'dashboard:index' %}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
@@ -171,20 +171,12 @@
         // Active nav link
         document.addEventListener('DOMContentLoaded', function() {
             var path = window.location.pathname;
-            var search = window.location.search || '';
-            var isListen = search.indexOf('mode=listen') !== -1;
             var navLinks = document.querySelectorAll('.navbar-nav a');
             navLinks.forEach(function(link) {
                 var href = link.getAttribute('href');
-                if (!href) return;
-                var pathPart = href.split('?')[0];
-                if (link.hasAttribute('data-nav')) {
-                    if (path.startsWith(pathPart) && (link.getAttribute('data-nav') === 'listen' ? isListen : !isListen)) {
-                        link.classList.add('active');
-                    }
-                } else if (href === '/') {
-                    if (path === '/') link.classList.add('active');
-                } else if (path.startsWith(pathPart)) {
+                if (href && path.startsWith(href) && href !== '/') {
+                    link.classList.add('active');
+                } else if (href === '/' && path === '/') {
                     link.classList.add('active');
                 }
             });
