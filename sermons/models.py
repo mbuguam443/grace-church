@@ -1,4 +1,5 @@
 from django.db import models
+import re
 
 
 class Sermon(models.Model):
@@ -32,3 +33,15 @@ class Sermon(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.speaker}"
+
+    @property
+    def youtube_id(self):
+        match = re.search(
+            r'(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})',
+            self.youtube_url or '',
+        )
+        return match.group(1) if match else ''
+
+    @property
+    def thumbnail_url(self):
+        return f'https://img.youtube.com/vi/{self.youtube_id}/hqdefault.jpg' if self.youtube_id else ''

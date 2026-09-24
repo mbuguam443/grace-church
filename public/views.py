@@ -139,7 +139,61 @@ class PublicSermonsView(ListView):
     model = Sermon
     template_name = 'public/sermons.html'
     context_object_name = 'sermons'
-    paginate_by = 10
+    paginate_by = 9
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q = self.request.GET.get('q', '')
+        category = self.request.GET.get('category', '')
+        series = self.request.GET.get('series', '')
+        speaker = self.request.GET.get('speaker', '')
+        if q:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(title__icontains=q)
+                | Q(speaker__icontains=q)
+                | Q(bible_verse__icontains=q)
+                | Q(description__icontains=q)
+            )
+        if category:
+            queryset = queryset.filter(category__iexact=category)
+        if series:
+            queryset = queryset.filter(series__iexact=series)
+        if speaker:
+            queryset = queryset.filter(speaker__iexact=speaker)
+        return queryset.distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context['latest'] = queryset.first()
+        context['series_list'] = (
+            Sermon.objects.exclude(series='')
+            .values_list('series', flat=True)
+            .distinct()
+            .order_by('series')
+        )
+        context['speakers'] = (
+            Sermon.objects.exclude(speaker='')
+            .values_list('speaker', flat=True)
+            .distinct()
+            .order_by('speaker')
+        )
+        context['categories'] = [
+            (value, label) for value, label in Sermon.CATEGORY_CHOICES
+            if Sermon.objects.filter(category=value).exists()
+        ]
+        context['q'] = self.request.GET.get('q', '')
+        context['category'] = self.request.GET.get('category', '')
+        context['series'] = self.request.GET.get('series', '')
+        context['speaker'] = self.request.GET.get('speaker', '')
+        qs_params = []
+        for key in ('q', 'category', 'series', 'speaker'):
+            value = self.request.GET.get(key, '')
+            if value:
+                qs_params.append(f'{key}={value}')
+        context['preserved_q'] = ('&'.join(qs_params) + '&') if qs_params else ''
+        return context
 
 
 class PublicContactView(TemplateView):

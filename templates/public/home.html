@@ -175,58 +175,54 @@
             <p>Be nourished by the Word. Watch or listen to our most recent messages from God's Word.</p>
         </div>
         <div class="row g-4">
+            {% for sermon in latest_sermons %}
             <div class="col-md-4">
                 <div class="card sermon-card h-100">
-                    <div class="sermon-placeholder" style="background:url('{% if church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
-                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;">
+                    <div class="sermon-placeholder position-relative" style="background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                        {% if sermon.youtube_url or sermon.video_file or sermon.audio_file %}
+                        <button type="button" class="media-btn position-absolute top-0 start-0 w-100 h-100 border-0 p-0" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;"
+                                data-kind="{% if sermon.youtube_url %}youtube{% elif sermon.video_file %}video{% else %}audio{% endif %}"
+                                data-src="{% if sermon.youtube_url %}{{ sermon.youtube_url }}{% elif sermon.video_file %}{{ sermon.video_file.url }}{% else %}{{ sermon.audio_file.url }}{% endif %}"
+                                aria-label="Play {{ sermon.title }}">
                             <i class="bi bi-play-circle-fill text-white" style="font-size:3rem;opacity:0.9;"></i>
+                        </button>
+                        {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;">
+                            <i class="bi bi-book text-white" style="font-size:3rem;opacity:0.9;"></i>
                         </div>
-                        <span class="badge bg-accent position-absolute top-0 end-0 m-2">New</span>
+                        {% endif %}
+                        {% if forloop.first %}<span class="badge bg-accent position-absolute top-0 end-0 m-2">New</span>{% endif %}
                     </div>
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Walking in Divine Purpose</h5>
+                        <h5 class="card-title fw-bold">{{ sermon.title }}</h5>
                         <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor James Mwangi
+                            <i class="bi bi-person-fill me-1"></i>{{ sermon.speaker }}
                         </p>
-                        <p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>Jeremiah 29:11</p>
-                        <p class="text-muted">Discover how God has uniquely equipped you to fulfill His divine purpose in this generation.</p>
+                        {% if sermon.bible_verse %}<p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>{{ sermon.bible_verse }}</p>{% endif %}
+                        <p class="text-muted small">{{ sermon.description|default:"Watch or listen to this message."|truncatewords:25 }}</p>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            {% if sermon.youtube_url %}
+                            <button type="button" class="btn btn-sm btn-primary media-btn" data-kind="youtube" data-src="{{ sermon.youtube_url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
+                            {% elif sermon.video_file %}
+                            <button type="button" class="btn btn-sm btn-primary media-btn" data-kind="video" data-src="{{ sermon.video_file.url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
+                            {% endif %}
+                            {% if sermon.audio_file %}
+                            <button type="button" class="btn btn-sm btn-outline-primary media-btn" data-kind="audio" data-src="{{ sermon.audio_file.url }}"><i class="bi bi-headphones me-1"></i>Listen</button>
+                            {% endif %}
+                            {% if sermon.pdf_file %}
+                            <a href="{{ sermon.pdf_file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-text me-1"></i>PDF</a>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card sermon-card h-100">
-                    <div class="sermon-placeholder" style="background:url('{% static 'img/hero-cross.jpg' %}') center/cover;">
-                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:3rem;opacity:0.9;"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">The Power of Unwavering Faith</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor James Mwangi
-                        </p>
-                        <p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>Hebrews 11:1</p>
-                        <p class="text-muted">Learn how to maintain steadfast faith even in the most challenging seasons of life.</p>
-                    </div>
-                </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-megaphone display-3 text-muted d-block mb-3"></i>
+                <h5 class="fw-bold">No sermons yet</h5>
+                <p class="text-muted">Messages will appear here once they are posted.</p>
             </div>
-            <div class="col-md-4">
-                <div class="card sermon-card h-100">
-                    <div class="sermon-placeholder" style="background:url('{% static 'img/church-building.jpg' %}') center/cover;">
-                        <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(0,0,0,0.3);border-radius:12px 12px 0 0;">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:3rem;opacity:0.9;"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Gratitude: The Gateway to Miracles</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor James Mwangi
-                        </p>
-                        <p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>1 Thessalonians 5:18</p>
-                        <p class="text-muted">Explore how a lifestyle of gratitude unlocks God's supernatural intervention.</p>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
         <div class="text-center mt-5">
             <a href="{% url 'public:sermons' %}" class="btn btn-outline-primary btn-lg">

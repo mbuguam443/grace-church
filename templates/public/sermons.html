@@ -20,294 +20,227 @@
     </div>
 </section>
 
-<!-- Video Modal -->
-<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-dark">
-            <div class="modal-header border-0">
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Notes Modal -->
+<div class="modal fade" id="notesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notesModalTitle"><i class="bi bi-journal-text me-2"></i>Sermon Notes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0">
-                <div class="ratio ratio-16x9">
-                    <iframe id="videoFrame" src="" title="Sermon Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                </div>
-            </div>
+            <div class="modal-body" id="notesModalBody"></div>
         </div>
     </div>
 </div>
 
+{% if latest %}
 <!-- Featured Sermon -->
 <section class="py-5">
     <div class="container py-4">
         <div class="card border-0 shadow-lg overflow-hidden">
             <div class="row g-0">
                 <div class="col-lg-5">
-                    <div class="rounded-4 overflow-hidden shadow video-thumbnail" style="position:relative;cursor:pointer;" onclick="playVideo('dQw4w9WgXcQ')">
-                        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="Latest Sermon" class="w-100" style="min-height:350px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.3);">
+                    <div class="rounded-4 overflow-hidden shadow position-relative" style="min-height:350px;background:url('{% if latest.thumbnail_url %}{{ latest.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                        {% if latest.youtube_url or latest.video_file or latest.audio_file %}
+                        <button type="button" class="media-btn position-absolute top-0 start-0 w-100 h-100 border-0"
+                                data-kind="{% if latest.youtube_url %}youtube{% elif latest.video_file %}video{% else %}audio{% endif %}"
+                                data-src="{% if latest.youtube_url %}{{ latest.youtube_url }}{% elif latest.video_file %}{{ latest.video_file.url }}{% else %}{{ latest.audio_file.url }}{% endif %}"
+                                aria-label="Play {{ latest.title }}"
+                                style="background:rgba(0,0,0,0.3);">
                             <i class="bi bi-play-circle-fill text-white" style="font-size:4rem;"></i>
-                        </div>
+                        </button>
+                        {% endif %}
                         <span class="badge bg-accent position-absolute top-0 start-0 m-3 fs-6">Latest</span>
                     </div>
                 </div>
                 <div class="col-lg-7">
                     <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center h-100">
                         <h6 class="text-accent fw-bold text-uppercase">Latest Message</h6>
-                        <h2 class="fw-bold text-secondary mb-3">Walking in Divine Purpose</h2>
-                        <p class="text-muted mb-3">
-                            In this powerful message, Pastor John Mbugua explores how God has uniquely
-                            equipped each believer to fulfill His divine purpose. Discover the keys to
-                            unlocking your calling and making an eternal impact in your generation.
-                        </p>
+                        <h2 class="fw-bold text-secondary mb-3">{{ latest.title }}</h2>
+                        {% if latest.description %}
+                        <p class="text-muted mb-3">{{ latest.description|linebreaksbr }}</p>
+                        {% endif %}
                         <div class="mb-4">
-                            <p class="mb-1"><i class="bi bi-person-fill text-primary me-2"></i><strong>Pastor John Mbugua</strong></p>
-                            <p class="mb-1 text-muted small"><i class="bi bi-calendar-event text-primary me-2"></i>October 6, 2024</p>
-                            <p class="mb-0 text-muted small"><i class="bi bi-clock text-primary me-2"></i>Duration: 52 minutes</p>
+                            <p class="mb-1"><i class="bi bi-person-fill text-primary me-2"></i><strong>{{ latest.speaker }}</strong></p>
+                            <p class="mb-1 text-muted small"><i class="bi bi-calendar-event text-primary me-2"></i>{{ latest.date|date:"F j, Y" }}</p>
+                            {% if latest.bible_verse %}
+                            <p class="mb-0 text-muted small"><i class="bi bi-book me-2 text-primary"></i>{{ latest.bible_verse }}</p>
+                            {% endif %}
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="#" class="btn btn-primary">
+                            {% if latest.youtube_url %}
+                            <button type="button" class="btn btn-primary media-btn" data-kind="youtube" data-src="{{ latest.youtube_url }}">
                                 <i class="bi bi-play-fill me-2"></i>Watch Now
-                            </a>
-                            <a href="#" class="btn btn-outline-primary">
+                            </button>
+                            {% elif latest.video_file %}
+                            <button type="button" class="btn btn-primary media-btn" data-kind="video" data-src="{{ latest.video_file.url }}">
+                                <i class="bi bi-play-fill me-2"></i>Watch Now
+                            </button>
+                            {% endif %}
+                            {% if latest.audio_file %}
+                            <button type="button" class="btn btn-outline-primary media-btn" data-kind="audio" data-src="{{ latest.audio_file.url }}">
                                 <i class="bi bi-headphones me-2"></i>Listen Audio
-                            </a>
-                            <a href="#" class="btn btn-outline-secondary">
+                            </button>
+                            {% endif %}
+                            {% if latest.sermon_notes %}
+                            <button type="button" class="btn btn-outline-secondary notes-btn" data-id="{{ latest.pk }}" data-title="{{ latest.title }}">
                                 <i class="bi bi-file-earmark-text me-2"></i>Read Notes
+                            </button>
+                            {% endif %}
+                            {% if latest.pdf_file %}
+                            <a href="{{ latest.pdf_file.url }}" target="_blank" class="btn btn-outline-secondary">
+                                <i class="bi bi-file-pdf me-2"></i>Download PDF
                             </a>
+                            {% endif %}
                         </div>
+                        <div class="d-none" id="notes-{{ latest.pk }}">{{ latest.sermon_notes|linebreaksbr }}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+{% endif %}
 
+{% if series_list %}
 <!-- Sermon Series -->
 <section class="py-5 bg-light">
     <div class="container py-4">
         <div class="text-center mb-5">
-            <h6 class="text-accent fw-bold text-uppercase ls-2">Current Series</h6>
-            <h2 class="display-5 fw-bold text-secondary">Kingdom Principles</h2>
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Sermon Series</h6>
+            <h2 class="display-5 fw-bold text-secondary">Browse by Series</h2>
             <p class="text-muted mx-auto" style="max-width: 600px;">
-                A 6-week series exploring the foundational principles that govern God's Kingdom
-                and how to apply them in everyday life.
+                Dive deeper into a topic with one of our teaching series.
             </p>
         </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('kJQP7kiw5Fk')">
-                        <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg" alt="The Principle of Seedtime & Harvest" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                        <span class="badge bg-accent position-absolute top-0 end-0 m-2">Week 1</span>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">The Principle of Seedtime & Harvest</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Oct 6, 2024
-                        </p>
-                        <p class="text-muted small">Understanding the unchangeable law of sowing and reaping in God's Kingdom economy.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('9bZkp7q19f0')">
-                        <img src="https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg" alt="The Principle of Faith & Confession" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                        <span class="badge bg-primary position-absolute top-0 end-0 m-2">Week 2</span>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">The Principle of Faith & Confession</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Rev. Sarah Kimani | Sep 29, 2024
-                        </p>
-                        <p class="text-muted small">How your words and beliefs shape your reality and activate God's power in your life.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('L_jWHffIx5E')">
-                        <img src="https://img.youtube.com/vi/L_jWHffIx5E/maxresdefault.jpg" alt="The Principle of Stewardship" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                        <span class="badge bg-primary position-absolute top-0 end-0 m-2">Week 3</span>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">The Principle of Stewardship</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Sep 22, 2024
-                        </p>
-                        <p class="text-muted small">Managing God's resources with wisdom and integrity for maximum Kingdom impact.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            {% for s in series_list %}
+            <a href="?series={{ s|urlencode }}" class="btn btn-outline-primary {% if series == s %}active{% endif %}">
+                <i class="bi bi-collection-play me-1"></i>{{ s }}
+            </a>
+            {% endfor %}
         </div>
     </div>
 </section>
+{% endif %}
 
-<!-- Recent Sermons -->
+<!-- Sermon Library -->
 <section class="py-5">
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
             <div>
                 <h6 class="text-accent fw-bold text-uppercase ls-2">Sermon Library</h6>
-                <h2 class="display-5 fw-bold text-secondary mb-0">Recent Messages</h2>
+                <h2 class="display-5 fw-bold text-secondary mb-0">All Messages</h2>
             </div>
-            <div class="d-flex gap-2">
-                <select class="form-select form-select-sm" style="width: auto;">
-                    <option>All Series</option>
-                    <option>Kingdom Principles</option>
-                    <option>Faith Foundations</option>
-                    <option>Spiritual Warfare</option>
+            <form method="get" class="d-flex gap-2 flex-wrap">
+                {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+                {% if speaker %}<input type="hidden" name="speaker" value="{{ speaker }}">{% endif %}
+                {% if series %}<input type="hidden" name="series" value="{{ series }}">{% endif %}
+                {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
+                <select class="form-select form-select-sm" name="series" style="width:auto;" onchange="this.form.submit()">
+                    <option value="">All Series</option>
+                    {% for s in series_list %}
+                    <option value="{{ s }}" {% if series == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
                 </select>
-                <select class="form-select form-select-sm" style="width: auto;">
-                    <option>All Speakers</option>
-                    <option>Pastor John Mbugua</option>
-                    <option>Rev. Sarah Kimani</option>
-                    <option>Pastor David Ochieng</option>
+                <select class="form-select form-select-sm" name="speaker" style="width:auto;" onchange="this.form.submit()">
+                    <option value="">All Speakers</option>
+                    {% for sp in speakers %}
+                    <option value="{{ sp }}" {% if speaker == sp %}selected{% endif %}>{{ sp }}</option>
+                    {% endfor %}
                 </select>
-            </div>
+                <select class="form-select form-select-sm" name="category" style="width:auto;" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for value, label in categories %}
+                    <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <div class="input-group input-group-sm" style="width:220px;">
+                    <input type="text" class="form-control" name="q" placeholder="Search sermons..." value="{{ q }}">
+                    <button class="btn btn-primary" type="submit" aria-label="Search"><i class="bi bi-search"></i></button>
+                </div>
+                {% if q or category or series or speaker %}
+                <a href="{% url 'public:sermons' %}" class="btn btn-sm btn-outline-secondary">Clear</a>
+                {% endif %}
+            </form>
         </div>
+
         <div class="row g-4">
+            {% for sermon in sermons %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('dQw4w9WgXcQ')">
-                        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="The Power of Unwavering Faith" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
+                    <div class="card-img-top sermon-thumbnail position-relative" style="height:180px;background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                        {% if sermon.youtube_url or sermon.video_file or sermon.audio_file %}
+                        <button type="button" class="media-btn position-absolute top-0 start-0 w-100 h-100 border-0"
+                                data-kind="{% if sermon.youtube_url %}youtube{% elif sermon.video_file %}video{% else %}audio{% endif %}"
+                                data-src="{% if sermon.youtube_url %}{{ sermon.youtube_url }}{% elif sermon.video_file %}{{ sermon.video_file.url }}{% else %}{{ sermon.audio_file.url }}{% endif %}"
+                                aria-label="Play {{ sermon.title }}"
+                                style="background:rgba(0,0,0,0.2);">
                             <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
+                        </button>
+                        {% endif %}
+                        {% if sermon.category %}
+                        <span class="badge bg-primary position-absolute top-0 end-0 m-2">{{ sermon.get_category_display }}</span>
+                        {% endif %}
                     </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">The Power of Unwavering Faith</h5>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <h5 class="card-title fw-bold">{{ sermon.title }}</h5>
                         <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Rev. Sarah Kimani | Sep 15, 2024
+                            <i class="bi bi-person-fill me-1"></i>{{ sermon.speaker }} | {{ sermon.date|date:"M j, Y" }}
                         </p>
-                        <p class="text-muted small mb-3">Learn how to maintain steadfast faith even in the most challenging seasons of life.</p>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                        {% if sermon.bible_verse %}<p class="text-muted small mb-1"><i class="bi bi-book me-1"></i>{{ sermon.bible_verse }}</p>{% endif %}
+                        {% if sermon.description %}<p class="text-muted small mb-3">{{ sermon.description|truncatewords:25 }}</p>{% else %}<p class="mb-3"></p>{% endif %}
+                        <div class="d-flex flex-wrap gap-2 mt-auto">
+                            {% if sermon.youtube_url %}
+                            <button type="button" class="btn btn-sm btn-outline-primary media-btn" data-kind="youtube" data-src="{{ sermon.youtube_url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
+                            {% elif sermon.video_file %}
+                            <button type="button" class="btn btn-sm btn-outline-primary media-btn" data-kind="video" data-src="{{ sermon.video_file.url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
+                            {% endif %}
+                            {% if sermon.audio_file %}
+                            <button type="button" class="btn btn-sm btn-outline-secondary media-btn" data-kind="audio" data-src="{{ sermon.audio_file.url }}"><i class="bi bi-headphones me-1"></i>Audio</button>
+                            {% endif %}
+                            {% if sermon.sermon_notes %}
+                            <button type="button" class="btn btn-sm btn-outline-secondary notes-btn" data-id="{{ sermon.pk }}" data-title="{{ sermon.title }}"><i class="bi bi-journal-text me-1"></i>Notes</button>
+                            {% endif %}
+                            {% if sermon.pdf_file %}
+                            <a href="{{ sermon.pdf_file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-pdf me-1"></i>PDF</a>
+                            {% endif %}
                         </div>
+                        <div class="d-none" id="notes-{{ sermon.pk }}">{{ sermon.sermon_notes|linebreaksbr }}</div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('kJQP7kiw5Fk')">
-                        <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg" alt="Gratitude: The Gateway to Miracles" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Gratitude: The Gateway to Miracles</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Sep 8, 2024
-                        </p>
-                        <p class="text-muted small mb-3">Explore how a lifestyle of gratitude unlocks God's supernatural intervention.</p>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
-                        </div>
-                    </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card border-0 shadow-sm p-5 text-center">
+                    <i class="bi bi-search display-4 text-muted d-block mb-3"></i>
+                    <h5 class="fw-bold">No Sermons Found</h5>
+                    <p class="text-muted mb-3">Try a different filter or clear your search.</p>
+                    <a href="{% url 'public:sermons' %}" class="btn btn-outline-primary align-self-center">Clear Filters</a>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('9bZkp7q19f0')">
-                        <img src="https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg" alt="Overcoming Spiritual Warfare" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Overcoming Spiritual Warfare</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor David Ochieng | Sep 1, 2024
-                        </p>
-                        <p class="text-muted small mb-3">Understanding the enemy's tactics and the believer's authority in Christ.</p>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('L_jWHffIx5E')">
-                        <img src="https://img.youtube.com/vi/L_jWHffIx5E/maxresdefault.jpg" alt="The Blessing of Obedience" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">The Blessing of Obedience</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Aug 25, 2024
-                        </p>
-                        <p class="text-muted small mb-3">Discover the blessings that flow from a life of radical obedience to God's Word.</p>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('dQw4w9WgXcQ')">
-                        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg" alt="Walking in Love" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Walking in Love</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Rev. Mary Mbugua | Aug 18, 2024
-                        </p>
-                        <p class="text-muted small mb-3">The greatest commandment and the mark of true discipleship in a divided world.</p>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm h-100 sermon-card">
-                    <div class="card-img-top sermon-thumbnail position-relative video-thumbnail" style="cursor:pointer;" onclick="playVideo('kJQP7kiw5Fk')">
-                        <img src="https://img.youtube.com/vi/kJQP7kiw5Fk/maxresdefault.jpg" alt="Dreaming God-Sized Dreams" class="w-100" style="height:180px;object-fit:cover;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.2);">
-                            <i class="bi bi-play-circle-fill text-white" style="font-size:2.5rem;"></i>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold">Dreaming God-Sized Dreams</h5>
-                        <p class="text-muted small mb-2">
-                            <i class="bi bi-person-fill me-1"></i>Pastor John Mbugua | Aug 11, 2024
-                        </p>
-                        <p class="text-muted small mb-3">How to break free from limitations and pursue the extraordinary plans God has for you.</p>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
-        <div class="text-center mt-5">
-            <a href="#" class="btn btn-outline-primary btn-lg">
-                Load More Sermons <i class="bi bi-arrow-down ms-2"></i>
-            </a>
-        </div>
+
+        {% if is_paginated %}
+        <nav class="mt-5" aria-label="Sermon pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                    <a class="page-link" href="?{{ preserved_q }}page=1"><i class="bi bi-chevron-double-left"></i></a>
+                </li>
+                <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                    <a class="page-link" href="?{{ preserved_q }}page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}1{% endif %}">Previous</a>
+                </li>
+                <li class="page-item active"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="?{{ preserved_q }}page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}{{ page_obj.paginator.num_pages }}{% endif %}">Next</a>
+                </li>
+                <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="?{{ preserved_q }}page={{ page_obj.paginator.num_pages }}"><i class="bi bi-chevron-double-right"></i></a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
     </div>
 </section>
 
@@ -316,31 +249,24 @@
     <div class="container py-4 text-center">
         <h2 class="display-6 fw-bold mb-3">Never Miss a Message</h2>
         <p class="text-white-50 fs-5 mb-4">
-            Subscribe to receive new sermons directly in your inbox every Monday morning.
+            Reach out to join our mailing list and receive new sermons directly in your inbox every Monday morning.
         </p>
-        <form class="row g-2 justify-content-center" style="max-width: 500px; margin: 0 auto;">
-            <div class="col-sm-8">
-                <input type="email" class="form-control form-control-lg" placeholder="Enter your email address">
-            </div>
-            <div class="col-sm-4">
-                <button type="submit" class="btn btn-accent btn-lg w-100 text-white">
-                    <i class="bi bi-bell me-2"></i>Subscribe
-                </button>
-            </div>
-        </form>
+        <a href="{% url 'public:contact' %}" class="btn btn-accent btn-lg text-white">
+            <i class="bi bi-bell me-2"></i>Join the Mailing List
+        </a>
     </div>
 </section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function playVideo(videoId) {
-    var modal = new bootstrap.Modal(document.getElementById('videoModal'));
-    document.getElementById('videoFrame').src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
-    modal.show();
-}
-document.getElementById('videoModal').addEventListener('hidden.bs.modal', function () {
-    document.getElementById('videoFrame').src = '';
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.notes-btn');
+    if (!btn) return;
+    var src = document.getElementById('notes-' + btn.getAttribute('data-id'));
+    document.getElementById('notesModalTitle').innerHTML = '<i class="bi bi-journal-text me-2"></i>' + (btn.getAttribute('data-title') || 'Sermon Notes');
+    document.getElementById('notesModalBody').innerHTML = (src && src.innerHTML.trim()) ? src.innerHTML : 'No notes available for this sermon.';
+    new bootstrap.Modal(document.getElementById('notesModal')).show();
 });
 </script>
 {% endblock %}
