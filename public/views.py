@@ -222,6 +222,25 @@ class PublicGiveView(TemplateView):
     template_name = 'public/give.html'
 
 
+def robots_txt(request):
+    site = getattr(settings, 'SITE_URL', '').rstrip('/')
+    lines = [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /admin/',
+        'Disallow: /dashboard/',
+        'Disallow: /accounts/',
+        'Disallow: /api/',
+        'Disallow: /media/',
+        'Disallow: /members/',
+        'Disallow: /finance/',
+        'Disallow: /reports/',
+        '',
+        'Sitemap: %s/sitemap.xml' % site,
+    ]
+    return HttpResponse('\n'.join(lines), content_type='text/plain')
+
+
 _ALLOWED_AUDIO = {
     'weak-men-vs-distorted-women.mp3',
     'weak-men-vs-distorted-women-full.mp3',

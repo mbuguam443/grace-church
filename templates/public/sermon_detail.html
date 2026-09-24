@@ -2,6 +2,24 @@
 {% load static %}
 
 {% block title %}{{ sermon.title }} - Grace Church Munyaka{% endblock %}
+{% block meta_description %}{{ sermon.description|striptags|truncatechars:160|default:"Watch this sermon from Grace Church Munyaka." }}{% endblock %}
+{% block og_title %}{{ sermon.title }} - Grace Church Munyaka{% endblock %}
+{% block og_type %}video.other{% endblock %}
+{% block og_image %}{% if sermon.thumbnail_url %}<meta property="og:image" content="{{ sermon.thumbnail_url }}">{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  "name": "{{ sermon.title|escapejs }}",
+  "description": "{{ sermon.description|striptags|truncatechars:200|default:sermon.title|escapejs }}",
+  "uploadDate": "{{ sermon.date|date:'c' }}",
+  "thumbnailUrl": "{{ sermon.thumbnail_url|default:'' }}",{% if sermon.youtube_id %}
+  "embedUrl": "https://www.youtube-nocookie.com/embed/{{ sermon.youtube_id }}",{% endif %}
+  "url": "{{ request.build_absolute_uri }}"
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <!-- Notes Modal -->

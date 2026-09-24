@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sitemaps',
     'api',
     'accounts',
     'core',
@@ -73,6 +74,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processor.church_settings',
+                'core.context_processor.seo_defaults',
                 'core.context_processor.module_permissions',
                 'core.context_processor.pending_registrations',
             ],
@@ -121,6 +123,13 @@ CHURCH_PHONE = os.getenv('CHURCH_PHONE', '')
 CHURCH_ADDRESS = os.getenv('CHURCH_ADDRESS', '')
 CHURCH_WEBSITE = os.getenv('CHURCH_WEBSITE', '')
 CURRENCY = os.getenv('CURRENCY', 'KES')
+
+SITE_URL = os.getenv('SITE_URL', 'http://gracechurch.schones-heim-builders.co.ke')
+DEFAULT_META_DESCRIPTION = os.getenv(
+    'DEFAULT_META_DESCRIPTION',
+    'Grace Church Munyaka is a Christ-centered church family in Munyaka, Kenya. '
+    'Join us for Sunday worship, Bible teaching, sermons, ministries and community events.',
+)
 
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')

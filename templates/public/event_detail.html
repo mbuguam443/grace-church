@@ -2,6 +2,29 @@
 {% load static %}
 
 {% block title %}{{ event.name }} - Grace Church Munyaka{% endblock %}
+{% block meta_description %}{{ event.description|striptags|truncatechars:160|default:"Join us for this event at Grace Church Munyaka." }}{% endblock %}
+{% block og_title %}{{ event.name }} - Grace Church Munyaka{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_image %}{% if event.image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ event.image.url }}">{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": "{{ event.name|escapejs }}",
+  "startDate": "{{ event.date|date:'c' }}",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "location": {
+    "@type": "Place",
+    "name": "{{ event.location|default:church_settings.church_name|escapejs }}"
+  },
+  "description": "{{ event.description|striptags|truncatechars:200|escapejs }}",
+  "url": "{{ request.build_absolute_uri }}"{% if event.image %},
+  "image": "{{ request.scheme }}://{{ request.get_host }}{{ event.image.url }}"{% endif %}
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <!-- Page Header -->
