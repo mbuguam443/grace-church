@@ -88,9 +88,15 @@
                         </div>
                         <h3 class="fw-bold text-secondary mb-0">Our Call</h3>
                     </div>
-                    <p class="text-muted fs-5">
-                        "{{ church_settings.about_call }}"
-                    </p>
+                    {% for paragraph in church_settings.call_paragraphs %}
+                    {% if forloop.first %}
+                    <p class="fs-5 fw-bold text-secondary mb-2">{{ paragraph }}</p>
+                    {% else %}
+                    <p class="text-muted mb-0">{{ paragraph }}</p>
+                    {% endif %}
+                    {% empty %}
+                    <p class="text-muted fs-5">{{ church_settings.about_call }}</p>
+                    {% endfor %}
                 </div>
             </div>
             <div class="col-lg-6">
@@ -101,9 +107,15 @@
                         </div>
                         <h3 class="fw-bold text-secondary mb-0">Our Divine Promise</h3>
                     </div>
-                    <p class="text-muted fs-5">
-                        "{{ church_settings.about_divine_promise }}"
-                    </p>
+                    {% for paragraph in church_settings.divine_promise_paragraphs %}
+                    {% if forloop.first %}
+                    <p class="fs-5 fw-bold text-secondary mb-2">{{ paragraph }}</p>
+                    {% else %}
+                    <p class="text-muted mb-0">{{ paragraph }}</p>
+                    {% endif %}
+                    {% empty %}
+                    <p class="text-muted fs-5">{{ church_settings.about_divine_promise }}</p>
+                    {% endfor %}
                 </div>
             </div>
         </div>

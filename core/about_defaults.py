@@ -29,15 +29,16 @@ ABOUT_HISTORY_BODY = "\n\n".join([
 ])
 
 ABOUT_CALL = (
-    "To grow in the grace and knowledge of our Lord and Savior Jesus Christ (2 Peter 3:16). "
+    "To grow in the grace and knowledge of our Lord and Savior Jesus Christ (2 Peter 3:16).\n\n"
     "We are committed to nurturing spiritual maturity through God's Word, prayer, worship, "
     "fellowship, and faithful service. As we grow in Christ, we seek to reflect His love, "
     "share His Gospel, and bring glory to His name in all that we do."
 )
 
 ABOUT_DIVINE_PROMISE = (
-    "An open door (Revelation 3:8). This divine promise gives us confidence to proclaim "
-    "the Gospel, serve our community, and fulfill the mission He has entrusted to us."
+    "An open door (Revelation 3:8).\n\n"
+    "This divine promise gives us confidence to proclaim the Gospel, serve our community, "
+    "and fulfill the mission He has entrusted to us."
 )
 
 ABOUT_MILESTONES = "\n".join([

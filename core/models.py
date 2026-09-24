@@ -92,6 +92,14 @@ class ChurchSetting(models.Model):
         return [p.strip() for p in body.split('\n\n') if p.strip()]
 
     @property
+    def call_paragraphs(self):
+        return [p.strip() for p in (self.about_call or '').split('\n\n') if p.strip()]
+
+    @property
+    def divine_promise_paragraphs(self):
+        return [p.strip() for p in (self.about_divine_promise or '').split('\n\n') if p.strip()]
+
+    @property
     def milestones_list(self):
         items = []
         for raw in (self.about_milestones or '').splitlines():
