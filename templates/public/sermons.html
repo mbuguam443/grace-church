@@ -43,7 +43,7 @@
                     {% if latest.youtube_url %}
                     <div class="sermon-media h-100">
                         <div class="ratio ratio-16x9 h-100">
-                            <iframe src="https://www.youtube.com/embed/{{ latest.youtube_id }}?rel=0" title="{{ latest.title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe src="https://www.youtube-nocookie.com/embed/{{ latest.youtube_id }}?rel=0&origin={{ request.scheme }}://{{ request.get_host|urlencode }}" title="{{ latest.title }}" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                         </div>
                     </div>
                     {% elif latest.video_file %}
@@ -75,6 +75,9 @@
                             {% endif %}
                         </div>
                         <div class="d-flex flex-wrap gap-2">
+                            {% if latest.youtube_url %}
+                            <a href="{{ latest.youtube_url }}" target="_blank" rel="noopener" class="btn btn-outline-secondary"><i class="bi bi-youtube me-2"></i>Watch on YouTube</a>
+                            {% endif %}
                             {% if latest.sermon_notes %}
                             <button type="button" class="btn btn-outline-secondary notes-btn" data-id="{{ latest.pk }}" data-title="{{ latest.title }}">
                                 <i class="bi bi-file-earmark-text me-2"></i>Read Notes

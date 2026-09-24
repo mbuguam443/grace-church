@@ -198,7 +198,8 @@
             if (kind === 'youtube') {
                 var id = youtubeId(src);
                 if (!id) return '<div class="alert alert-warning m-2 mb-0">Sorry, this YouTube link could not be read.</div>';
-                return '<div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/' + id + '?rel=0" title="Sermon video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+                var origin = encodeURIComponent(window.location.origin);
+                return '<div class="ratio ratio-16x9"><iframe src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0&origin=' + origin + '" title="Sermon video" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>';
             }
             if (kind === 'video') {
                 return '<video src="' + src + '" controls preload="auto" class="w-100" style="max-height:420px;"></video>';
