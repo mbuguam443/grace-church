@@ -1,0 +1,172 @@
+{% extends "public/base.html" %}
+{% load static %}
+
+{% block title %}{{ sermon.title }} - Grace Church Munyaka{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header bg-primary text-white py-4">
+    <div class="container py-2 text-center">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'public:sermons' %}" class="text-white">Sermons</a></li>
+                <li class="breadcrumb-item active text-white-50" aria-current="page">Watch</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- Notes Modal -->
+<div class="modal fade" id="notesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notesModalTitle"><i class="bi bi-journal-text me-2"></i>Sermon Notes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="notesModalBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Video Detail -->
+<section class="py-5">
+    <div class="container py-2">
+        <!-- Full-width player, roughly YouTube half-height -->
+        <div class="watch-player rounded-3 overflow-hidden shadow-sm bg-black mx-auto">
+            {% if sermon.youtube_id %}
+            <div class="w-100 h-100">
+                <iframe class="w-100 h-100" src="https://www.youtube-nocookie.com/embed/{{ sermon.youtube_id }}?rel=0&origin={{ request.scheme }}://{{ request.get_host|urlencode }}&autoplay=1"
+                        title="{{ sermon.title }}" frameborder="0"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen></iframe>
+            </div>
+            {% elif sermon.video_file %}
+            <video class="w-100 h-100" src="{{ sermon.video_file.url }}" controls autoplay preload="auto"></video>
+            {% elif sermon.audio_file %}
+            <div class="w-100 h-100 d-flex flex-column">
+                <div class="flex-grow-1 d-flex align-items-center justify-content-center"
+                     style="background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                    <span class="featured-play bg-black bg-opacity-50">
+                        <i class="bi bi-headphones display-6 text-white p-4"></i>
+                    </span>
+                </div>
+                <div class="p-3 bg-white">
+                    <audio class="w-100" src="{{ sermon.audio_file.url }}" controls autoplay preload="auto"></audio>
+                </div>
+            </div>
+            {% else %}
+            <div class="w-100 h-100 d-flex align-items-center justify-content-center"
+                 style="background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                <span class="badge bg-light text-dark px-4 py-3">No media attached to this sermon yet.</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Title & info -->
+        <div class="mt-4">
+            <div class="d-flex flex-wrap gap-2 mb-2">
+                {% if sermon.category %}<span class="badge bg-light text-dark px-3 py-2 small">{{ sermon.get_category_display }}</span>{% endif %}
+                {% if sermon.series %}<span class="badge bg-accent text-white px-3 py-2 small"><i class="bi bi-collection-play me-1"></i>{{ sermon.series }}</span>{% endif %}
+            </div>
+            <h1 class="h2 fw-bold mb-2">{{ sermon.title }}</h1>
+            <div class="d-flex flex-wrap align-items-center text-muted small gap-3 mb-3">
+                <span><i class="bi bi-person me-2"></i>{{ sermon.speaker }}</span>
+                <span><i class="bi bi-calendar3 me-2"></i>{{ sermon.date|date:"F j, Y" }}</span>
+                {% if sermon.bible_verse %}<span><i class="bi bi-book me-2"></i>{{ sermon.bible_verse }}</span>{% endif %}
+            </div>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                {% if sermon.sermon_notes %}
+                <button type="button" class="btn btn-outline-secondary notes-btn" data-id="{{ sermon.pk }}" data-title="{{ sermon.title }}">
+                    <i class="bi bi-journal-text me-2"></i>Notes
+                </button>
+                {% endif %}
+                {% if sermon.pdf_file %}
+                <a href="{{ sermon.pdf_file.url }}" target="_blank" class="btn btn-outline-secondary">
+                    <i class="bi bi-file-pdf me-2"></i>Download PDF
+                </a>
+                {% endif %}
+            </div>
+            {% if sermon.description %}
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold text-secondary mb-2">About this Message</h6>
+                    <p class="text-muted mb-0 text-pre">{{ sermon.description|linebreaksbr }}</p>
+                </div>
+            </div>
+            {% endif %}
+            <div class="d-none" id="notes-{{ sermon.pk }}">{{ sermon.sermon_notes|linebreaksbr }}</div>
+        </div>
+    </div>
+</section>
+
+<!-- More Sermons -->
+{% if related %}
+<section class="py-5 bg-light">
+    <div class="container py-3">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+            <h2 class="h3 fw-bold text-secondary mb-0">
+                {% if sermon.series %}More from {{ sermon.series }}{% else %}More Sermons{% endif %}
+            </h2>
+            <a href="{% url 'public:sermons' %}" class="fw-semibold text-accent text-decoration-none">
+                View All <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            {% for s in related %}
+            <div class="col-md-6 col-lg-4">
+                <a href="{% url 'public:sermon-detail' s.pk %}" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm h-100 gty-card overflow-hidden">
+                        <div class="position-relative" style="aspect-ratio:16/9;background:url('{% if s.thumbnail_url %}{{ s.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.15);">
+                                <span class="card-play">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <h5 class="fw-semibold mb-2 gty-title text-dark">{{ s.title }}</h5>
+                            <p class="text-muted small mb-1"><i class="bi bi-calendar3 me-2"></i>{{ s.date|date:"F j, Y" }}</p>
+                            {% if s.bible_verse %}<p class="text-muted small mb-0"><i class="bi bi-book me-2"></i>{{ s.bible_verse }}</p>{% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.notes-btn');
+    if (!btn) return;
+    var src = document.getElementById('notes-' + btn.getAttribute('data-id'));
+    document.getElementById('notesModalTitle').innerHTML = '<i class="bi bi-journal-text me-2"></i>' + (btn.getAttribute('data-title') || 'Sermon Notes');
+    document.getElementById('notesModalBody').innerHTML = (src && src.innerHTML.trim()) ? src.innerHTML : 'No notes available for this sermon.';
+    new bootstrap.Modal(document.getElementById('notesModal')).show();
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .watch-player { width: 100%; aspect-ratio: 16 / 9; max-height: 72vh; }
+    .watch-player iframe, .watch-player video { border: 0; object-fit: contain; display: block; }
+    .card-play {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px; border-radius: 50%;
+        background: rgba(0,0,0,.55); color: #fff; transition: background .15s ease, transform .15s ease;
+    }
+    .gty-card { transition: transform .18s ease, box-shadow .18s ease; }
+    .gty-card:hover { transform: translateY(-4px); box-shadow: 0 .75rem 1.5rem rgba(0,0,0,.12) !important; }
+    .gty-card:hover .card-play { background: var(--accent); transform: scale(1.08); }
+    .gty-title { line-height: 1.35; }
+</style>
+{% endblock %}

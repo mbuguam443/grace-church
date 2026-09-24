@@ -196,6 +196,21 @@ class PublicSermonsView(ListView):
         return context
 
 
+class PublicSermonDetailView(DetailView):
+    model = Sermon
+    template_name = 'public/sermon_detail.html'
+    context_object_name = 'sermon'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        sermon = self.get_object()
+        related = Sermon.objects.exclude(pk=sermon.pk)
+        if sermon.series:
+            related = related.filter(series=sermon.series)
+        ctx['related'] = related.order_by('-date')[:6]
+        return ctx
+
+
 class PublicContactView(TemplateView):
     template_name = 'public/contact.html'
 
