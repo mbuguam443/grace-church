@@ -7,14 +7,12 @@
 <!-- Page Header -->
 <section class="page-header bg-primary text-white py-4">
     <div class="container py-3 text-center">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center mb-2">
-                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
-                <li class="breadcrumb-item active text-white-50" aria-current="page">Watch</li>
-            </ol>
-        </nav>
-        <h1 class="display-5 fw-bold mb-1">Watch</h1>
+        <h1 class="display-5 fw-bold mb-1">{% if listen_mode %}Listen{% else %}Watch{% endif %}</h1>
+        {% if listen_mode %}
+        <p class="text-white-50 mb-0">Listen to the Word of God, one message at a time.</p>
+        {% else %}
         <p class="text-white-50 mb-0">Watch or listen to the Word of God, one message at a time.</p>
+        {% endif %}
     </div>
 </section>
 
@@ -66,7 +64,11 @@
                 <p class="text-muted mb-4">{{ latest.description|truncatewords:45 }}</p>
                 {% endif %}
                 <div class="d-flex flex-wrap gap-2">
-                    {% if latest.youtube_url or latest.video_file %}
+                    {% if listen_mode and latest.audio_file %}
+                    <button type="button" class="btn btn-primary px-4 py-2 sermon-play" data-kind="audio" data-src="{{ latest.audio_file.url }}">
+                        <i class="bi bi-headphones me-2"></i>Listen Now
+                    </button>
+                    {% elif latest.youtube_url or latest.video_file %}
                     <a href="{% url 'public:sermon-detail' latest.pk %}" class="btn btn-primary px-4 py-2">
                         <i class="bi bi-play-fill me-2"></i>Watch Now
                     </a>
@@ -109,6 +111,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body py-3">
                 <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+                    {% if listen_mode %}<input type="hidden" name="mode" value="listen">{% endif %}
                     {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
                     {% if speaker %}<input type="hidden" name="speaker" value="{{ speaker }}">{% endif %}
                     {% if series %}<input type="hidden" name="series" value="{{ series }}">{% endif %}
@@ -169,13 +172,13 @@
                         <p class="text-muted small mb-1"><i class="bi bi-calendar3 me-2"></i>{{ sermon.date|date:"F j, Y" }}</p>
                         {% if sermon.bible_verse %}<p class="text-muted small mb-2"><i class="bi bi-book me-2"></i>{{ sermon.bible_verse }}</p>{% endif %}
                         <div class="d-flex flex-wrap gap-2 pt-1 border-top pt-3">
-                            {% if sermon.youtube_url %}
-                            <button type="button" class="btn btn-sm btn-outline-primary sermon-play" data-kind="youtube" data-src="{{ sermon.youtube_url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
-                            {% elif sermon.video_file %}
-                            <button type="button" class="btn btn-sm btn-outline-primary sermon-play" data-kind="video" data-src="{{ sermon.video_file.url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
-                            {% endif %}
                             {% if sermon.audio_file %}
-                            <button type="button" class="btn btn-sm btn-outline-secondary sermon-play" data-kind="audio" data-src="{{ sermon.audio_file.url }}"><i class="bi bi-headphones me-1"></i>Audio</button>
+                            <button type="button" class="btn btn-sm {% if listen_mode %}btn-primary{% else %}btn-outline-secondary{% endif %} sermon-play" data-kind="audio" data-src="{{ sermon.audio_file.url }}"><i class="bi bi-headphones me-1"></i>{% if listen_mode %}Listen{% else %}Audio{% endif %}</button>
+                            {% endif %}
+                            {% if sermon.youtube_url %}
+                            <button type="button" class="btn btn-sm {% if listen_mode %}btn-outline-secondary{% else %}btn-outline-primary{% endif %} sermon-play" data-kind="youtube" data-src="{{ sermon.youtube_url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
+                            {% elif sermon.video_file %}
+                            <button type="button" class="btn btn-sm {% if listen_mode %}btn-outline-secondary{% else %}btn-outline-primary{% endif %} sermon-play" data-kind="video" data-src="{{ sermon.video_file.url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
                             {% endif %}
                             {% if sermon.sermon_notes %}
                             <button type="button" class="btn btn-sm btn-outline-secondary notes-btn" data-id="{{ sermon.pk }}" data-title="{{ sermon.title }}"><i class="bi bi-journal-text me-1"></i>Notes</button>

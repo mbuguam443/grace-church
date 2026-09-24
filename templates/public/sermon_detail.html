@@ -4,19 +4,6 @@
 {% block title %}{{ sermon.title }} - Grace Church Munyaka{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<section class="page-header bg-primary text-white py-4">
-    <div class="container py-2 text-center">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb justify-content-center mb-0">
-                <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-white">Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'public:sermons' %}" class="text-white">Sermons</a></li>
-                <li class="breadcrumb-item active text-white-50" aria-current="page">Watch</li>
-            </ol>
-        </nav>
-    </div>
-</section>
-
 <!-- Notes Modal -->
 <div class="modal fade" id="notesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">

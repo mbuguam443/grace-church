@@ -187,11 +187,14 @@ class PublicSermonsView(ListView):
         context['category'] = self.request.GET.get('category', '')
         context['series'] = self.request.GET.get('series', '')
         context['speaker'] = self.request.GET.get('speaker', '')
+        context['listen_mode'] = self.request.GET.get('mode') == 'listen'
         qs_params = []
         for key in ('q', 'category', 'series', 'speaker'):
             value = self.request.GET.get(key, '')
             if value:
                 qs_params.append(f'{key}={value}')
+        if context['listen_mode']:
+            qs_params.append('mode=listen')
         context['preserved_q'] = ('&'.join(qs_params) + '&') if qs_params else ''
         return context
 
