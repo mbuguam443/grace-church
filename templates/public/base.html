@@ -157,18 +157,6 @@
         </div>
     </footer>
 
-    <!-- Media Player Modal -->
-    <div class="modal fade" id="mediaModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark">
-                <div class="modal-header border-0">
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-0" id="mediaModalBody"></div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Navbar scroll effect
@@ -200,34 +188,32 @@
                     });
                 });
             }
-            var mediaModal = document.getElementById('mediaModal');
-            if (mediaModal) {
-                mediaModal.addEventListener('hidden.bs.modal', function() {
-                    document.getElementById('mediaModalBody').innerHTML = '';
-                });
-            }
         });
-        // Shared sermon media player (YouTube / video file / audio file)
+        // Shared sermon media player (inline, no popup): swaps a .sermon-media area
         function youtubeId(url) {
             var m = String(url || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
             return m ? m[1] : '';
         }
-        document.addEventListener('click', function(e) {
-            var btn = e.target.closest('.media-btn');
-            if (!btn) return;
-            var kind = btn.getAttribute('data-kind');
-            var src = btn.getAttribute('data-src') || '';
-            var body = document.getElementById('mediaModalBody');
-            var html = '';
-            if (kind === 'youtube' && youtubeId(src)) {
-                html = '<div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/' + youtubeId(src) + '?autoplay=1" title="Sermon video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
-            } else if (kind === 'video') {
-                html = '<video src="' + src + '" controls autoplay class="w-100" style="max-height:72vh;height:auto;"></video>';
-            } else if (kind === 'audio') {
-                html = '<audio src="' + src + '" controls autoplay class="w-100"></audio>';
+        function buildEmbed(kind, src) {
+            if (kind === 'youtube') {
+                var id = youtubeId(src);
+                if (!id) return '<div class="alert alert-warning m-2 mb-0">Sorry, this YouTube link could not be read.</div>';
+                return '<div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/' + id + '?rel=0" title="Sermon video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
             }
-            body.innerHTML = html;
-            new bootstrap.Modal(document.getElementById('mediaModal')).show();
+            if (kind === 'video') {
+                return '<video src="' + src + '" controls preload="auto" class="w-100" style="max-height:420px;"></video>';
+            }
+            return '<audio src="' + src + '" controls autoplay class="w-100"></audio>';
+        }
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.sermon-play');
+            if (!btn) return;
+            var holder = btn.closest('.sermon-media');
+            if (!holder) return;
+            var kind = btn.getAttribute('data-kind');
+            if (holder.querySelector('iframe, video, audio')) return;
+            holder.innerHTML = buildEmbed(kind, btn.getAttribute('data-src') || '');
+            holder.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
     </script>
     {% block extra_js %}{% endblock %}
