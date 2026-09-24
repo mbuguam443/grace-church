@@ -1,0 +1,37 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Delete Leader - {{ church_settings.short_name|default:"GC" }} Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Delete Leader</h2>
+    <nav class="breadcrumb">
+        <a href="{% url 'dashboard:index' %}">Home</a> / <a href="{% url 'core:leaders' %}">Leadership</a> / Delete
+    </nav>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-exclamation-triangle text-danger display-4"></i>
+                </div>
+                <h5 class="fw-bold mb-2">Remove {{ object.name }}?</h5>
+                <p class="text-muted">
+                    {% if object.role %}{{ object.role }} &middot; {% endif %}This will remove them from the public
+                    Leadership at Grace section. This cannot be undone.
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Yes, Remove
+                    </button>
+                    <a href="{% url 'core:leaders' %}" class="btn btn-outline-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

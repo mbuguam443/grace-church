@@ -206,6 +206,9 @@
             {% endif %}
             {% endif %}
             {% if allowed_modules is None or 'settings' in allowed_modules %}
+            <a href="{% url 'core:leaders' %}" class="{% if '/core/leaders' in request.path %}active{% endif %}"><i class="bi bi-people-fill"></i> Leadership</a>
+            {% endif %}
+            {% if allowed_modules is None or 'settings' in allowed_modules %}
             <a href="{% url 'core:settings' %}" class="{% if '/core/settings' in request.path %}active{% endif %}"><i class="bi bi-gear"></i> Settings</a>
             {% endif %}
             {% endif %}

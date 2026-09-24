@@ -12,7 +12,7 @@ from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
 
 from communication.models import Announcement
-from core.models import ChurchSetting
+from core.models import ChurchSetting, Leader
 from events.models import Event, EventRegistration
 from ministries.models import Ministry
 from sermons.models import Sermon
@@ -48,6 +48,11 @@ class PublicHomeView(TemplateView):
 
 class PublicAboutView(TemplateView):
     template_name = 'public/about.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['leaders'] = Leader.objects.filter(is_active=True).order_by('order', 'name')
+        return ctx
 
 
 class PublicMinistriesView(ListView):

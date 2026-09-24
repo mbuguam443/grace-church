@@ -133,3 +133,28 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.user}"
+
+
+class Leader(models.Model):
+    name = models.CharField(max_length=200)
+    role = models.CharField(max_length=120, blank=True)
+    photo = models.ImageField(upload_to='leaders/', blank=True, null=True)
+    bio = models.TextField(blank=True)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name_plural = 'Leaders'
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def initials(self):
+        parts = [p for p in self.name.split() if p]
+        if not parts:
+            return '?'
+        if len(parts) >= 2:
+            return (parts[0][0] + parts[-1][0]).upper()
+        return parts[0][0].upper()

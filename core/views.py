@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import ChurchSetting
+from .models import ChurchSetting, Leader
 
 
 class AdminRequiredMixin(UserPassesTestMixin):
@@ -31,3 +31,49 @@ class SettingsView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('core:settings')
+
+
+class LeaderListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
+    model = Leader
+    template_name = 'core/leaders.html'
+    context_object_name = 'leaders'
+    paginate_by = 20
+
+    def get_queryset(self):
+        return Leader.objects.order_by('order', 'name')
+
+
+class LeaderCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
+    model = Leader
+    template_name = 'core/leader_form.html'
+    fields = ['name', 'role', 'photo', 'bio', 'order', 'is_active']
+
+    def get_success_url(self):
+        return reverse_lazy('core:leaders')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Leader added successfully.')
+        return super().form_valid(form)
+
+
+class LeaderUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
+    model = Leader
+    template_name = 'core/leader_form.html'
+    fields = ['name', 'role', 'photo', 'bio', 'order', 'is_active']
+
+    def get_success_url(self):
+        return reverse_lazy('core:leaders')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Leader updated successfully.')
+        return super().form_valid(form)
+
+
+class LeaderDeleteView(LoginRequiredMixin, AdminRequiredMixin, DeleteView):
+    model = Leader
+    template_name = 'core/leader_confirm_delete.html'
+    success_url = reverse_lazy('core:leaders')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Leader removed.')
+        return super().form_valid(form)
