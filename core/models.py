@@ -1,6 +1,7 @@
 from django.db import models
 
 from accounts.models import User
+from .about_defaults import about_defaults
 from .modules import MODULES
 
 
@@ -47,6 +48,30 @@ class ChurchSetting(models.Model):
     audio_title = models.CharField(max_length=120, blank=True)
     audio_speaker = models.CharField(max_length=120, blank=True)
     service_times = models.TextField(blank=True, help_text='One per line')
+    about_history_intro = models.TextField(
+        null=True, blank=True,
+        help_text='About page intro paragraph.',
+    )
+    about_history_body = models.TextField(
+        null=True, blank=True,
+        help_text='About page history. Separate paragraphs with a blank line.',
+    )
+    about_history_image = models.ImageField(
+        upload_to='church/', null=True, blank=True,
+        help_text='About page image (recommended 1280x575 or wider).',
+    )
+    about_call = models.TextField(
+        null=True, blank=True,
+        help_text='"Our Call" card text on the About page.',
+    )
+    about_divine_promise = models.TextField(
+        null=True, blank=True,
+        help_text='"Our Divine Promise" card text on the About page.',
+    )
+    about_milestones = models.TextField(
+        null=True, blank=True,
+        help_text='Key Milestones. One per line, format: Date | Description',
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -58,8 +83,27 @@ class ChurchSetting(models.Model):
 
     @classmethod
     def get_settings(cls):
-        obj, created = cls.objects.get_or_create(pk=1)
+        obj, created = cls.objects.get_or_create(pk=1, defaults=about_defaults())
         return obj
+
+    @property
+    def history_paragraphs(self):
+        body = self.about_history_body or ''
+        return [p.strip() for p in body.split('\n\n') if p.strip()]
+
+    @property
+    def milestones_list(self):
+        items = []
+        for raw in (self.about_milestones or '').splitlines():
+            line = raw.strip()
+            if not line:
+                continue
+            date_label, sep, description = line.partition('|')
+            if sep:
+                items.append({'date': date_label.strip(), 'description': description.strip()})
+            else:
+                items.append({'date': '', 'description': line})
+        return items
 
     @property
     def audio_basename(self):

@@ -19,7 +19,8 @@ class SettingsView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
               'sermons_image', 'cta_image', 'email', 'phone', 'address',
               'website', 'currency', 'timezone', 'primary_color', 'secondary_color',
               'accent_color', 'gold_color', 'audio_file', 'audio_title', 'audio_speaker',
-              'service_times']
+              'service_times', 'about_history_intro', 'about_history_body',
+              'about_history_image', 'about_call', 'about_divine_promise', 'about_milestones']
 
     def get_object(self):
         return ChurchSetting.get_settings()

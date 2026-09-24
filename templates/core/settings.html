@@ -218,6 +218,67 @@
 
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-clock-history me-2"></i>About Page</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.about_history_intro.id_for_label }}" class="form-label">History Intro</label>
+                            {{ form.about_history_intro }}
+                            {% if form.about_history_intro.errors %}
+                            <div class="invalid-feedback d-block">{{ form.about_history_intro.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Short intro paragraph at the top of the Brief History section.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.about_history_body.id_for_label }}" class="form-label">History</label>
+                            {{ form.about_history_body }}
+                            {% if form.about_history_body.errors %}
+                            <div class="invalid-feedback d-block">{{ form.about_history_body.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Separate paragraphs with a blank line.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.about_history_image.id_for_label }}" class="form-label">About Page Image</label>
+                            {{ form.about_history_image }}
+                            {% if form.about_history_image.errors %}
+                            <div class="invalid-feedback d-block">{{ form.about_history_image.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.instance.pk and form.instance.about_history_image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.about_history_image.url }}" alt="About" class="rounded" height="60" style="object-fit:contain;">
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Recommended: 1280x575 or wider. Leave blank to use the default image.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.about_call.id_for_label }}" class="form-label">Our Call</label>
+                            {{ form.about_call }}
+                            {% if form.about_call.errors %}
+                            <div class="invalid-feedback d-block">{{ form.about_call.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.about_divine_promise.id_for_label }}" class="form-label">Our Divine Promise</label>
+                            {{ form.about_divine_promise }}
+                            {% if form.about_divine_promise.errors %}
+                            <div class="invalid-feedback d-block">{{ form.about_divine_promise.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.about_milestones.id_for_label }}" class="form-label">Key Milestones</label>
+                            {{ form.about_milestones }}
+                            {% if form.about_milestones.errors %}
+                            <div class="invalid-feedback d-block">{{ form.about_milestones.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">One milestone per line, format: <code>Date | Description</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
                     <h5 class="card-title mb-0"><i class="bi bi-currency-exchange me-2"></i>Regional Settings</h5>
                 </div>
                 <div class="card-body">
