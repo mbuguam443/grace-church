@@ -36,9 +36,8 @@ ABOUT_CALL = (
 )
 
 ABOUT_DIVINE_PROMISE = (
-    "Based on Revelation 3:8, Grace Church believes God has set before it an open door "
-    "that no one can shut. This promise strengthens its mission of evangelism, community "
-    "service, and faithful proclamation of the Gospel."
+    "An open door (Revelation 3:8). This divine promise gives us confidence to proclaim "
+    "the Gospel, serve our community, and fulfill the mission He has entrusted to us."
 )
 
 ABOUT_MILESTONES = "\n".join([
