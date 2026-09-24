@@ -202,14 +202,15 @@
                 return '<div class="ratio ratio-16x9"><iframe src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0&origin=' + origin + '&autoplay=1" title="Sermon video" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>';
             }
             if (kind === 'video') {
-                return '<video src="' + src + '" controls autoplay preload="auto" class="w-100" style="max-height:420px;"></video>';
+                return '<div class="w-100 h-100 d-flex align-items-center justify-content-center"><video src="' + src + '" controls autoplay preload="auto" class="w-100"></video></div>';
             }
-            return '<audio src="' + src + '" controls autoplay class="w-100"></audio>';
+            return '<div class="w-100 h-100 d-flex align-items-center justify-content-center p-3"><audio src="' + src + '" controls autoplay class="w-100"></audio></div>';
         }
         document.addEventListener('click', function(e) {
             var btn = e.target.closest('.sermon-play');
             if (!btn) return;
-            var holder = btn.closest('.sermon-media');
+            var card = btn.closest('.gty-card, .card');
+            var holder = (card && card.querySelector('.sermon-media')) || btn.closest('.sermon-media');
             if (!holder) return;
             var kind = btn.getAttribute('data-kind');
             if (holder.querySelector('iframe, video, audio')) return;

@@ -146,13 +146,14 @@
             {% for sermon in sermons %}
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100 gty-card overflow-hidden">
-                    <a href="{% url 'public:sermon-detail' sermon.pk %}" class="sermon-media position-relative d-block text-decoration-none" style="aspect-ratio:16/9;background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
+                    <div class="sermon-media position-relative" style="aspect-ratio:16/9;background:url('{% if sermon.thumbnail_url %}{{ sermon.thumbnail_url }}{% elif church_settings.sermons_image %}{{ church_settings.sermons_image.url }}{% else %}{% static 'img/hero-bible.jpg' %}{% endif %}') center/cover;">
                         {% if sermon.youtube_url or sermon.video_file or sermon.audio_file %}
-                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.12);">
+                        <a href="{% url 'public:sermon-detail' sermon.pk %}" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-decoration-none"
+                           aria-label="Watch {{ sermon.title }}" style="background:rgba(0,0,0,0.12);">
                             <span class="card-play">
                                 <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
                             </span>
-                        </div>
+                        </a>
                         {% endif %}
                         {% if not sermon.youtube_url and not sermon.video_file and not sermon.audio_file %}
                         <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.15);">
@@ -162,17 +163,19 @@
                         {% if series and sermon.series == series %}
                         <span class="position-absolute top-0 end-0 m-2"><span class="badge bg-accent text-white">{{ sermon.series }}</span></span>
                         {% endif %}
-                    </a>
+                    </div>
                     <div class="card-body p-4">
                         <h5 class="fw-semibold mb-2"><a href="{% url 'public:sermon-detail' sermon.pk %}" class="gty-title text-decoration-none text-dark" style="line-height:1.35;">{{ sermon.title }}</a></h5>
                         <p class="text-muted small mb-1"><i class="bi bi-calendar3 me-2"></i>{{ sermon.date|date:"F j, Y" }}</p>
                         {% if sermon.bible_verse %}<p class="text-muted small mb-2"><i class="bi bi-book me-2"></i>{{ sermon.bible_verse }}</p>{% endif %}
                         <div class="d-flex flex-wrap gap-2 pt-1 border-top pt-3">
-                            {% if sermon.youtube_url or sermon.video_file %}
-                            <a href="{% url 'public:sermon-detail' sermon.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-play-fill me-1"></i>Watch</a>
+                            {% if sermon.youtube_url %}
+                            <button type="button" class="btn btn-sm btn-outline-primary sermon-play" data-kind="youtube" data-src="{{ sermon.youtube_url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
+                            {% elif sermon.video_file %}
+                            <button type="button" class="btn btn-sm btn-outline-primary sermon-play" data-kind="video" data-src="{{ sermon.video_file.url }}"><i class="bi bi-play-fill me-1"></i>Watch</button>
                             {% endif %}
                             {% if sermon.audio_file %}
-                            <a href="{% url 'public:sermon-detail' sermon.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-headphones me-1"></i>Audio</a>
+                            <button type="button" class="btn btn-sm btn-outline-secondary sermon-play" data-kind="audio" data-src="{{ sermon.audio_file.url }}"><i class="bi bi-headphones me-1"></i>Audio</button>
                             {% endif %}
                             {% if sermon.sermon_notes %}
                             <button type="button" class="btn btn-sm btn-outline-secondary notes-btn" data-id="{{ sermon.pk }}" data-title="{{ sermon.title }}"><i class="bi bi-journal-text me-1"></i>Notes</button>

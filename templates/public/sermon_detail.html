@@ -33,6 +33,12 @@
 <!-- Video Detail -->
 <section class="py-5">
     <div class="container py-2">
+        <!-- Back to sermons -->
+        <div class="mb-3">
+            <a href="{% url 'public:sermons' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to Sermons
+            </a>
+        </div>
         <!-- Full-width player, roughly YouTube half-height -->
         <div class="watch-player rounded-3 overflow-hidden shadow-sm bg-black mx-auto">
             {% if sermon.youtube_id %}
