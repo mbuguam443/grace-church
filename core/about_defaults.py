@@ -11,15 +11,16 @@ ABOUT_HISTORY_INTRO = (
 )
 
 ABOUT_HISTORY_BODY = "\n\n".join([
-    "In 2023, Harry and Alice Wamani purchased land in Zone-T, Ruiru East, Juja East, "
-    "Kiambu County. They later acquired an adjoining plot, which Harry dedicated to the "
-    "Lord as an offering of thanksgiving. That land would become the future home of Grace Church.",
+    "In 2023, God graciously provided for Harry and Alice and they purchased land in "
+    "Zone-T, Ruiru East, Juja East, Kiambu County. They later acquired an adjoining plot, "
+    "which Harry dedicated to the Lord as an offering of thanksgiving. That land would "
+    "become the future home of Grace Church.",
     "After moving into their home in January 2025, Harry invited neighbours for what was "
-    "meant to be a men's fellowship. Families came together instead, and it naturally became "
-    "a weekly family fellowship centered on prayer, fellowship, and Bible study.",
-    "As the fellowship grew, many residents desired a church within their community. After "
-    "prayer and seeking another ministry to begin work in Zone-T, Harry became convinced that "
-    "God was calling him to plant a church.",
+    "meant to be a men's fellowship. Families came together instead, and it naturally "
+    "became a weekly Friday family fellowship centered on prayer, fellowship, and Bible study.",
+    "As the fellowship grew, there was a desire to have a new church within the community. "
+    "After prayer and seeking another ministry to begin work in Zone-T, Harry became "
+    "convinced that God was calling him to plant a church.",
     "On 22 June 2025, Harry and Alice met with Pastor Dr. Joseph Kinyanjui and his wife of "
     "FBMI Ruiru Church for prayer, counsel, and encouragement, marking the commissioning of "
     "the emerging ministry.",
