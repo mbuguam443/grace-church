@@ -29,9 +29,10 @@ ABOUT_HISTORY_BODY = "\n\n".join([
 ])
 
 ABOUT_CALL = (
-    "To grow in the grace and knowledge of our Lord and Savior Jesus Christ. The church "
-    "is committed to spiritual maturity through God's Word, prayer, worship, fellowship, "
-    "and faithful service, bringing glory to Christ in all it does."
+    "To grow in the grace and knowledge of our Lord and Savior Jesus Christ (2 Peter 3:16). "
+    "We are committed to nurturing spiritual maturity through God's Word, prayer, worship, "
+    "fellowship, and faithful service. As we grow in Christ, we seek to reflect His love, "
+    "share His Gospel, and bring glory to His name in all that we do."
 )
 
 ABOUT_DIVINE_PROMISE = (
