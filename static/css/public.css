@@ -242,7 +242,7 @@ nav.navbar.scrolled ul.navbar-nav a.btn-outline-light:hover {
 .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
 
 /* Event Cards */
-.event-card { border-left: 4px solid var(--accent); }
+.event-card { box-shadow: 0 0.5rem 1.5rem rgba(78, 58, 44, 0.18); }
 .event-date-box {
     min-width: 55px; padding: 8px 12px; border-radius: var(--radius-sm);
     background: #B5651D;
