@@ -20,7 +20,10 @@ class SettingsView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
               'website', 'currency', 'timezone', 'primary_color', 'secondary_color',
               'accent_color', 'gold_color', 'audio_file', 'audio_title', 'audio_speaker',
               'service_times', 'about_history_intro', 'about_history_body',
-              'about_history_image', 'about_call', 'about_divine_promise', 'about_milestones']
+              'about_history_image', 'about_call', 'about_divine_promise', 'about_milestones',
+              'featured_event_title', 'featured_event_description', 'featured_event_image',
+              'featured_event_date', 'featured_event_time', 'featured_event_venue',
+              'featured_event_audience', 'featured_event_link']
 
     def get_object(self):
         return ChurchSetting.get_settings()

@@ -24,12 +24,13 @@
 </section>
 
 <!-- Featured Event -->
+{% if church_settings.featured_event_title %}
 <section class="py-5">
     <div class="container py-4">
         <div class="card border-0 shadow-lg overflow-hidden">
             <div class="row g-0">
                 <div class="col-lg-5">
-                    <div style="background:url('{% static 'img/congregation.jpg' %}') center/cover;min-height:300px;">
+                    <div style="background:url('{% if church_settings.featured_event_image %}{{ church_settings.featured_event_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;min-height:300px;">
                         <div class="d-flex align-items-center justify-content-center h-100" style="background:rgba(181,101,29,0.7);min-height:300px;">
                             <div class="text-center p-4 text-white">
                                 <i class="bi bi-megaphone-fill display-1"></i>
@@ -41,23 +42,21 @@
                 <div class="col-lg-7">
                     <div class="card-body p-4 p-lg-5 d-flex flex-column justify-content-center h-100">
                         <span class="badge bg-accent align-self-start mb-3">Featured</span>
-                        <h2 class="fw-bold text-secondary mb-3">Annual Revival Crusade 2024</h2>
+                        <h2 class="fw-bold text-secondary mb-3">{{ church_settings.featured_event_title }}</h2>
                         <p class="text-muted mb-3">
-                            Join us for our most anticipated event of the year! Five nights of powerful worship,
-                            anointed preaching, and life-changing miracles. Guest speaker: Bishop Michael Okonkwo.
-                            Expect transformation, healing, and a fresh touch from God.
+                            {{ church_settings.featured_event_description }}
                         </p>
                         <div class="row g-3 mb-4">
                             <div class="col-sm-6">
-                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-calendar-event text-primary me-2 fs-5"></i><span><strong>Date:</strong> Nov 11-15, 2024</span></p>
-                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-clock me-2 fs-5" class="text-primary"></i><span><strong>Time:</strong> 6:00 PM - 9:00 PM</span></p>
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-calendar-event text-primary me-2 fs-5"></i><span><strong>Date:</strong> {{ church_settings.featured_event_date|default:"-" }}</span></p>
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-clock me-2 fs-5"></i><span><strong>Time:</strong> {{ church_settings.featured_event_time|default:"-" }}</span></p>
                             </div>
                             <div class="col-sm-6">
-                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-geo-alt me-2" class="text-primary" fs-5"></i><span><strong>Venue:</strong> Main Sanctuary</span></p>
-                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-people text-primary me-2 fs-5"></i><span><strong>Open to:</strong> Everyone</span></p>
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-geo-alt me-2 fs-5"></i><span><strong>Venue:</strong> {{ church_settings.featured_event_venue|default:"-" }}</span></p>
+                                <p class="mb-1 d-flex align-items-center"><i class="bi bi-people text-primary me-2 fs-5"></i><span><strong>Open to:</strong> {{ church_settings.featured_event_audience|default:"Everyone" }}</span></p>
                             </div>
                         </div>
-                        <a href="{% url 'public:contact' %}" class="btn btn-accent text-white align-self-start">
+                        <a href="{% if church_settings.featured_event_link %}{{ church_settings.featured_event_link }}{% else %}{% url 'public:contact' %}{% endif %}" class="btn btn-accent text-white align-self-start"{% if church_settings.featured_event_link %} target="_blank" rel="noopener"{% endif %}>
                             <i class="bi bi-bell me-2"></i>RSVP Now
                         </a>
                     </div>
@@ -66,6 +65,7 @@
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- Upcoming Events -->
 <section class="py-5 bg-light">

@@ -72,6 +72,38 @@ class ChurchSetting(models.Model):
         null=True, blank=True,
         help_text='Key Milestones. One per line, format: Date | Description',
     )
+    featured_event_title = models.CharField(
+        max_length=200, null=True, blank=True,
+        help_text='Featured event title on the Events page.',
+    )
+    featured_event_description = models.TextField(
+        null=True, blank=True,
+        help_text='Featured event description on the Events page.',
+    )
+    featured_event_image = models.ImageField(
+        upload_to='church/', null=True, blank=True,
+        help_text='Featured event image (leave blank for the default image).',
+    )
+    featured_event_date = models.CharField(
+        max_length=100, null=True, blank=True,
+        help_text='Featured event date, e.g. Nov 11-15, 2024.',
+    )
+    featured_event_time = models.CharField(
+        max_length=100, null=True, blank=True,
+        help_text='Featured event time, e.g. 6:00 PM - 9:00 PM.',
+    )
+    featured_event_venue = models.CharField(
+        max_length=200, null=True, blank=True,
+        help_text='Featured event venue.',
+    )
+    featured_event_audience = models.CharField(
+        max_length=100, null=True, blank=True,
+        help_text='Featured event audience, e.g. Everyone.',
+    )
+    featured_event_link = models.URLField(
+        null=True, blank=True,
+        help_text='Optional button link (leave blank to use the contact page).',
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

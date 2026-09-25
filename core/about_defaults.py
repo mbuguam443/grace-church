@@ -51,6 +51,17 @@ ABOUT_MILESTONES = "\n".join([
     "2 Aug 2026 | Seventh baptized member recorded and Grace Church received official cover documents from FBMI Ruiru.",
 ])
 
+FEATURED_EVENT_TITLE = "Annual Revival Crusade 2024"
+FEATURED_EVENT_DESCRIPTION = (
+    "Join us for our most anticipated event of the year! Five nights of powerful worship, "
+    "anointed preaching, and life-changing miracles. Guest speaker: Bishop Michael Okonkwo. "
+    "Expect transformation, healing, and a fresh touch from God."
+)
+FEATURED_EVENT_DATE = "Nov 11-15, 2024"
+FEATURED_EVENT_TIME = "6:00 PM - 9:00 PM"
+FEATURED_EVENT_VENUE = "Main Sanctuary"
+FEATURED_EVENT_AUDIENCE = "Everyone"
+
 
 def about_defaults():
     return {
@@ -59,4 +70,10 @@ def about_defaults():
         'about_call': ABOUT_CALL,
         'about_divine_promise': ABOUT_DIVINE_PROMISE,
         'about_milestones': ABOUT_MILESTONES,
+        'featured_event_title': FEATURED_EVENT_TITLE,
+        'featured_event_description': FEATURED_EVENT_DESCRIPTION,
+        'featured_event_date': FEATURED_EVENT_DATE,
+        'featured_event_time': FEATURED_EVENT_TIME,
+        'featured_event_venue': FEATURED_EVENT_VENUE,
+        'featured_event_audience': FEATURED_EVENT_AUDIENCE,
     }

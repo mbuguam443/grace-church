@@ -279,6 +279,82 @@
 
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-star-fill me-2"></i>Featured Event</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="{{ form.featured_event_title.id_for_label }}" class="form-label">Event Title</label>
+                            {{ form.featured_event_title }}
+                            {% if form.featured_event_title.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_title.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.featured_event_image.id_for_label }}" class="form-label">Event Image</label>
+                            {{ form.featured_event_image }}
+                            {% if form.featured_event_image.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_image.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.instance.pk and form.instance.featured_event_image %}
+                            <div class="mt-2">
+                                <img src="{{ form.instance.featured_event_image.url }}" alt="Featured event" class="rounded" height="60" style="object-fit:contain;">
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Leave blank to use the default image.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.featured_event_description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.featured_event_description }}
+                            {% if form.featured_event_description.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_description.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.featured_event_date.id_for_label }}" class="form-label">Date</label>
+                            {{ form.featured_event_date }}
+                            {% if form.featured_event_date.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_date.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">e.g. Nov 11-15, 2024</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.featured_event_time.id_for_label }}" class="form-label">Time</label>
+                            {{ form.featured_event_time }}
+                            {% if form.featured_event_time.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_time.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">e.g. 6:00 PM - 9:00 PM</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.featured_event_venue.id_for_label }}" class="form-label">Venue</label>
+                            {{ form.featured_event_venue }}
+                            {% if form.featured_event_venue.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_venue.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.featured_event_audience.id_for_label }}" class="form-label">Open To</label>
+                            {{ form.featured_event_audience }}
+                            {% if form.featured_event_audience.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_audience.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">e.g. Everyone</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.featured_event_link.id_for_label }}" class="form-label">Button Link (optional)</label>
+                            {{ form.featured_event_link }}
+                            {% if form.featured_event_link.errors %}
+                            <div class="invalid-feedback d-block">{{ form.featured_event_link.errors.0 }}</div>
+                            {% endif %}
+                            <div class="form-text">Leave blank to link to the Contact page.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
                     <h5 class="card-title mb-0"><i class="bi bi-currency-exchange me-2"></i>Regional Settings</h5>
                 </div>
                 <div class="card-body">
