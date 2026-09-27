@@ -20,3 +20,30 @@ class BibleStudyNote(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.bible_verse}"
+
+
+class BibleStudyComment(models.Model):
+    study = models.ForeignKey(BibleStudyNote, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='bible_study_comments')
+    body = models.TextField()
+    attachment = models.FileField(
+        upload_to='bible_study/', blank=True, null=True,
+        help_text='Optional PDF attachment. Only visible to administrators.',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Comment by {self.name} on {self.study.title}"
+
+    @property
+    def name(self):
+        return self.user.get_full_name() or self.user.username
+
+    @property
+    def attachment_is_pdf(self):
+        if not self.attachment:
+            return False
+        return self.attachment.name.lower().endswith('.pdf')

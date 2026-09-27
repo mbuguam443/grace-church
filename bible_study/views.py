@@ -1,11 +1,14 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
-from .models import BibleStudyNote
+from .forms import BibleStudyCommentForm
+from .models import BibleStudyComment, BibleStudyNote
 
 
 class BibleStudyListView(LoginRequiredMixin, ListView):
@@ -44,6 +47,43 @@ class BibleStudyDetailView(LoginRequiredMixin, DetailView):
         if not self.request.user.can_manage_content:
             queryset = queryset.filter(is_active=True)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        study = self.get_object()
+        context['comments'] = study.comments.select_related('user')
+        context['comment_form'] = BibleStudyCommentForm()
+        context['can_view_attachments'] = self.request.user.is_admin_user
+        return context
+
+
+@login_required
+def add_comment(request, pk):
+    study = get_object_or_404(BibleStudyNote, pk=pk)
+    if not study.is_active and not request.user.can_manage_content:
+        raise Http404
+    if request.method == 'POST':
+        form = BibleStudyCommentForm(request.POST, request.FILES)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.study = study
+            comment.user = request.user
+            comment.save()
+            messages.success(request, 'Your comment has been posted.')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+    return redirect('bible_study:study_detail', pk=study.pk)
+
+
+@login_required
+def delete_comment(request, pk, comment_id):
+    study = get_object_or_404(BibleStudyNote, pk=pk)
+    comment = get_object_or_404(BibleStudyComment, pk=comment_id, study=study)
+    if request.method == 'POST' and (request.user.is_admin_user or comment.user == request.user):
+        comment.delete()
+        messages.success(request, 'Comment removed.')
+    return redirect('bible_study:study_detail', pk=study.pk)
 
 
 class BibleStudyCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
