@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
-from .forms import CourseCommentForm, SundaySchoolCourseForm
+from .forms import AddStudentForm, CourseCommentForm, SundaySchoolCourseForm
 from .models import CourseComment, CourseEnrollment, SundaySchoolCourse
 
 
@@ -66,6 +66,7 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
             enrollments = list(course.enrollments.all())
             context['pending_enrollments'] = [e for e in enrollments if e.status == 'pending']
             context['approved_enrollments'] = [e for e in enrollments if e.status == 'approved']
+            context['add_student_form'] = AddStudentForm(course=course)
             context['my_enrollment'] = None
         else:
             context['my_enrollment'] = course.enrollments.filter(student=self.request.user).first()
@@ -153,6 +154,30 @@ def delete_attachment(request, pk, attachment):
             setattr(course, attachment, '')
             course.save(update_fields=[attachment])
             messages.success(request, 'Course material removed.')
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def add_student(request, pk):
+    """Teacher hand-picks a member and adds them to the class directly."""
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can add students to the class.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    if request.method == 'POST':
+        form = AddStudentForm(request.POST, course=course)
+        if form.is_valid():
+            student = form.cleaned_data['student']
+            if course.is_full:
+                messages.error(request, 'Class is full, cannot add more students.')
+            else:
+                CourseEnrollment.objects.get_or_create(
+                    course=course, student=student,
+                    defaults={'status': 'approved', 'approved_at': timezone.now()},
+                )
+                messages.success(request, '%s added to the class.' % (student.get_full_name() or student.username))
+        else:
+            messages.error(request, 'Please select a valid member.')
     return redirect('sunday_school:course_detail', pk=course.pk)
 
 

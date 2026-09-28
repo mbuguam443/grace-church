@@ -1,5 +1,6 @@
 from django import forms
 
+from accounts.models import User
 from .models import CourseComment, SundaySchoolCourse
 
 VIDEO_EXTENSIONS = ['.mp4', '.webm', '.m4v', '.ogv']
@@ -60,3 +61,20 @@ class CourseCommentForm(forms.ModelForm):
         if attachment and not attachment.name.lower().endswith('.pdf'):
             raise forms.ValidationError('Only PDF files can be attached.')
         return attachment
+
+
+class AddStudentForm(forms.Form):
+    """Lets the teacher hand-pick members to place straight into the class."""
+
+    student = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),
+        label='Select a member',
+    )
+
+    def __init__(self, *args, course=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if course is not None:
+            self.fields['student'].queryset = User.objects.filter(
+                is_active=True, is_staff=False, is_superuser=False,
+            ).exclude(sunday_school_enrollments__course=course)
+        self.fields['student'].widget.attrs.update({'class': 'form-select'})

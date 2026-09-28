@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        {% if user.can_manage_content and course.enable_registration %}
+        {% if user.can_manage_content %}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div>
@@ -56,6 +56,18 @@
                 </div>
             </div>
             <div class="card-body">
+                <form method="post" action="{% url 'sunday_school:course_add_student' course.pk %}"
+                      class="d-flex flex-wrap align-items-end gap-2 mb-3 p-2 rounded bg-light border">
+                    {% csrf_token %}
+                    <div class="flex-grow-1" style="min-width: 220px;">
+                        <label class="form-label small text-muted mb-1"><i class="bi bi-person-plus me-1"></i>Add a member directly</label>
+                        {{ add_student_form.student }}
+                        <div class="form-text">The teacher can hand-pick members instead of waiting for join requests.</div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="bi bi-person-plus me-1"></i>Add Student
+                    </button>
+                </form>
                 {% if pending_enrollments %}
                 <h6 class="text-muted small text-uppercase">Join requests ({{ pending_enrollments|length }})</h6>
                 {% for e in pending_enrollments %}
@@ -266,7 +278,7 @@
         </div>
     </div>
     <div class="col-lg-4">
-        {% if course.enable_registration %}
+        {% if course.enable_registration or my_enrollment %}
         <div class="card mb-4">
             <div class="card-body">
                 <h6 class="text-muted small text-uppercase"><i class="bi bi-people me-1"></i>Class Enrollment</h6>
