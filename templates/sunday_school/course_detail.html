@@ -57,36 +57,36 @@
                 </div>
             </div>
             <div class="card-body">
-                <form method="post" action="{% url 'sunday_school:course_add_student' course.pk %}"
+                <form method="post" action="{% url 'sunday_school:course_add_child' course.pk %}"
                       class="d-flex flex-wrap align-items-end gap-2 mb-3 p-2 rounded bg-light border">
                     {% csrf_token %}
                     <div class="flex-grow-1" style="min-width: 220px;">
-                        <label class="form-label small text-muted mb-1"><i class="bi bi-person-plus me-1"></i>Add a member directly</label>
-                        {{ add_student_form.student }}
-                        <div class="form-text">The teacher can hand-pick members instead of waiting for join requests.</div>
+                        <label class="form-label small text-muted mb-1"><i class="bi bi-person-plus me-1"></i>Add a child directly</label>
+                        {{ add_child_form.child }}
+                        <div class="form-text">Children are listed with their parent so you can tell families apart.</div>
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary">
-                        <i class="bi bi-person-plus me-1"></i>Add Student
+                        <i class="bi bi-person-plus me-1"></i>Add Child
                     </button>
                 </form>
-                <form method="post" action="{% url 'sunday_school:course_add_students' course.pk %}"
+                <form method="post" action="{% url 'sunday_school:course_add_children' course.pk %}"
                       class="mb-3 p-2 rounded bg-light border">
                     {% csrf_token %}
-                    <label class="form-label small text-muted mb-1"><i class="bi bi-person-lines-fill me-1"></i>Add several members at once (targeted class)</label>
-                    <select name="students" multiple size="6" class="form-select">
-                        {% for member in add_students_form.students.field.queryset %}
-                        <option value="{{ member.pk }}">{{ member.get_full_name|default:member.username }}{% if member.email %} - {{ member.email }}{% endif %}</option>
+                    <label class="form-label small text-muted mb-1"><i class="bi bi-person-lines-fill me-1"></i>Add several children at once</label>
+                    <select name="children" multiple size="8" class="form-select">
+                        {% for child in add_children_form.children.field.queryset %}
+                        <option value="{{ child.pk }}">{{ child.get_full_name }}{% if child.parent %} ({{ child.parent }}){% endif %} &middot; {{ child.age }} yrs</option>
                         {% endfor %}
                     </select>
-                    <div class="form-text my-2">Hold Ctrl/Cmd to pick several members individually, just like Ministries.</div>
+                    <div class="form-text my-2">Hold Ctrl/Cmd to pick several children individually.</div>
                     <button type="submit" class="btn btn-sm btn-primary">
-                        <i class="bi bi-person-plus-fill me-1"></i>Add Selected Members
+                        <i class="bi bi-person-plus-fill me-1"></i>Add Selected Children
                     </button>
                 </form>
                 <form method="post" action="{% url 'sunday_school:course_add_ministry' course.pk %}"
                       class="mb-3 p-2 rounded bg-light border">
                     {% csrf_token %}
-                    <label class="form-label small text-muted mb-1"><i class="bi bi-people-fill me-1"></i>Target the whole class at a ministry</label>
+                    <label class="form-label small text-muted mb-1"><i class="bi bi-people-fill me-1"></i>Target the class by a ministry</label>
                     <div class="d-flex flex-wrap align-items-center gap-2">
                         <div class="flex-grow-1" style="min-width: 200px;">
                             <select name="ministry" class="form-select">
@@ -96,10 +96,10 @@
                             </select>
                         </div>
                         <button type="submit" class="btn btn-sm btn-primary">
-                            <i class="bi bi-people me-1"></i>Add All Members
+                            <i class="bi bi-people me-1"></i>Add Their Children
                         </button>
                     </div>
-                    <div class="form-text my-2">e.g. Worship, Outreach &amp; Missions - every member of that ministry joins this class.</div>
+                    <div class="form-text my-2">e.g. Worship, Outreach &amp; Missions - the children of everyone in that ministry join this class.</div>
                 </form>
                 <form method="post" action="{% url 'sunday_school:course_add_age_group' course.pk %}"
                       class="mb-3 p-2 rounded bg-light border">
@@ -117,15 +117,15 @@
                             <i class="bi bi-people me-1"></i>Add Age Group
                         </button>
                     </div>
-                    <div class="form-text my-2">Adds every member whose profile age group matches (set it on each member's profile).</div>
+                    <div class="form-text my-2">Adds every child whose age falls in that group, worked out from each child's date of birth.</div>
                 </form>
                 {% if pending_enrollments %}
                 <h6 class="text-muted small text-uppercase">Join requests ({{ pending_enrollments|length }})</h6>
                 {% for e in pending_enrollments %}
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2 p-2 rounded bg-warning bg-opacity-10 border">
                     <div>
-                        <strong>{{ e.student.get_full_name|default:e.student.username }}</strong>
-                        <div class="small text-muted">{{ e.student.email }}</div>
+                        <strong>{{ e.student_name }}</strong>
+                        <div class="small text-muted">{% if e.is_child %}Child{% else %}{{ e.student.email }}{% endif %}</div>
                     </div>
                     <div class="d-flex gap-2">
                         <form method="post" action="{% url 'sunday_school:course_enroll_approve' course.pk e.pk %}">
@@ -142,17 +142,27 @@
                 <hr>
                 {% endif %}
                 {% if approved_enrollments %}
-                <h6 class="text-muted small text-uppercase">Students ({{ approved_enrollments|length }})</h6>
+                <h6 class="text-muted small text-uppercase">
+                    On this class ({{ approved_enrollments|length }})
+                    {% if child_count %}<span class="badge bg-light text-secondary border">{{ child_count }} child{{ child_count|pluralize }}</span>{% endif %}
+                    {% if adult_count %}<span class="badge bg-light text-secondary border">{{ adult_count }} adult{{ adult_count|pluralize }}</span>{% endif %}
+                </h6>
                 <ul class="list-unstyled mb-0">
                     {% for e in approved_enrollments %}
                     <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
                         <div>
+                            {% if e.is_child %}
+                            <i class="bi bi-emoji-smiley me-2 text-muted"></i>
+                            <span>{{ e.student_name }}</span>
+                            {% if e.parent_name %}<span class="badge bg-light text-secondary border ms-1">{{ e.parent_name }}</span>{% endif %}
+                            {% else %}
                             <i class="bi bi-person-circle me-2 text-muted"></i>
-                            <span>{{ e.student.get_full_name|default:e.student.username }}</span>
+                            <span>{{ e.student_name }}</span>
                             {% if e.student == course.posted_by %}<span class="badge bg-info text-dark ms-1">Teacher</span>{% endif %}
+                            {% endif %}
                         </div>
                         <form method="post" action="{% url 'sunday_school:course_enroll_remove' course.pk e.pk %}"
-                              onsubmit="return confirm('Remove {{ e.student.get_full_name|default:e.student.username }} from this class?');">
+                              onsubmit="return confirm('Remove {{ e.student_name }} from this class?');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-link btn-sm text-danger p-0"><i class="bi bi-person-dash me-1"></i>Remove</button>
                         </form>
@@ -338,7 +348,9 @@
                         {% if my_enrollment.status == 'pending' %}
                         <span class="btn btn-warning disabled"><i class="bi bi-hourglass-split me-1"></i>Waiting for approval</span>
                         {% elif my_enrollment.status == 'approved' %}
-                        <span class="btn btn-success disabled"><i class="bi bi-check-lg me-1"></i>You've joined</span>
+                        <span class="btn btn-success disabled"><i class="bi bi-check-lg me-1"></i>
+                            {% if my_enrollment.is_child %}{{ my_enrollment.student_name }} is in this class{% else %}You've joined{% endif %}
+                        </span>
                         {% else %}
                         <a href="#enrollment" class="btn btn-success"><i class="bi bi-person-plus me-1"></i>Join the Class</a>
                         {% endif %}
@@ -372,7 +384,7 @@
                 </p>
                 {% if course.is_full %}
                 <div class="alert alert-danger py-2 mb-2 small">
-                    <i class="bi bi-x-circle me-1"></i>Class is full — no more students can join.
+                    <i class="bi bi-x-circle me-1"></i>Class is full — no more children can be added.
                 </div>
                 {% endif %}
                 {% if user.can_manage_content %}
@@ -380,8 +392,16 @@
                 {% elif my_enrollment %}
                     {% if my_enrollment.status == 'approved' %}
                     <div class="alert alert-success py-2 mb-2">
-                        <i class="bi bi-check-circle me-1"></i>You've joined this class
+                        <i class="bi bi-check-circle me-1"></i>
+                        {% if my_enrollment.is_child %}
+                        <strong>{{ my_enrollment.student_name }}</strong> is in this class
+                        {% else %}
+                        You've joined this class
+                        {% endif %}
                     </div>
+                    {% if my_enrollment.is_child %}
+                    <p class="small text-muted mb-2">The lesson is unlocked for you because your child is on the class.</p>
+                    {% endif %}
                     <form method="post" action="{% url 'sunday_school:course_leave' course.pk %}"
                           onsubmit="return confirm('Leave this class?');">
                         {% csrf_token %}

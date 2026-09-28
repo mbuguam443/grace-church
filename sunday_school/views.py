@@ -10,7 +10,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 
 from accounts.models import User
 from accounts.views import ContentWriteMixin
-from .forms import AddStudentForm, AddStudentsForm, CourseCommentForm, SundaySchoolCourseForm, TargetAgeGroupForm, TargetMinistryForm
+from children.models import Child
+from members.models import Member
+from .forms import AddChildForm, AddChildrenForm, CourseCommentForm, SundaySchoolCourseForm, TargetAgeGroupForm, TargetMinistryForm
 from .models import CourseComment, CourseEnrollment, SundaySchoolCourse
 
 
@@ -57,7 +59,7 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'course'
 
     def get_queryset(self):
-        queryset = super().get_queryset().prefetch_related('enrollments__student')
+        queryset = super().get_queryset().prefetch_related('enrollments__student', 'enrollments__child__parent')
         if not self.request.user.can_manage_content:
             queryset = queryset.filter(is_active=True)
         return queryset
@@ -72,13 +74,23 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
             enrollments = list(course.enrollments.all())
             context['pending_enrollments'] = [e for e in enrollments if e.status == 'pending']
             context['approved_enrollments'] = [e for e in enrollments if e.status == 'approved']
-            context['add_student_form'] = AddStudentForm(course=course)
-            context['add_students_form'] = AddStudentsForm(course=course)
+            context['child_count'] = sum(1 for e in enrollments if e.is_child)
+            context['adult_count'] = sum(1 for e in enrollments if not e.is_child)
+            context['add_child_form'] = AddChildForm(course=course)
+            context['add_children_form'] = AddChildrenForm(course=course)
             context['add_ministry_form'] = TargetMinistryForm()
             context['add_age_group_form'] = TargetAgeGroupForm()
             context['my_enrollment'] = None
         else:
-            context['my_enrollment'] = course.enrollments.filter(student=self.request.user).first()
+            # A parent sees the lesson when one of their children is on the class.
+            member = Member.objects.filter(user=self.request.user).first()
+            child_ids = list(member.children.values_list('pk', flat=True)) if member else []
+            context['my_children'] = (
+                Child.objects.filter(pk__in=child_ids, is_active=True) if child_ids else Child.objects.none()
+            )
+            context['my_enrollment'] = course.enrollments.filter(
+                Q(student=self.request.user) | Q(child_id__in=child_ids)
+            ).first()
         context['can_view_content'] = (
             self.request.user.can_manage_content
             or not course.enable_registration
@@ -87,22 +99,28 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-def add_users_to_course(course, users):
-    """Add the given users to a course, skipping duplicates and respecting capacity.
+def children_in_age_group(age_group):
+    """Active children whose age falls in the given Sunday School age group."""
+    return [child for child in Child.objects.filter(is_active=True).select_related('parent')
+            if child.age_group == age_group]
+
+
+def add_children_to_course(course, children):
+    """Add the given children to a course, skipping duplicates and respecting capacity.
 
     Returns (added, already_enrolled, skipped_full)."""
     added = 0
     already = 0
     skipped_full = 0
-    for student in users:
-        if CourseEnrollment.objects.filter(course=course, student=student).exists():
+    for child in children:
+        if CourseEnrollment.objects.filter(course=course, child=child).exists():
             already += 1
             continue
         if course.is_full:
             skipped_full += 1
             continue
         CourseEnrollment.objects.create(
-            course=course, student=student,
+            course=course, child=child,
             status='approved', approved_at=timezone.now(),
         )
         added += 1
@@ -110,35 +128,32 @@ def add_users_to_course(course, users):
 
 
 def add_ministry_to_course(course, ministry):
-    """Add every member of a ministry that has a login account."""
-    return add_users_to_course(
-        course,
-        [member.user for member in ministry.members.all().select_related('user') if member.user],
-    )
+    """Add the children of every member in the ministry."""
+    children = Child.objects.filter(
+        parent__in=ministry.members.all(), is_active=True,
+    ).select_related('parent')
+    return add_children_to_course(course, children)
 
 
 def add_age_group_to_course(course, age_group):
-    """Add every member tagged with the given age group."""
-    return add_users_to_course(
-        course,
-        User.objects.filter(age_group=age_group, is_active=True, is_staff=False, is_superuser=False),
-    )
+    """Add every child whose age falls in the given group."""
+    return add_children_to_course(course, children_in_age_group(age_group))
 
 
-def report_added(request, added, already=0, skipped_full=0, subject='class'):
+def report_added(request, added, already=0, skipped_full=0, subject='class', noun='child'):
     if added:
-        note = '%d member(s) added to the %s.' % (added, subject)
+        note = '%d %s(s) added to the %s.' % (added, noun, subject)
         if skipped_full:
             note += ' %d not added because the class is full.' % skipped_full
         messages.success(request, note)
     elif already:
-        messages.info(request, 'Those members are already in the %s.' % subject)
+        messages.info(request, 'Those %ss are already in the %s.' % (noun, subject))
     else:
-        messages.error(request, 'No members were added to the %s.' % subject)
+        messages.error(request, 'No %ss were added to the %s.' % (noun, subject))
 
 
 class CourseRosterMixin:
-    """Applies the optional 'add members' fields on the course form."""
+    """Applies the optional 'add children' fields on the course form."""
 
     def apply_roster_additions(self, form, course):
         added, already, skipped = 0, 0, 0
@@ -154,9 +169,9 @@ class CourseRosterMixin:
             added += a
             already += al
             skipped += sk
-        picked = form.cleaned_data.get('add_students')
+        picked = form.cleaned_data.get('add_children')
         if picked:
-            a, al, sk = add_users_to_course(course, picked)
+            a, al, sk = add_children_to_course(course, picked)
             added += a
             already += al
             skipped += sk
@@ -258,106 +273,78 @@ def delete_attachment(request, pk, attachment):
 
 
 @login_required
-def add_student(request, pk):
-    """Teacher hand-picks a member and adds them to the class directly."""
+def add_child(request, pk):
+    """Teacher hand-picks a child and adds them to the class directly."""
     course = get_object_or_404(SundaySchoolCourse, pk=pk)
     if not request.user.can_manage_content:
-        messages.error(request, 'Only teachers can add students to the class.')
+        messages.error(request, 'Only teachers can add children to the class.')
         return redirect('sunday_school:course_detail', pk=course.pk)
     if request.method == 'POST':
-        form = AddStudentForm(request.POST, course=course)
+        form = AddChildForm(request.POST, course=course)
         if form.is_valid():
-            student = form.cleaned_data['student']
+            child = form.cleaned_data['child']
             if course.is_full:
-                messages.error(request, 'Class is full, cannot add more students.')
+                messages.error(request, 'Class is full, cannot add more children.')
             else:
                 CourseEnrollment.objects.get_or_create(
-                    course=course, student=student,
+                    course=course, child=child,
                     defaults={'status': 'approved', 'approved_at': timezone.now()},
                 )
-                messages.success(request, '%s added to the class.' % (student.get_full_name() or student.username))
+                messages.success(request, '%s added to the class.' % child.get_full_name())
         else:
-            messages.error(request, 'Please select a valid member.')
+            messages.error(request, 'Please select a valid child.')
     return redirect('sunday_school:course_detail', pk=course.pk)
 
 
 @login_required
-def add_students(request, pk):
-    """Teacher picks several members at once (ministries-style) for a targeted class."""
+def add_children(request, pk):
+    """Teacher picks several children at once (families, classes, groups)."""
     course = get_object_or_404(SundaySchoolCourse, pk=pk)
     if not request.user.can_manage_content:
-        messages.error(request, 'Only teachers can add students to the class.')
+        messages.error(request, 'Only teachers can add children to the class.')
         return redirect('sunday_school:course_detail', pk=course.pk)
     if request.method == 'POST':
-        form = AddStudentsForm(request.POST, course=course)
+        form = AddChildrenForm(request.POST, course=course)
         if form.is_valid():
-            picked = list(form.cleaned_data['students'])
+            picked = list(form.cleaned_data['children'])
             if not picked:
-                messages.error(request, 'No members selected.')
+                messages.error(request, 'No children selected.')
             elif course.spots_left == 0:
-                messages.error(request, 'Class is full, cannot add more students.')
+                messages.error(request, 'Class is full, cannot add more children.')
             else:
-                added = 0
-                for student in picked:
-                    if course.is_full:
-                        break
-                    CourseEnrollment.objects.get_or_create(
-                        course=course, student=student,
-                        defaults={'status': 'approved', 'approved_at': timezone.now()},
-                    )
-                    added += 1
-                if added >= len(picked):
-                    messages.success(request, '%d member(s) added to the class.' % added)
-                else:
-                    messages.success(
-                        request,
-                        '%d member(s) added. Class is now full - %d not added.'
-                        % (added, len(picked) - added),
-                    )
+                added, already, skipped = add_children_to_course(course, picked)
+                if already:
+                    messages.info(request, '%d child(ren) were already in the class.' % already)
+                report_added(request, added, already, skipped, 'class')
         else:
-            messages.error(request, 'Please select valid members.')
+            messages.error(request, 'Please select valid children.')
     return redirect('sunday_school:course_detail', pk=course.pk)
 
 
 @login_required
 def add_ministry(request, pk):
-    """Teacher targets a whole ministry - all its members join the class."""
+    """Teacher targets a whole ministry - the children of its members join."""
     course = get_object_or_404(SundaySchoolCourse, pk=pk)
     if not request.user.can_manage_content:
-        messages.error(request, 'Only teachers can add students to the class.')
+        messages.error(request, 'Only teachers can add children to the class.')
         return redirect('sunday_school:course_detail', pk=course.pk)
     if request.method == 'POST':
         form = TargetMinistryForm(request.POST)
         if form.is_valid():
             ministry = form.cleaned_data['ministry']
-            added = 0
-            already = 0
-            no_user = 0
-            for member in ministry.members.all().select_related('user'):
-                if member.user is None:
-                    no_user += 1
-                    continue
-                if CourseEnrollment.objects.filter(course=course, student=member.user).exists():
-                    already += 1
-                    continue
-                if course.is_full:
-                    break
-                CourseEnrollment.objects.create(
-                    course=course, student=member.user,
-                    status='approved', approved_at=timezone.now(),
-                )
-                added += 1
+            added, already, skipped = add_ministry_to_course(course, ministry)
             if added:
                 messages.success(
                     request,
-                    '%d member(s) from %s added to the class.' % (added, ministry.name),
+                    '%d child(ren) of %s added to the class.' % (added, ministry.name),
                 )
             elif already:
-                messages.info(request, 'All members of %s are already in the class.' % ministry.name)
-            elif no_user:
-                messages.info(request, 'No members of %s have logins yet, so none could be added.' % ministry.name)
+                messages.info(request, 'The children of %s are already in the class.' % ministry.name)
             else:
-                messages.error(request, 'No members were added.')
+                messages.error(
+                    request,
+                    'No children are registered under the members of %s yet.' % ministry.name,
+                )
         else:
             messages.error(request, 'Please select a valid ministry.')
     return redirect('sunday_school:course_detail', pk=course.pk)
@@ -365,44 +352,25 @@ def add_ministry(request, pk):
 
 @login_required
 def add_age_group(request, pk):
-    """Teacher targets a whole age group - every member tagged with that
-    age group joins the class."""
+    """Teacher targets a whole age group of children."""
     course = get_object_or_404(SundaySchoolCourse, pk=pk)
     if not request.user.can_manage_content:
-        messages.error(request, 'Only teachers can add students to the class.')
+        messages.error(request, 'Only teachers can add children to the class.')
         return redirect('sunday_school:course_detail', pk=course.pk)
     if request.method == 'POST':
         form = TargetAgeGroupForm(request.POST)
         if form.is_valid():
             group = form.cleaned_data['age_group']
             label = dict(SundaySchoolCourse.AGE_GROUP_CHOICES)[group]
-            students = User.objects.filter(
-                age_group=group, is_active=True, is_staff=False, is_superuser=False,
-            )
-            added = 0
-            already = 0
-            for student in students:
-                if CourseEnrollment.objects.filter(course=course, student=student).exists():
-                    already += 1
-                    continue
-                if course.is_full:
-                    break
-                CourseEnrollment.objects.create(
-                    course=course, student=student,
-                    status='approved', approved_at=timezone.now(),
-                )
-                added += 1
+            added, already, skipped = add_age_group_to_course(course, group)
             if added:
-                messages.success(
-                    request,
-                    '%d member(s) from %s added to the class.' % (added, label),
-                )
+                messages.success(request, '%d child(ren) in %s added to the class.' % (added, label))
             elif already:
-                messages.info(request, 'All members in %s are already in the class.' % label)
+                messages.info(request, 'All children in %s are already in the class.' % label)
             else:
                 messages.error(
                     request,
-                    'No members are tagged as %s yet. Set the age group on their profile first.' % label,
+                    'No children fall in %s yet. Add children and check their date of birth.' % label,
                 )
         else:
             messages.error(request, 'Please select a valid age group.')

@@ -1,6 +1,7 @@
 from django import forms
 
 from accounts.models import User
+from children.models import Child
 from ministries.models import Ministry
 from .models import CourseComment, SundaySchoolCourse
 
@@ -10,27 +11,27 @@ PDF_EXTENSIONS = ['.pdf']
 
 
 class SundaySchoolCourseForm(forms.ModelForm):
-    # Optional: put members into the class in the same step as posting it.
-    add_students = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),
+    # Optional: put children into the class in the same step as posting it.
+    add_children = forms.ModelMultipleChoiceField(
+        queryset=Child.objects.filter(is_active=True).select_related('parent'),
         required=False,
-        label='Add these members now (optional)',
-        widget=forms.SelectMultiple(attrs={'size': '6', 'class': 'form-select'}),
+        label='Add these children now (optional)',
+        widget=forms.SelectMultiple(attrs={'size': '8', 'class': 'form-select'}),
         help_text='Hold Ctrl (or Cmd) to pick more than one. They are added straight away when you post.',
     )
     add_ministry = forms.ModelChoiceField(
         queryset=Ministry.objects.filter(is_active=True),
         required=False,
-        label='Add all members of this ministry (optional)',
+        label='Add all children of this ministry (optional)',
         widget=forms.Select(attrs={'class': 'form-select'}),
-        help_text='Every member of the chosen ministry who has a login is added when you post.',
+        help_text='The children of everyone in this ministry are added when you post.',
     )
     add_age_group = forms.ChoiceField(
         choices=[c for c in SundaySchoolCourse.AGE_GROUP_CHOICES if c[0] != 'all'],
         required=False,
-        label='Add all members of this age group (optional)',
+        label='Add all children in this age group (optional)',
         widget=forms.Select(attrs={'class': 'form-select'}),
-        help_text='Every member tagged with this age group is added when you post.',
+        help_text='Every child whose age falls in this group is added when you post.',
     )
 
     class Meta:
@@ -87,48 +88,51 @@ class CourseCommentForm(forms.ModelForm):
         return attachment
 
 
-class AddStudentForm(forms.Form):
-    """Lets the teacher hand-pick members to place straight into the class."""
+def active_children(exclude_course=None):
+    """Children available to be put on a Sunday School class."""
+    qs = Child.objects.filter(is_active=True).select_related('parent')
+    if exclude_course is not None:
+        qs = qs.exclude(course_enrollments__course=exclude_course)
+    return qs
 
-    student = forms.ModelChoiceField(
-        queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),
-        label='Select a member',
+
+class AddChildForm(forms.Form):
+    """Lets the teacher hand-pick a child to place straight into the class."""
+
+    child = forms.ModelChoiceField(
+        queryset=active_children(),
+        label='Select a child',
     )
 
     def __init__(self, *args, course=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if course is not None:
-            self.fields['student'].queryset = User.objects.filter(
-                is_active=True, is_staff=False, is_superuser=False,
-            ).exclude(sunday_school_enrollments__course=course)
-        self.fields['student'].widget.attrs.update({'class': 'form-select'})
+        self.fields['child'].queryset = active_children(exclude_course=course)
+        self.fields['child'].widget.attrs.update({'class': 'form-select'})
 
 
-class AddStudentsForm(forms.Form):
-    """Ministries-style multi-select so the teacher can pick several members
-    at once for a targeted class (e.g. new comers or leaders)."""
+class AddChildrenForm(forms.Form):
+    """Ministries-style multi-select so the teacher can pick several children
+    at once for a targeted class (e.g. a family or an age group)."""
 
-    students = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),
-        label='Select members',
-        widget=forms.SelectMultiple(attrs={'size': '6', 'class': 'form-select'}),
+    children = forms.ModelMultipleChoiceField(
+        queryset=active_children(),
+        label='Select children',
+        widget=forms.SelectMultiple(attrs={'size': '8', 'class': 'form-select'}),
     )
 
     def __init__(self, *args, course=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if course is not None:
-            self.fields['students'].queryset = User.objects.filter(
-                is_active=True, is_staff=False, is_superuser=False,
-            ).exclude(sunday_school_enrollments__course=course)
+        self.fields['children'].queryset = active_children(exclude_course=course)
 
 
 class TargetMinistryForm(forms.Form):
-    """Teacher picks a ministry and all its members are added to the class."""
+    """Teacher picks a ministry and every child of its members is added."""
 
     ministry = forms.ModelChoiceField(
         queryset=Ministry.objects.filter(is_active=True),
         label='Select a ministry',
         widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text='Adds the children of everyone in this ministry.',
     )
 
 

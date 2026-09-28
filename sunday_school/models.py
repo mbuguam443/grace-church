@@ -117,8 +117,14 @@ class CourseEnrollment(models.Model):
 
     course = models.ForeignKey(SundaySchoolCourse, on_delete=models.CASCADE, related_name='enrollments')
     student = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True,
         related_name='sunday_school_enrollments',
+        help_text='Used when an adult (e.g. a parent or teacher) is on the class.',
+    )
+    child = models.ForeignKey(
+        'children.Child', on_delete=models.CASCADE, null=True, blank=True,
+        related_name='course_enrollments',
+        help_text='Used when a child is on the class.',
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     joined_at = models.DateTimeField(auto_now_add=True)
@@ -126,14 +132,37 @@ class CourseEnrollment(models.Model):
 
     class Meta:
         ordering = ['joined_at']
-        unique_together = ('course', 'student')
+        constraints = [
+            models.UniqueConstraint(fields=['course', 'student'], condition=models.Q(student__isnull=False),
+                                    name='unique_course_student'),
+            models.UniqueConstraint(fields=['course', 'child'], condition=models.Q(child__isnull=False),
+                                    name='unique_course_child'),
+            models.CheckConstraint(
+                condition=(models.Q(child__isnull=False) | models.Q(student__isnull=False)),
+                name='course_enrollment_has_student_or_child',
+            ),
+        ]
 
     def __str__(self):
         return "%s -> %s (%s)" % (self.student_name, self.course.title, self.get_status_display())
 
     @property
+    def is_child(self):
+        return self.child_id is not None
+
+    @property
     def student_name(self):
-        return self.student.get_full_name() or self.student.username
+        if self.child_id:
+            return str(self.child)
+        if self.student_id:
+            return self.student.get_full_name() or self.student.username
+        return ''
+
+    @property
+    def parent_name(self):
+        if self.child_id and self.child and self.child.parent:
+            return str(self.child.parent)
+        return ''
 
 
 class CourseComment(models.Model):

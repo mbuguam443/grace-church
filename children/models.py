@@ -7,6 +7,13 @@ class Child(models.Model):
         ('male', 'Male'),
         ('female', 'Female'),
     ]
+    # Mirrors the Sunday School age groups; the group is worked out from the date of birth.
+    AGE_GROUP_CHOICES = [
+        ('toddlers', 'Toddlers (2-4)'),
+        ('primary', 'Primary (5-9)'),
+        ('juniors', 'Juniors (10-13)'),
+        ('teens', 'Teens (14-18)'),
+    ]
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField()
@@ -33,6 +40,32 @@ class Child(models.Model):
         from datetime import date
         today = date.today()
         return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+
+    @property
+    def age_group(self):
+        """Sunday School age group derived from the date of birth."""
+        age = self.age
+        if age <= 4:
+            return 'toddlers'
+        if age <= 9:
+            return 'primary'
+        if age <= 13:
+            return 'juniors'
+        return 'teens'
+
+    @property
+    def age_group_display(self):
+        return dict(self.AGE_GROUP_CHOICES).get(self.age_group, '')
+
+    @property
+    def label(self):
+        """Name plus parent, so teachers can tell siblings and families apart."""
+        if self.parent:
+            return '%s (%s)' % (self.get_full_name(), self.parent)
+        return self.get_full_name()
+
+    def get_full_name(self):
+        return ('%s %s' % (self.first_name, self.last_name)).strip()
 
 
 class ChildAttendance(models.Model):

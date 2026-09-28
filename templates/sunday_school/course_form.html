@@ -155,25 +155,25 @@
 
         <div class="card shadow-sm mt-3">
             <div class="card-body">
-                <h6 class="fw-semibold mb-3"><i class="bi bi-person-plus me-2"></i>Add Members Now (optional)</h6>
+                <h6 class="fw-semibold mb-3"><i class="bi bi-emoji-smiley me-2"></i>Add Children Now (optional)</h6>
                 <p class="form-text mb-3">
-                    You can add members in the same step as posting. Leave these empty and you can still add
-                    members on the course page afterwards. Members need a login account before they can be added.
+                    You can add children in the same step as posting. Leave these empty and you can still add
+                    children on the course page afterwards.
                 </p>
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Add these members now</label>
-                        <select name="add_students" multiple size="6" class="form-select">
-                            {% for u in form.add_students.field.queryset %}
-                            <option value="{{ u.pk }}" {% if u.pk|stringformat:'s' in form.add_students.value %}selected{% endif %}>
-                                {{ u.get_full_name|default:u.username }}{% if u.get_full_name %} ({{ u.username }}){% endif %}
+                        <label class="form-label fw-semibold">Add these children now</label>
+                        <select name="add_children" multiple size="8" class="form-select">
+                            {% for child in form.add_children.field.queryset %}
+                            <option value="{{ child.pk }}" {% if child.pk|stringformat:'s' in form.add_children.value %}selected{% endif %}>
+                                {{ child.get_full_name }}{% if child.parent %} ({{ child.parent }}){% endif %} &middot; {{ child.age }} yrs
                             </option>
                             {% endfor %}
                         </select>
                         <div class="form-text">Hold Ctrl (or Cmd) to select more than one.</div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Add all members of this ministry</label>
+                        <label class="form-label fw-semibold">Add all children of this ministry</label>
                         <select name="add_ministry" class="form-select">
                             <option value="">-- None --</option>
                             {% for m in form.add_ministry.field.queryset %}
@@ -182,17 +182,17 @@
                             </option>
                             {% endfor %}
                         </select>
-                        <div class="form-text">Every member of this ministry who has a login is added.</div>
+                        <div class="form-text">The children of everyone in this ministry are added.</div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Add all members of this age group</label>
+                        <label class="form-label fw-semibold">Add all children in this age group</label>
                         <select name="add_age_group" class="form-select">
                             <option value="">-- None --</option>
                             {% for value, label in form.add_age_group.field.choices %}
                             <option value="{{ value }}" {% if value == form.add_age_group.value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
-                        <div class="form-text">Every member tagged with this age group is added.</div>
+                        <div class="form-text">Worked out from each child's date of birth.</div>
                     </div>
                 </div>
             </div>
