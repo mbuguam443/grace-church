@@ -14,6 +14,7 @@ urlpatterns = [
     path('<int:pk>/leave/', views.leave_study, name='study_leave'),
     path('<int:pk>/add-student/', views.add_student, name='study_add_student'),
     path('<int:pk>/add-students/', views.add_students, name='study_add_students'),
+    path('<int:pk>/add-ministry/', views.add_ministry, name='study_add_ministry'),
     path('<int:pk>/enrollment/<int:enrollment_id>/approve/', views.approve_enrollment, name='study_enroll_approve'),
     path('<int:pk>/enrollment/<int:enrollment_id>/reject/', views.reject_enrollment, name='study_enroll_reject'),
     path('<int:pk>/enrollment/<int:enrollment_id>/remove/', views.remove_enrollment, name='study_enroll_remove'),

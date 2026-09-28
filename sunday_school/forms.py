@@ -1,6 +1,7 @@
 from django import forms
 
 from accounts.models import User
+from ministries.models import Ministry
 from .models import CourseComment, SundaySchoolCourse
 
 VIDEO_EXTENSIONS = ['.mp4', '.webm', '.m4v', '.ogv']
@@ -96,3 +97,13 @@ class AddStudentsForm(forms.Form):
             self.fields['students'].queryset = User.objects.filter(
                 is_active=True, is_staff=False, is_superuser=False,
             ).exclude(sunday_school_enrollments__course=course)
+
+
+class TargetMinistryForm(forms.Form):
+    """Teacher picks a ministry and all its members are added to the class."""
+
+    ministry = forms.ModelChoiceField(
+        queryset=Ministry.objects.filter(is_active=True),
+        label='Select a ministry',
+        widget=forms.Select(attrs={'class': 'form-select'}),
+    )

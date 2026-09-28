@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
-from .forms import AddStudentForm, AddStudentsForm, BibleStudyCommentForm, BibleStudyNoteForm
+from .forms import AddStudentForm, AddStudentsForm, BibleStudyCommentForm, BibleStudyNoteForm, TargetMinistryForm
 from .models import BibleStudyComment, BibleStudyEnrollment, BibleStudyNote
 
 
@@ -69,6 +69,7 @@ class BibleStudyDetailView(LoginRequiredMixin, DetailView):
             context['approved_enrollments'] = [e for e in enrollments if e.status == 'approved']
             context['add_student_form'] = AddStudentForm(study=study)
             context['add_students_form'] = AddStudentsForm(study=study)
+            context['add_ministry_form'] = TargetMinistryForm()
             context['my_enrollment'] = None
         else:
             context['my_enrollment'] = study.enrollments.filter(student=self.request.user).first()
@@ -221,6 +222,50 @@ def add_students(request, pk):
                     )
         else:
             messages.error(request, 'Please select valid members.')
+    return redirect('bible_study:study_detail', pk=study.pk)
+
+
+@login_required
+def add_ministry(request, pk):
+    """Teacher targets a whole ministry - all its members join the class."""
+    study = get_object_or_404(BibleStudyNote, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can add students to the class.')
+        return redirect('bible_study:study_detail', pk=study.pk)
+    if request.method == 'POST':
+        form = TargetMinistryForm(request.POST)
+        if form.is_valid():
+            ministry = form.cleaned_data['ministry']
+            added = 0
+            already = 0
+            no_user = 0
+            for member in ministry.members.all().select_related('user'):
+                if member.user is None:
+                    no_user += 1
+                    continue
+                if BibleStudyEnrollment.objects.filter(study=study, student=member.user).exists():
+                    already += 1
+                    continue
+                if study.is_full:
+                    break
+                BibleStudyEnrollment.objects.create(
+                    study=study, student=member.user,
+                    status='approved', approved_at=timezone.now(),
+                )
+                added += 1
+            if added:
+                messages.success(
+                    request,
+                    '%d member(s) from %s added to the class.' % (added, ministry.name),
+                )
+            elif already:
+                messages.info(request, 'All members of %s are already in the class.' % ministry.name)
+            elif no_user:
+                messages.info(request, 'No members of %s have logins yet, so none could be added.' % ministry.name)
+            else:
+                messages.error(request, 'No members were added.')
+        else:
+            messages.error(request, 'Please select a valid ministry.')
     return redirect('bible_study:study_detail', pk=study.pk)
 
 

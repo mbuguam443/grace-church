@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
-from .forms import AddStudentForm, AddStudentsForm, CourseCommentForm, SundaySchoolCourseForm
+from .forms import AddStudentForm, AddStudentsForm, CourseCommentForm, SundaySchoolCourseForm, TargetMinistryForm
 from .models import CourseComment, CourseEnrollment, SundaySchoolCourse
 
 
@@ -73,6 +73,7 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
             context['approved_enrollments'] = [e for e in enrollments if e.status == 'approved']
             context['add_student_form'] = AddStudentForm(course=course)
             context['add_students_form'] = AddStudentsForm(course=course)
+            context['add_ministry_form'] = TargetMinistryForm()
             context['my_enrollment'] = None
         else:
             context['my_enrollment'] = course.enrollments.filter(student=self.request.user).first()
@@ -227,6 +228,50 @@ def add_students(request, pk):
                     )
         else:
             messages.error(request, 'Please select valid members.')
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def add_ministry(request, pk):
+    """Teacher targets a whole ministry - all its members join the class."""
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can add students to the class.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    if request.method == 'POST':
+        form = TargetMinistryForm(request.POST)
+        if form.is_valid():
+            ministry = form.cleaned_data['ministry']
+            added = 0
+            already = 0
+            no_user = 0
+            for member in ministry.members.all().select_related('user'):
+                if member.user is None:
+                    no_user += 1
+                    continue
+                if CourseEnrollment.objects.filter(course=course, student=member.user).exists():
+                    already += 1
+                    continue
+                if course.is_full:
+                    break
+                CourseEnrollment.objects.create(
+                    course=course, student=member.user,
+                    status='approved', approved_at=timezone.now(),
+                )
+                added += 1
+            if added:
+                messages.success(
+                    request,
+                    '%d member(s) from %s added to the class.' % (added, ministry.name),
+                )
+            elif already:
+                messages.info(request, 'All members of %s are already in the class.' % ministry.name)
+            elif no_user:
+                messages.info(request, 'No members of %s have logins yet, so none could be added.' % ministry.name)
+            else:
+                messages.error(request, 'No members were added.')
+        else:
+            messages.error(request, 'Please select a valid ministry.')
     return redirect('sunday_school:course_detail', pk=course.pk)
 
 

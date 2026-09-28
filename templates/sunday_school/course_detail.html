@@ -83,6 +83,24 @@
                         <i class="bi bi-person-plus-fill me-1"></i>Add Selected Members
                     </button>
                 </form>
+                <form method="post" action="{% url 'sunday_school:course_add_ministry' course.pk %}"
+                      class="mb-3 p-2 rounded bg-light border">
+                    {% csrf_token %}
+                    <label class="form-label small text-muted mb-1"><i class="bi bi-people-fill me-1"></i>Target the whole class at a ministry</label>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="flex-grow-1" style="min-width: 200px;">
+                            <select name="ministry" class="form-select">
+                                {% for m in add_ministry_form.ministry.field.queryset %}
+                                <option value="{{ m.pk }}">{{ m.name }} ({{ m.members_count }} members)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-people me-1"></i>Add All Members
+                        </button>
+                    </div>
+                    <div class="form-text my-2">e.g. Worship, Outreach &amp; Missions - every member of that ministry joins this class.</div>
+                </form>
                 {% if pending_enrollments %}
                 <h6 class="text-muted small text-uppercase">Join requests ({{ pending_enrollments|length }})</h6>
                 {% for e in pending_enrollments %}
