@@ -201,6 +201,97 @@
                 </div>
             </div>
             {% endif %}
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-person-badge me-2"></i>Login Account
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if member.user %}
+                    <p class="mb-2">
+                        <i class="bi bi-check-circle text-success me-1"></i>
+                        Linked to login <strong>{{ member.user.username }}</strong>
+                        <span class="badge bg-light text-secondary border ms-1">{{ member.user.get_role_display }}</span>
+                        {% if member.user.age_group %}
+                        <span class="badge bg-info text-dark ms-1">{{ member.user.get_age_group_display }}</span>
+                        {% endif %}
+                    </p>
+                    <form method="post" action="{% url 'members:member-login' member.pk %}"
+                          class="p-2 rounded bg-light border mb-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="link">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1">Switch to another account</label>
+                                <select name="existing_user" class="form-select">
+                                    <option value="">-- None --</option>
+                                    {% for u in login_form.fields.existing_user.queryset %}
+                                    <option value="{{ u.pk }}">{{ u.username }}{% if u.get_full_name %} - {{ u.get_full_name }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted mb-1">Age Group</label>
+                                <select name="age_group" class="form-select">
+                                    {% for value, text in login_form.fields.age_group.choices %}
+                                    <option value="{{ value }}" {% if value == member.user.age_group %}selected{% endif %}>{{ text }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-sm btn-primary w-100">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                    <form method="post" action="{% url 'members:member-login-remove' member.pk %}"
+                          onsubmit="return confirm('Remove the login link from this member?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-link-45deg me-1"></i>Remove login link
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted small">
+                        This member has no login account yet. Create one (or link an existing account) so they can
+                        be added to Bible Study and Sunday School classes by ministry or age group.
+                    </p>
+                    <form method="post" action="{% url 'members:member-login' member.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-2">{{ login_form.action }}</div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1">New username</label>
+                                <input type="text" name="username" class="form-control"
+                                       value="{{ login_form.username.value|default:login_form.username.initial }}"
+                                       placeholder="e.g. gc00013">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted mb-1">Age Group</label>
+                                <select name="age_group" class="form-select">
+                                    {% for value, text in login_form.fields.age_group.choices %}
+                                    <option value="{{ value }}">{{ text }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label class="form-label small text-muted mb-1">Existing account</label>
+                            <select name="existing_user" class="form-select">
+                                <option value="">-- None --</option>
+                                {% for u in login_form.fields.existing_user.queryset %}
+                                <option value="{{ u.pk }}">{{ u.username }}{% if u.get_full_name %} - {{ u.get_full_name }}{% endif %}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary mt-3">
+                            <i class="bi bi-person-plus me-1"></i>Save login
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>

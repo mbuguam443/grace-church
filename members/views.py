@@ -1,12 +1,15 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView,
 )
 
-from .forms import MemberForm, FamilyForm
+from accounts.models import User
+from .forms import MemberForm, FamilyForm, MemberLoginForm
 from .models import Member, Family
 
 
@@ -62,6 +65,88 @@ class MemberDetailView(LoginRequiredMixin, DetailView):
     model = Member
     template_name = 'members/member_detail.html'
     context_object_name = 'member'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        member = context['member']
+        if member.user:
+            context['login_form'] = MemberLoginForm(
+                initial={'action': 'link', 'age_group': member.user.age_group}, member=member,
+            )
+        else:
+            context['login_form'] = MemberLoginForm(member=member)
+        return context
+
+
+@login_required
+def member_login(request, pk):
+    """Create a login for a member or link an existing account to them."""
+    member = get_object_or_404(Member, pk=pk)
+    if not (request.user.is_admin_user or request.user.is_leader):
+        messages.error(request, 'You do not have permission to manage member logins.')
+        return redirect('members:member-detail', pk=member.pk)
+    if request.method == 'POST':
+        form = MemberLoginForm(request.POST, member=member)
+        if form.is_valid():
+            action = form.cleaned_data.get('action') or 'create'
+            age_group = form.cleaned_data.get('age_group') or ''
+            if action == 'link':
+                user = form.cleaned_data.get('existing_user')
+                linked_to = getattr(user, 'member_profile', None) if user else None
+                if user is None:
+                    messages.error(request, 'Please choose the user account to link.')
+                elif linked_to is not None and linked_to.pk != member.pk:
+                    messages.error(request, 'That account is already linked to another member.')
+                else:
+                    if member.user_id and member.user_id != user.pk:
+                        member.user = None
+                        member.save(update_fields=['user'])
+                    member.user = user
+                    member.save(update_fields=['user'])
+                    user.age_group = age_group
+                    user.save(update_fields=['age_group'])
+                    messages.success(request, 'Linked account %s to this member.' % user.username)
+            else:
+                username = (form.cleaned_data.get('username') or '').strip()
+                if not username:
+                    messages.error(request, 'Please enter a username for the new login.')
+                elif User.objects.filter(username__iexact=username).exists():
+                    messages.error(request, 'That username is already taken.')
+                else:
+                    user = User.objects.create_user(
+                        username=username,
+                        email=member.email,
+                        password=None,
+                        first_name=member.first_name,
+                        last_name=member.last_name,
+                        role='member',
+                        age_group=age_group,
+                    )
+                    member.user = user
+                    member.save(update_fields=['user'])
+                    messages.success(
+                        request,
+                        'Login %s created. Set a password from Accounts > Users before they sign in.' % user.username,
+                    )
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+    return redirect('members:member-detail', pk=member.pk)
+
+
+@login_required
+def member_unlink_login(request, pk):
+    """Remove the login link from a member (the account itself is kept)."""
+    member = get_object_or_404(Member, pk=pk)
+    if not (request.user.is_admin_user or request.user.is_leader):
+        messages.error(request, 'You do not have permission to manage member logins.')
+        return redirect('members:member-detail', pk=member.pk)
+    if request.method == 'POST' and member.user:
+        username = member.user.username
+        member.user = None
+        member.save(update_fields=['user'])
+        messages.success(request, 'Login link removed from %s (account %s kept).' % (member, username))
+    return redirect('members:member-detail', pk=member.pk)
 
 
 class MemberCreateView(LoginRequiredMixin, WriteAccessMixin, CreateView):

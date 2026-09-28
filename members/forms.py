@@ -1,5 +1,21 @@
 from django import forms
+
+from accounts.models import User
 from .models import Member, Family
+
+
+def suggest_username(member):
+    """Build a free username for a member from their member number."""
+    base = (member.member_number or '').strip().lower().replace('-', '').replace(' ', '')
+    if not base:
+        base = (member.first_name or 'member').strip().lower() + (member.last_name or '').strip().lower()
+    base = base or 'member'
+    candidate = base
+    counter = 1
+    while User.objects.filter(username__iexact=candidate).exists():
+        counter += 1
+        candidate = '%s%d' % (base, counter)
+    return candidate
 
 
 class MemberForm(forms.ModelForm):
@@ -37,6 +53,44 @@ class MemberForm(forms.ModelForm):
             'user': forms.Select(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        member = self.instance.pk and self.instance
+        # only offer accounts that are not already linked to another member
+        self.fields['user'].queryset = User.objects.filter(
+            member_profile__isnull=True,
+        ).order_by('username')
+        if member:
+            current = User.objects.filter(pk=self.instance.user_id)
+            if current.exists():
+                self.fields['user'].queryset = self.fields['user'].queryset | current
+
+
+class MemberLoginForm(forms.Form):
+    """Create a login account for a member, or link an existing one, so the
+    person can be pulled into classes (ministry / age group targeting)."""
+
+    action = forms.ChoiceField(
+        choices=[('create', 'Create a new login account'), ('link', 'Link an existing user account')],
+        widget=forms.RadioSelect,
+        initial='create',
+        required=False,
+    )
+    username = forms.CharField(max_length=150, required=False)
+    existing_user = forms.ModelChoiceField(queryset=User.objects.none(), required=False)
+    age_group = forms.ChoiceField(choices=User.AGE_GROUP_CHOICES, required=False)
+
+    def __init__(self, *args, member=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['existing_user'].queryset = User.objects.filter(
+            member_profile__isnull=True, is_active=True,
+        ).order_by('username')
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['existing_user'].widget.attrs.update({'class': 'form-select'})
+        self.fields['age_group'].widget.attrs.update({'class': 'form-select'})
+        if member is not None and not self.is_bound:
+            self.fields['username'].initial = suggest_username(member)
 
 
 class FamilyForm(forms.ModelForm):

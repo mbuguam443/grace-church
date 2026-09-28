@@ -9,6 +9,8 @@ urlpatterns = [
     path('<int:pk>/', views.MemberDetailView.as_view(), name='member-detail'),
     path('<int:pk>/update/', views.MemberUpdateView.as_view(), name='member-update'),
     path('<int:pk>/delete/', views.MemberDeleteView.as_view(), name='member-delete'),
+    path('<int:pk>/login/', views.member_login, name='member-login'),
+    path('<int:pk>/login/remove/', views.member_unlink_login, name='member-login-remove'),
 
     path('families/', views.FamilyListView.as_view(), name='family-list'),
     path('families/create/', views.FamilyCreateView.as_view(), name='family-create'),
