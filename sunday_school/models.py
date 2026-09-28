@@ -41,6 +41,18 @@ class SundaySchoolCourse(models.Model):
         null=True, blank=True, related_name='sunday_school_courses',
     )
     is_active = models.BooleanField(default=True)
+    enable_registration = models.BooleanField(
+        default=False,
+        help_text='Show a "Join the Class" button and let members enrol.',
+    )
+    max_students = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text='Maximum number of students. Leave blank for unlimited.',
+    )
+    requires_approval = models.BooleanField(
+        default=False,
+        help_text='If checked, the teacher must approve each join request.',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -76,6 +88,52 @@ class SundaySchoolCourse(models.Model):
         if 'facebook.com' in url:
             return 'https://www.facebook.com/plugins/video.php?href=%s&show_text=false&width=560' % quote(url, safe=':/?&=')
         return url
+
+    @property
+    def enrolled_count(self):
+        return self.enrollments.filter(status='approved').count()
+
+    @property
+    def pending_count(self):
+        return self.enrollments.filter(status='pending').count()
+
+    @property
+    def is_full(self):
+        return bool(self.max_students and self.enrolled_count >= self.max_students)
+
+    @property
+    def spots_left(self):
+        if not self.max_students:
+            return None
+        return max(0, self.max_students - self.enrolled_count)
+
+
+class CourseEnrollment(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    course = models.ForeignKey(SundaySchoolCourse, on_delete=models.CASCADE, related_name='enrollments')
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='sunday_school_enrollments',
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    joined_at = models.DateTimeField(auto_now_add=True)
+    approved_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['joined_at']
+        unique_together = ('course', 'student')
+
+    def __str__(self):
+        return "%s -> %s (%s)" % (self.student_name, self.course.title, self.get_status_display())
+
+    @property
+    def student_name(self):
+        return self.student.get_full_name() or self.student.username
 
 
 class CourseComment(models.Model):

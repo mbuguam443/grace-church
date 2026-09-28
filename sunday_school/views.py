@@ -1,14 +1,16 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Count, Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
 from .forms import CourseCommentForm, SundaySchoolCourseForm
-from .models import CourseComment, SundaySchoolCourse
+from .models import CourseComment, CourseEnrollment, SundaySchoolCourse
 
 
 class CourseListView(LoginRequiredMixin, ListView):
@@ -18,7 +20,9 @@ class CourseListView(LoginRequiredMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = super().get_queryset().prefetch_related('comments')
+        queryset = super().get_queryset().prefetch_related('comments').annotate(
+            approved_count=Count('enrollments', filter=Q(enrollments__status='approved')),
+        ).order_by('-lesson_date', '-created_at')
         if not self.request.user.can_manage_content:
             queryset = queryset.filter(is_active=True)
         search = self.request.GET.get('search', '').strip()
@@ -47,7 +51,7 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'course'
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = super().get_queryset().prefetch_related('enrollments__student')
         if not self.request.user.can_manage_content:
             queryset = queryset.filter(is_active=True)
         return queryset
@@ -58,6 +62,13 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
         context['comments'] = course.comments.select_related('user')
         context['comment_form'] = CourseCommentForm()
         context['can_view_attachments'] = self.request.user.is_admin_user
+        if self.request.user.can_manage_content:
+            enrollments = list(course.enrollments.all())
+            context['pending_enrollments'] = [e for e in enrollments if e.status == 'pending']
+            context['approved_enrollments'] = [e for e in enrollments if e.status == 'approved']
+            context['my_enrollment'] = None
+        else:
+            context['my_enrollment'] = course.enrollments.filter(student=self.request.user).first()
         return context
 
 
@@ -142,4 +153,98 @@ def delete_attachment(request, pk, attachment):
             setattr(course, attachment, '')
             course.save(update_fields=[attachment])
             messages.success(request, 'Course material removed.')
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def join_course(request, pk):
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not course.is_active and not request.user.can_manage_content:
+        raise Http404
+    if request.user.can_manage_content:
+        messages.error(request, 'Teachers manage the class instead of joining it.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    if not course.enable_registration:
+        messages.error(request, 'Enrollment for this class is not open.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    enrollment, created = CourseEnrollment.objects.get_or_create(
+        course=course, student=request.user,
+    )
+    if not created:
+        if enrollment.status == 'approved':
+            messages.info(request, 'You are already a member of this class.')
+            return redirect('sunday_school:course_detail', pk=course.pk)
+        if enrollment.status == 'pending':
+            messages.info(request, 'Your request is still waiting for the teacher\'s approval.')
+            return redirect('sunday_school:course_detail', pk=course.pk)
+        enrollment.status = 'pending'
+        enrollment.approved_at = None
+        enrollment.save(update_fields=['status', 'approved_at'])
+    if course.is_full:
+        if created:
+            enrollment.delete()
+        messages.error(request, 'Sorry, this class is already full.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    if course.requires_approval:
+        messages.success(request, 'Join request sent. The teacher will review it.')
+    else:
+        enrollment.status = 'approved'
+        enrollment.approved_at = timezone.now()
+        enrollment.save(update_fields=['status', 'approved_at'])
+        messages.success(request, 'You have joined this class!')
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def leave_course(request, pk):
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if request.method == 'POST':
+        CourseEnrollment.objects.filter(course=course, student=request.user).delete()
+        messages.success(request, 'You have left this class.')
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def approve_enrollment(request, pk, enrollment_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can approve join requests.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    enrollment = get_object_or_404(CourseEnrollment, pk=enrollment_id, course=course)
+    if request.method == 'POST':
+        if enrollment.status == 'pending' and course.is_full:
+            messages.error(request, 'Class is full, cannot approve more students.')
+        else:
+            enrollment.status = 'approved'
+            enrollment.approved_at = timezone.now()
+            enrollment.save(update_fields=['status', 'approved_at'])
+            messages.success(request, '%s is now in the class.' % enrollment.student_name)
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def reject_enrollment(request, pk, enrollment_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can reject join requests.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    enrollment = get_object_or_404(CourseEnrollment, pk=enrollment_id, course=course)
+    if request.method == 'POST':
+        enrollment.status = 'rejected'
+        enrollment.save(update_fields=['status'])
+        messages.success(request, 'Request from %s rejected.' % enrollment.student_name)
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def remove_enrollment(request, pk, enrollment_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can remove students from the class.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    enrollment = get_object_or_404(CourseEnrollment, pk=enrollment_id, course=course)
+    if request.method == 'POST':
+        name = enrollment.student_name
+        enrollment.delete()
+        messages.success(request, '%s removed from the class.' % name)
     return redirect('sunday_school:course_detail', pk=course.pk)

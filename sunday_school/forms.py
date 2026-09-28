@@ -13,6 +13,7 @@ class SundaySchoolCourseForm(forms.ModelForm):
         fields = [
             'title', 'age_group', 'lesson_date', 'scripture', 'memory_verse',
             'lesson', 'activities', 'video', 'pdf_attachment', 'audio', 'video_url', 'is_active',
+            'enable_registration', 'requires_approval', 'max_students',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -20,6 +21,15 @@ class SundaySchoolCourseForm(forms.ModelForm):
         self.fields['video_url'].widget.attrs.update({
             'placeholder': 'https://youtube.com/watch?v=... or https://vimeo.com/...',
         })
+        self.fields['max_students'].widget.attrs.update({
+            'placeholder': 'e.g. 20 (leave blank for unlimited)',
+        })
+
+    def clean_max_students(self):
+        value = self.cleaned_data.get('max_students')
+        if value is not None and value < 1:
+            raise forms.ValidationError('Maximum students must be at least 1.')
+        return value
 
     def clean_video(self):
         video = self.cleaned_data.get('video')

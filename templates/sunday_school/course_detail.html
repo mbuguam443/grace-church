@@ -44,6 +44,64 @@
                 </div>
             </div>
         </div>
+
+        {% if user.can_manage_content and course.enable_registration %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="bi bi-people me-2"></i>Class Enrollment
+                    <span class="small text-muted fw-normal">
+                        ({{ approved_enrollments|length }} / {{ course.max_students|default:"unlimited" }} joined)
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if pending_enrollments %}
+                <h6 class="text-muted small text-uppercase">Join requests ({{ pending_enrollments|length }})</h6>
+                {% for e in pending_enrollments %}
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2 p-2 rounded bg-warning bg-opacity-10 border">
+                    <div>
+                        <strong>{{ e.student.get_full_name|default:e.student.username }}</strong>
+                        <div class="small text-muted">{{ e.student.email }}</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <form method="post" action="{% url 'sunday_school:course_enroll_approve' course.pk e.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg me-1"></i>Approve</button>
+                        </form>
+                        <form method="post" action="{% url 'sunday_school:course_enroll_reject' course.pk e.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg me-1"></i>Reject</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+                <hr>
+                {% endif %}
+                {% if approved_enrollments %}
+                <h6 class="text-muted small text-uppercase">Students ({{ approved_enrollments|length }})</h6>
+                <ul class="list-unstyled mb-0">
+                    {% for e in approved_enrollments %}
+                    <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                        <div>
+                            <i class="bi bi-person-circle me-2 text-muted"></i>
+                            <span>{{ e.student.get_full_name|default:e.student.username }}</span>
+                            {% if e.student == course.posted_by %}<span class="badge bg-info text-dark ms-1">Teacher</span>{% endif %}
+                        </div>
+                        <form method="post" action="{% url 'sunday_school:course_enroll_remove' course.pk e.pk %}"
+                              onsubmit="return confirm('Remove {{ e.student.get_full_name|default:e.student.username }} from this class?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0"><i class="bi bi-person-dash me-1"></i>Remove</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% elif not pending_enrollments %}
+                <p class="text-muted mb-0">No one has joined this class yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
         {% if course.activities %}
         <div class="card mb-4">
             <div class="card-header">
@@ -208,6 +266,81 @@
         </div>
     </div>
     <div class="col-lg-4">
+        {% if course.enable_registration %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="text-muted small text-uppercase"><i class="bi bi-people me-1"></i>Class Enrollment</h6>
+                <p class="mb-2">
+                    {% if course.max_students %}
+                    <span class="fw-semibold fs-5">{{ course.enrolled_count }}</span>
+                    <span class="text-muted">/ {{ course.max_students }} students joined</span>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar {% if course.is_full %}bg-danger{% else %}bg-success{% endif %}"
+                             style="width: {% widthratio course.enrolled_count course.max_students 100 %}%"></div>
+                    </div>
+                    {% else %}
+                    <span class="fw-semibold fs-5">{{ course.enrolled_count }}</span>
+                    <span class="text-muted">students joined</span>
+                    {% endif %}
+                </p>
+                {% if course.is_full %}
+                <div class="alert alert-danger py-2 mb-2 small">
+                    <i class="bi bi-x-circle me-1"></i>Class is full — no more students can join.
+                </div>
+                {% endif %}
+                {% if user.can_manage_content %}
+                <p class="small text-muted mb-0">Manage join requests and students above.</p>
+                {% elif my_enrollment %}
+                    {% if my_enrollment.status == 'approved' %}
+                    <div class="alert alert-success py-2 mb-2">
+                        <i class="bi bi-check-circle me-1"></i>You've joined this class
+                    </div>
+                    <form method="post" action="{% url 'sunday_school:course_leave' course.pk %}"
+                          onsubmit="return confirm('Leave this class?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-box-arrow-right me-1"></i>Leave Class
+                        </button>
+                    </form>
+                    {% elif my_enrollment.status == 'pending' %}
+                    <div class="alert alert-warning py-2 mb-2">
+                        <i class="bi bi-hourglass-split me-1"></i>Waiting for the teacher's approval
+                    </div>
+                    <form method="post" action="{% url 'sunday_school:course_leave' course.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-x-lg me-1"></i>Cancel Request
+                        </button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="{% url 'sunday_school:course_join' course.pk %}" class="d-grid">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-person-plus me-1"></i>Join the Class
+                        </button>
+                    </form>
+                    {% endif %}
+                {% else %}
+                <form method="post" action="{% url 'sunday_school:course_join' course.pk %}" class="d-grid">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success" {% if course.is_full %}disabled{% endif %}>
+                        <i class="bi bi-person-plus me-1"></i>Join the Class
+                    </button>
+                </form>
+                <small class="text-muted d-block mt-2">
+                    {% if course.requires_approval %}The teacher will review your request.{% else %}You'll be added right away.{% endif %}
+                </small>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <span class="text-muted small"><i class="bi bi-door-closed me-1"></i>Enrollment for this class is closed.</span>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="card mb-4">
             <div class="card-body">
                 <h6 class="text-muted small text-uppercase">Age Group</h6>
