@@ -62,9 +62,6 @@
                     </div>
                     {% endif %}
                     <div>
-                        <a href="{{ study.video_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-box-arrow-up-right me-1"></i>Open in New Tab
-                        </a>
                         {% if user.can_manage_content %}
                         <form method="post" action="{% url 'bible_study:study_attachment_delete' study.pk 'video_url' %}" class="d-inline"
                               onsubmit="return confirm('Remove this video link?');">
