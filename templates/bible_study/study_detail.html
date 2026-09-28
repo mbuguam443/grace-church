@@ -53,17 +53,17 @@
                 {% if study.video_url %}
                 <div class="mb-3">
                     <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-link-45deg me-1"></i>Video Link</label>
-                    {% if study.video_id %}
+                    {% if study.video_embed_url %}
                     <div class="ratio ratio-16x9 rounded overflow-hidden mb-2">
-                        <iframe src="https://www.youtube-nocookie.com/embed/{{ study.video_id }}?rel=0"
+                        <iframe src="{{ study.video_embed_url }}"
                                 title="Study video" frameborder="0" allowfullscreen
                                 referrerpolicy="strict-origin-when-cross-origin"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
                     </div>
                     {% endif %}
                     <div>
-                        <a href="{{ study.video_url }}" target="_blank" class="btn btn-sm btn-outline-danger">
-                            <i class="bi bi-youtube me-1"></i>Watch / Open Video
+                        <a href="{{ study.video_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Open in New Tab
                         </a>
                         {% if user.can_manage_content %}
                         <form method="post" action="{% url 'bible_study:study_attachment_delete' study.pk 'video_url' %}" class="d-inline"
