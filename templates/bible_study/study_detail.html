@@ -43,6 +43,68 @@
         </div>
         {% endif %}
 
+        {% if study.video or study.pdf_attachment or study.audio %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-collection-play me-2"></i>Study Materials
+                <span class="small text-muted fw-normal">(shared by the teacher)</span>
+            </div>
+            <div class="card-body">
+                {% if study.video %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-film me-1"></i>Video</label>
+                    <video controls preload="metadata" class="w-100 rounded" style="max-height: 420px;" src="{{ study.video.url }}"></video>
+                    <div class="mt-1">
+                        <small class="text-muted"><i class="bi bi-file-earmark-play me-1"></i>{{ study.video.name|cut:"bible_study/" }}</small>
+                        {% if user.can_manage_content %}
+                        <form method="post" action="{% url 'bible_study:study_attachment_delete' study.pk 'video' %}" class="d-inline"
+                              onsubmit="return confirm('Remove this video?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-2"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if study.audio %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-music-note-beamed me-1"></i>Audio</label>
+                    <audio controls preload="metadata" class="w-100" src="{{ study.audio.url }}"></audio>
+                    <div class="mt-1">
+                        <small class="text-muted"><i class="bi bi-file-earmark-music me-1"></i>{{ study.audio.name|cut:"bible_study/" }}</small>
+                        {% if user.can_manage_content %}
+                        <form method="post" action="{% url 'bible_study:study_attachment_delete' study.pk 'audio' %}" class="d-inline"
+                              onsubmit="return confirm('Remove this audio?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-2"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if study.pdf_attachment %}
+                <div>
+                    <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-file-earmark-pdf me-1"></i>PDF Document</label>
+                    <div>
+                        <a href="{{ study.pdf_attachment.url }}" target="_blank" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-file-earmark-pdf me-1"></i>Open PDF ({{ study.pdf_attachment.name|cut:"bible_study/" }})
+                        </a>
+                        {% if user.can_manage_content %}
+                        <form method="post" action="{% url 'bible_study:study_attachment_delete' study.pk 'pdf_attachment' %}" class="d-inline"
+                              onsubmit="return confirm('Remove this PDF?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-2"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
         {% if study.discussion_questions %}
         <div class="card mb-4">
             <div class="card-header bg-info bg-opacity-10">

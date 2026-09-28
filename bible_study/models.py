@@ -11,6 +11,18 @@ class BibleStudyNote(models.Model):
     key_points = models.TextField(blank=True)
     prayer_points = models.TextField(blank=True)
     discussion_questions = models.TextField(blank=True)
+    video = models.FileField(
+        upload_to='bible_study/', blank=True, null=True,
+        help_text='Video file (e.g. MP4, WebM) shared with this study.',
+    )
+    pdf_attachment = models.FileField(
+        upload_to='bible_study/', blank=True, null=True,
+        help_text='PDF document shared with this study.',
+    )
+    audio = models.FileField(
+        upload_to='bible_study/', blank=True, null=True,
+        help_text='Audio file (e.g. MP3, M4A, OGG) shared with this study.',
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

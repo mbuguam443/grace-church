@@ -18,7 +18,7 @@
         </a>
     </div>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {% if form.errors %}
         <div class="alert alert-danger">
@@ -68,6 +68,46 @@
                     <div class="col-12">
                         <label class="form-label fw-semibold">Discussion Questions</label>
                         <textarea name="discussion_questions" class="form-control" rows="4">{{ form.discussion_questions.value|default:'' }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h6 class="fw-semibold mb-3"><i class="bi bi-collection-play me-2"></i>Study Materials (Share with members)</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Video</label>
+                                        <input type="file" name="video" class="form-control" accept=".mp4,.webm,.m4v,.ogv">
+                                        {% if form.instance.video %}
+                                        <div class="form-text">
+                                            Current: <a href="{{ form.instance.video.url }}" target="_blank">{{ form.instance.video.name|cut:"bible_study/" }}</a>
+                                            <label class="ms-2"><input type="checkbox" name="video-clear" class="form-check-input me-1">Remove file</label>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">PDF Document</label>
+                                        <input type="file" name="pdf_attachment" class="form-control" accept=".pdf">
+                                        {% if form.instance.pdf_attachment %}
+                                        <div class="form-text">
+                                            Current: <a href="{{ form.instance.pdf_attachment.url }}" target="_blank">{{ form.instance.pdf_attachment.name|cut:"bible_study/" }}</a>
+                                            <label class="ms-2"><input type="checkbox" name="pdf_attachment-clear" class="form-check-input me-1">Remove file</label>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Audio</label>
+                                        <input type="file" name="audio" class="form-control" accept=".mp3,.m4a,.wav,.ogg,.oga">
+                                        {% if form.instance.audio %}
+                                        <div class="form-text">
+                                            Current: <a href="{{ form.instance.audio.url }}" target="_blank">{{ form.instance.audio.name|cut:"bible_study/" }}</a>
+                                            <label class="ms-2"><input type="checkbox" name="audio-clear" class="form-check-input me-1">Remove file</label>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="form-text mt-2">Video: MP4/WebM &middot; Audio: MP3/M4A/WAV/OGG &middot; Document: PDF. Members can view/listen but only teachers can remove them.</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-12">
                         <div class="form-check">

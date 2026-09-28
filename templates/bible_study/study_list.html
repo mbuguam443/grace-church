@@ -50,6 +50,12 @@
                     <i class="bi bi-calendar me-1"></i>{{ study.study_date|date:"M d, Y" }}
                     {% if study.teacher %}| <i class="bi bi-person me-1"></i>{{ study.teacher }}{% endif %}
                     {% if study.series %}| {{ study.series }}{% endif %}
+                    {% if study.video or study.audio or study.pdf_attachment %}
+                    <span class="text-secondary">|</span>
+                    {% if study.video %}<i class="bi bi-film text-accent ms-1" title="Video"></i>{% endif %}
+                    {% if study.audio %}<i class="bi bi-music-note-beamed text-success ms-1" title="Audio"></i>{% endif %}
+                    {% if study.pdf_attachment %}<i class="bi bi-file-earmark-pdf text-danger ms-1" title="PDF"></i>{% endif %}
+                    {% endif %}
                 </p>
                 <p class="text-muted">{{ study.content|truncatewords:30 }}</p>
                 <div class="d-flex gap-2">

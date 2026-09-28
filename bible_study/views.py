@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
-from .forms import BibleStudyCommentForm
+from .forms import BibleStudyCommentForm, BibleStudyNoteForm
 from .models import BibleStudyComment, BibleStudyNote
 
 
@@ -86,13 +86,29 @@ def delete_comment(request, pk, comment_id):
     return redirect('bible_study:study_detail', pk=study.pk)
 
 
+@login_required
+def delete_attachment(request, pk, attachment):
+    """Teacher-only removal of a study material (video/pdf/audio)."""
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers and administrators can remove study materials.')
+        return redirect('bible_study:study_detail', pk=pk)
+    if attachment not in ('video', 'pdf_attachment', 'audio'):
+        messages.error(request, 'Unknown study material.')
+        return redirect('bible_study:study_detail', pk=pk)
+    study = get_object_or_404(BibleStudyNote, pk=pk)
+    if request.method == 'POST':
+        field = getattr(study, attachment, None)
+        if field:
+            field.delete(save=False)
+            study.save(update_fields=[attachment])
+            messages.success(request, 'Study material removed.')
+    return redirect('bible_study:study_detail', pk=study.pk)
+
+
 class BibleStudyCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
     model = BibleStudyNote
     template_name = 'bible_study/study_form.html'
-    fields = [
-        'title', 'bible_verse', 'study_date', 'teacher', 'series',
-        'content', 'key_points', 'prayer_points', 'discussion_questions', 'is_active',
-    ]
+    form_class = BibleStudyNoteForm
     success_url = reverse_lazy('bible_study:study_list')
 
     def form_valid(self, form):
@@ -103,10 +119,7 @@ class BibleStudyCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
 class BibleStudyUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
     model = BibleStudyNote
     template_name = 'bible_study/study_form.html'
-    fields = [
-        'title', 'bible_verse', 'study_date', 'teacher', 'series',
-        'content', 'key_points', 'prayer_points', 'discussion_questions', 'is_active',
-    ]
+    form_class = BibleStudyNoteForm
     success_url = reverse_lazy('bible_study:study_list')
 
     def form_valid(self, form):
