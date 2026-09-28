@@ -117,6 +117,38 @@
                         </div>
                     </div>
                     <div class="col-12">
+                        <div class="card bg-light border-0 mt-3">
+                            <div class="card-body">
+                                <h6 class="fw-semibold mb-3"><i class="bi bi-people me-2"></i>Join the Class (Enrollment)</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" name="enable_registration" class="form-check-input" id="id_enable_registration"
+                                                   {% if form.enable_registration.value %}checked{% endif %}>
+                                            <label class="form-check-label" for="id_enable_registration">Allow members to join</label>
+                                            <div class="form-text">Shows a "Join the Class" button on the listing card.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Maximum number of students</label>
+                                        <input type="number" name="max_students" class="form-control" min="1"
+                                               value="{{ form.max_students.value|default:'' }}"
+                                               placeholder="e.g. 10 (blank = unlimited)">
+                                        <div class="form-text">Once reached, the next student cannot join.</div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check form-switch">
+                                            <input type="checkbox" name="requires_approval" class="form-check-input" id="id_requires_approval"
+                                                   {% if form.requires_approval.value %}checked{% endif %}>
+                                            <label class="form-check-label" for="id_requires_approval">Teacher must approve every join</label>
+                                            <div class="form-text">If off, members join immediately (until full).</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
                         <div class="form-check">
                             <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {% if form.is_active.value or not form.instance.pk %}checked{% endif %}>
                             <label class="form-check-label" for="is_active">Visible to members</label>

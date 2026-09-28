@@ -1,5 +1,6 @@
 from django import forms
 
+from accounts.models import User
 from .models import BibleStudyComment, BibleStudyNote
 
 VIDEO_EXTENSIONS = ['.mp4', '.webm', '.m4v', '.ogv']
@@ -14,6 +15,7 @@ class BibleStudyNoteForm(forms.ModelForm):
             'title', 'bible_verse', 'study_date', 'teacher', 'series',
             'content', 'key_points', 'prayer_points', 'discussion_questions',
             'video', 'pdf_attachment', 'audio', 'video_url', 'is_active',
+            'enable_registration', 'requires_approval', 'max_students',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -21,6 +23,15 @@ class BibleStudyNoteForm(forms.ModelForm):
         self.fields['video_url'].widget.attrs.update({
             'placeholder': 'https://youtube.com/watch?v=... or https://vimeo.com/...',
         })
+        self.fields['max_students'].widget.attrs.update({
+            'placeholder': 'e.g. 10 (leave blank for unlimited)',
+        })
+
+    def clean_max_students(self):
+        value = self.cleaned_data.get('max_students')
+        if value is not None and value < 1:
+            raise forms.ValidationError('Maximum students must be at least 1.')
+        return value
 
     def clean_video(self):
         video = self.cleaned_data.get('video')
@@ -51,3 +62,20 @@ class BibleStudyCommentForm(forms.ModelForm):
         if attachment and not attachment.name.lower().endswith('.pdf'):
             raise forms.ValidationError('Only PDF files can be attached.')
         return attachment
+
+
+class AddStudentForm(forms.Form):
+    """Lets the teacher hand-pick members to place straight into the class."""
+
+    student = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),
+        label='Select a member',
+    )
+
+    def __init__(self, *args, study=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if study is not None:
+            self.fields['student'].queryset = User.objects.filter(
+                is_active=True, is_staff=False, is_superuser=False,
+            ).exclude(bible_study_enrollments__study=study)
+        self.fields['student'].widget.attrs.update({'class': 'form-select'})

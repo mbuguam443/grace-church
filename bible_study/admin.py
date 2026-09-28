@@ -1,12 +1,12 @@
 from django.contrib import admin
 
-from .models import BibleStudyComment, BibleStudyNote
+from .models import BibleStudyComment, BibleStudyEnrollment, BibleStudyNote
 
 
 @admin.register(BibleStudyNote)
 class BibleStudyNoteAdmin(admin.ModelAdmin):
-    list_display = ['title', 'bible_verse', 'teacher', 'study_date', 'is_active']
-    list_filter = ['is_active', 'study_date']
+    list_display = ['title', 'bible_verse', 'teacher', 'study_date', 'enable_registration', 'is_active']
+    list_filter = ['is_active', 'study_date', 'enable_registration']
     search_fields = ['title', 'bible_verse', 'teacher', 'content']
 
 
@@ -21,3 +21,16 @@ class BibleStudyCommentAdmin(admin.ModelAdmin):
         return obj.body[:80]
 
     body_preview.short_description = 'Comment'
+
+
+@admin.register(BibleStudyEnrollment)
+class BibleStudyEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ['student_name', 'study', 'status', 'joined_at', 'approved_at']
+    list_filter = ['status', 'joined_at', 'study']
+    search_fields = ['student__username', 'student__first_name', 'student__last_name', 'study__title']
+    readonly_fields = ['joined_at']
+
+    def student_name(self, obj):
+        return obj.student_name
+
+    student_name.short_description = 'Student'
