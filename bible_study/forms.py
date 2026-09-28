@@ -79,3 +79,21 @@ class AddStudentForm(forms.Form):
                 is_active=True, is_staff=False, is_superuser=False,
             ).exclude(bible_study_enrollments__study=study)
         self.fields['student'].widget.attrs.update({'class': 'form-select'})
+
+
+class AddStudentsForm(forms.Form):
+    """Ministries-style multi-select so the teacher can pick several members
+    at once for a targeted class (e.g. new comers or leaders)."""
+
+    students = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),
+        label='Select members',
+        widget=forms.SelectMultiple(attrs={'size': '6', 'class': 'form-select'}),
+    )
+
+    def __init__(self, *args, study=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if study is not None:
+            self.fields['students'].queryset = User.objects.filter(
+                is_active=True, is_staff=False, is_superuser=False,
+            ).exclude(bible_study_enrollments__study=study)

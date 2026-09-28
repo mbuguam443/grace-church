@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
-from .forms import AddStudentForm, BibleStudyCommentForm, BibleStudyNoteForm
+from .forms import AddStudentForm, AddStudentsForm, BibleStudyCommentForm, BibleStudyNoteForm
 from .models import BibleStudyComment, BibleStudyEnrollment, BibleStudyNote
 
 
@@ -68,9 +68,15 @@ class BibleStudyDetailView(LoginRequiredMixin, DetailView):
             context['pending_enrollments'] = [e for e in enrollments if e.status == 'pending']
             context['approved_enrollments'] = [e for e in enrollments if e.status == 'approved']
             context['add_student_form'] = AddStudentForm(study=study)
+            context['add_students_form'] = AddStudentsForm(study=study)
             context['my_enrollment'] = None
         else:
             context['my_enrollment'] = study.enrollments.filter(student=self.request.user).first()
+        context['can_view_content'] = (
+            self.request.user.can_manage_content
+            or not study.enable_registration
+            or (context['my_enrollment'] and context['my_enrollment'].status == 'approved')
+        )
         return context
 
 
@@ -177,6 +183,44 @@ def add_student(request, pk):
                 messages.success(request, '%s added to the class.' % (student.get_full_name() or student.username))
         else:
             messages.error(request, 'Please select a valid member.')
+    return redirect('bible_study:study_detail', pk=study.pk)
+
+
+@login_required
+def add_students(request, pk):
+    """Teacher picks several members at once (ministries-style) for a targeted class."""
+    study = get_object_or_404(BibleStudyNote, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can add students to the class.')
+        return redirect('bible_study:study_detail', pk=study.pk)
+    if request.method == 'POST':
+        form = AddStudentsForm(request.POST, study=study)
+        if form.is_valid():
+            picked = list(form.cleaned_data['students'])
+            if not picked:
+                messages.error(request, 'No members selected.')
+            elif study.spots_left == 0:
+                messages.error(request, 'Class is full, cannot add more students.')
+            else:
+                added = 0
+                for student in picked:
+                    if study.is_full:
+                        break
+                    BibleStudyEnrollment.objects.get_or_create(
+                        study=study, student=student,
+                        defaults={'status': 'approved', 'approved_at': timezone.now()},
+                    )
+                    added += 1
+                if added >= len(picked):
+                    messages.success(request, '%d member(s) added to the class.' % added)
+                else:
+                    messages.success(
+                        request,
+                        '%d member(s) added. Class is now full - %d not added.'
+                        % (added, len(picked) - added),
+                    )
+        else:
+            messages.error(request, 'Please select valid members.')
     return redirect('bible_study:study_detail', pk=study.pk)
 
 

@@ -70,18 +70,27 @@
                 {% endif %}
                 <p class="text-muted">{{ study.content|truncatewords:30 }}</p>
                 <div class="d-flex gap-2 flex-wrap align-items-center">
+                    {% if user.can_manage_content %}
                     <a href="{% url 'bible_study:study_detail' study.pk %}" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-book-open me-1"></i>Read Study
                     </a>
-                    {% if study.enable_registration and not user.can_manage_content %}
+                    {% elif not study.enable_registration %}
+                    <a href="{% url 'bible_study:study_detail' study.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-book-open me-1"></i>Read Study
+                    </a>
+                    {% else %}
                     {% with my=my_enrollments|lookup:study.pk %}
                         {% if my and my.status == 'approved' %}
+                        <a href="{% url 'bible_study:study_detail' study.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-book-open me-1"></i>Read Study
+                        </a>
                         <span class="btn btn-sm btn-success disabled"><i class="bi bi-check-lg me-1"></i>Joined</span>
                         {% elif my and my.status == 'pending' %}
-                        <span class="btn btn-sm btn-warning disabled"><i class="bi bi-hourglass-split me-1"></i>Waiting</span>
+                        <span class="btn btn-sm btn-warning disabled"><i class="bi bi-hourglass-split me-1"></i>Waiting Approval</span>
                         {% elif study.is_full %}
                         <span class="btn btn-sm btn-secondary disabled"><i class="bi bi-x-circle me-1"></i>Class Full</span>
                         {% else %}
+                        <span class="btn btn-sm btn-outline-secondary disabled"><i class="bi bi-lock me-1"></i>Members Only</span>
                         <form method="post" action="{% url 'bible_study:study_join' study.pk %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-person-plus me-1"></i>Join the Class</button>

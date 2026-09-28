@@ -1,5 +1,6 @@
 {% extends 'admin/base.html' %}
 {% load static %}
+{% load accounts_extras %}
 
 {% block title %}Sunday School Courses{% endblock %}
 
@@ -72,10 +73,35 @@
                 <p class="text-muted small mb-2"><i class="bi bi-book me-1"></i>{{ course.scripture }}</p>
                 {% endif %}
                 <p class="text-muted small mb-3">{{ course.lesson|truncatewords:30 }}</p>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    {% if user.can_manage_content %}
                     <a href="{% url 'sunday_school:course_detail' course.pk %}" class="btn btn-sm btn-outline-primary">
                         <i class="bi bi-eye me-1"></i>Read Lesson
                     </a>
+                    {% elif not course.enable_registration %}
+                    <a href="{% url 'sunday_school:course_detail' course.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i>Read Lesson
+                    </a>
+                    {% else %}
+                    {% with my=my_enrollments|lookup:course.pk %}
+                        {% if my and my.status == 'approved' %}
+                        <a href="{% url 'sunday_school:course_detail' course.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>Read Lesson
+                        </a>
+                        <span class="btn btn-sm btn-success disabled"><i class="bi bi-check-lg me-1"></i>Joined</span>
+                        {% elif my and my.status == 'pending' %}
+                        <span class="btn btn-sm btn-warning disabled"><i class="bi bi-hourglass-split me-1"></i>Waiting Approval</span>
+                        {% elif course.is_full %}
+                        <span class="btn btn-sm btn-secondary disabled"><i class="bi bi-x-circle me-1"></i>Class Full</span>
+                        {% else %}
+                        <span class="btn btn-sm btn-outline-secondary disabled"><i class="bi bi-lock me-1"></i>Members Only</span>
+                        <form method="post" action="{% url 'sunday_school:course_join' course.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-person-plus me-1"></i>Join the Class</button>
+                        </form>
+                        {% endif %}
+                    {% endwith %}
+                    {% endif %}
                     {% if user.can_manage_content %}
                     <a href="{% url 'sunday_school:course_edit' course.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
                     <a href="{% url 'sunday_school:course_delete' course.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>

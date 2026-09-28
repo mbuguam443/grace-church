@@ -21,6 +21,7 @@
 
 <div class="row">
     <div class="col-lg-8">
+        {% if can_view_content %}
         <div class="card mb-4">
             <div class="card-header">
                 <i class="bi bi-book me-2"></i>Scripture: {{ study.bible_verse }}
@@ -53,6 +54,20 @@
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary">
                         <i class="bi bi-person-plus me-1"></i>Add Student
+                    </button>
+                </form>
+                <form method="post" action="{% url 'bible_study:study_add_students' study.pk %}"
+                      class="mb-3 p-2 rounded bg-light border">
+                    {% csrf_token %}
+                    <label class="form-label small text-muted mb-1"><i class="bi bi-person-lines-fill me-1"></i>Add several members at once (targeted class)</label>
+                    <select name="students" multiple size="6" class="form-select">
+                        {% for member in add_students_form.students.field.queryset %}
+                        <option value="{{ member.pk }}">{{ member.get_full_name|default:member.username }}{% if member.email %} - {{ member.email }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text my-2">Hold Ctrl/Cmd to pick several members individually, just like Ministries.</div>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="bi bi-person-plus-fill me-1"></i>Add Selected Members
                     </button>
                 </form>
                 {% if pending_enrollments %}
@@ -285,11 +300,35 @@
                 {% endfor %}
             </div>
         </div>
+        {% else %}
+        <div class="card mb-4">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-lock-fill text-warning" style="font-size: 2.5rem;"></i>
+                <h5 class="mt-3 mb-2">This study is for class members only</h5>
+                <p class="text-muted mb-3">Join the class and the teacher will approve you before the content is unlocked.</p>
+                <div class="d-flex justify-content-center">
+                    {% if my_enrollment %}
+                        {% if my_enrollment.status == 'pending' %}
+                        <span class="btn btn-warning disabled"><i class="bi bi-hourglass-split me-1"></i>Waiting for approval</span>
+                        {% elif my_enrollment.status == 'approved' %}
+                        <span class="btn btn-success disabled"><i class="bi bi-check-lg me-1"></i>You've joined</span>
+                        {% else %}
+                        <a href="#enrollment" class="btn btn-success"><i class="bi bi-person-plus me-1"></i>Join the Class</a>
+                        {% endif %}
+                    {% else %}
+                    <a href="#enrollment" class="btn btn-success {% if study.is_full %}disabled{% endif %}">
+                        <i class="bi bi-person-plus me-1"></i>{% if study.is_full %}Class Full{% else %}Join the Class{% endif %}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <div class="col-lg-4">
         {% if study.enable_registration or my_enrollment %}
-        <div class="card mb-4">
+        <div class="card mb-4" id="enrollment">
             <div class="card-body">
                 <h6 class="text-muted small text-uppercase"><i class="bi bi-people me-1"></i>Class Enrollment</h6>
                 <p class="mb-2">

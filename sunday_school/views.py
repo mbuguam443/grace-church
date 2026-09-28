@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.views import ContentWriteMixin
-from .forms import AddStudentForm, CourseCommentForm, SundaySchoolCourseForm
+from .forms import AddStudentForm, AddStudentsForm, CourseCommentForm, SundaySchoolCourseForm
 from .models import CourseComment, CourseEnrollment, SundaySchoolCourse
 
 
@@ -42,6 +42,11 @@ class CourseListView(LoginRequiredMixin, ListView):
         context['search'] = self.request.GET.get('search', '')
         context['age_group'] = self.request.GET.get('age_group', '')
         context['age_groups'] = SundaySchoolCourse.AGE_GROUP_CHOICES
+        page_ids = [c.pk for c in context['courses']]
+        context['my_enrollments'] = {
+            e.course_id: e
+            for e in self.request.user.sunday_school_enrollments.filter(course_id__in=page_ids)
+        }
         return context
 
 
@@ -67,9 +72,15 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
             context['pending_enrollments'] = [e for e in enrollments if e.status == 'pending']
             context['approved_enrollments'] = [e for e in enrollments if e.status == 'approved']
             context['add_student_form'] = AddStudentForm(course=course)
+            context['add_students_form'] = AddStudentsForm(course=course)
             context['my_enrollment'] = None
         else:
             context['my_enrollment'] = course.enrollments.filter(student=self.request.user).first()
+        context['can_view_content'] = (
+            self.request.user.can_manage_content
+            or not course.enable_registration
+            or (context['my_enrollment'] and context['my_enrollment'].status == 'approved')
+        )
         return context
 
 
@@ -178,6 +189,44 @@ def add_student(request, pk):
                 messages.success(request, '%s added to the class.' % (student.get_full_name() or student.username))
         else:
             messages.error(request, 'Please select a valid member.')
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def add_students(request, pk):
+    """Teacher picks several members at once (ministries-style) for a targeted class."""
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can add students to the class.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    if request.method == 'POST':
+        form = AddStudentsForm(request.POST, course=course)
+        if form.is_valid():
+            picked = list(form.cleaned_data['students'])
+            if not picked:
+                messages.error(request, 'No members selected.')
+            elif course.spots_left == 0:
+                messages.error(request, 'Class is full, cannot add more students.')
+            else:
+                added = 0
+                for student in picked:
+                    if course.is_full:
+                        break
+                    CourseEnrollment.objects.get_or_create(
+                        course=course, student=student,
+                        defaults={'status': 'approved', 'approved_at': timezone.now()},
+                    )
+                    added += 1
+                if added >= len(picked):
+                    messages.success(request, '%d member(s) added to the class.' % added)
+                else:
+                    messages.success(
+                        request,
+                        '%d member(s) added. Class is now full - %d not added.'
+                        % (added, len(picked) - added),
+                    )
+        else:
+            messages.error(request, 'Please select valid members.')
     return redirect('sunday_school:course_detail', pk=course.pk)
 
 
