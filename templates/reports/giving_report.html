@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}Giving Report | Church Management System{% endblock %}
 
@@ -17,12 +17,14 @@
                 <i class="bi bi-gift me-2"></i>Giving Report
             </h1>
         </div>
-        <a href="?export=csv{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" class="btn btn-outline-success">
-            <i class="bi bi-download me-1"></i>Export CSV
-        </a>
-        <a href="?format=pdf{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}" class="btn btn-outline-danger">
-            <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
-        </a>
+        <div class="d-flex gap-2">
+            <a href="?export=csv{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}" class="btn btn-outline-success">
+                <i class="bi bi-download me-1"></i>Export CSV
+            </a>
+            <a href="?format=pdf{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}" class="btn btn-outline-danger">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm mb-4">
@@ -40,21 +42,18 @@
                     <label for="type" class="form-label">Giving Type</label>
                     <select class="form-select" id="type" name="type">
                         <option value="">All Types</option>
-                        <option value="tithe" {% if request.GET.type == 'tithe' %}selected{% endif %}>Tithe</option>
-                        <option value="offering" {% if request.GET.type == 'offering' %}selected{% endif %}>Offering</option>
-                        <option value="donation" {% if request.GET.type == 'donation' %}selected{% endif %}>Donation</option>
-                        <option value="pledge" {% if request.GET.type == 'pledge' %}selected{% endif %}>Pledge</option>
-                        <option value="mission" {% if request.GET.type == 'mission' %}selected{% endif %}>Mission</option>
+                        {% for value, label in giving_category_choices %}
+                        <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label for="payment_method" class="form-label">Payment Method</label>
                     <select class="form-select" id="payment_method" name="payment_method">
                         <option value="">All</option>
-                        <option value="cash" {% if request.GET.payment_method == 'cash' %}selected{% endif %}>Cash</option>
-                        <option value="mpesa" {% if request.GET.payment_method == 'mpesa' %}selected{% endif %}>M-Pesa</option>
-                        <option value="bank_transfer" {% if request.GET.payment_method == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
-                        <option value="cheque" {% if request.GET.payment_method == 'cheque' %}selected{% endif %}>Cheque</option>
+                        {% for value, label in payment_method_choices %}
+                        <option value="{{ value }}" {% if request.GET.payment_method == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -73,7 +72,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="text-white-50">Total Giving</h6>
-                            <h2 class="mb-0">${{ total_giving|default:"106,930"|floatformat:2 }}</h2>
+                            <h2 class="mb-0">{{ currency }} {{ total_amount|intcomma }}</h2>
                         </div>
                         <i class="bi bi-gift-fill fs-1 opacity-50"></i>
                     </div>
@@ -86,7 +85,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="text-white-50">Tithes</h6>
-                            <h2 class="mb-0">${{ total_tithes|default:"78,500"|floatformat:2 }}</h2>
+                            <h2 class="mb-0">{{ currency }} {{ total_tithes|intcomma }}</h2>
                         </div>
                         <i class="bi bi-percent fs-1 opacity-50"></i>
                     </div>
@@ -99,7 +98,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="text-white-50">Offerings</h6>
-                            <h2 class="mb-0">${{ total_offerings|default:"28,430"|floatformat:2 }}</h2>
+                            <h2 class="mb-0">{{ currency }} {{ total_offerings|intcomma }}</h2>
                         </div>
                         <i class="bi bi-hand-holding-heart-fill fs-1 opacity-50"></i>
                     </div>
@@ -112,7 +111,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h6 class="text-white-50">Contributors</h6>
-                            <h2 class="mb-0">{{ contributor_count|default:"456" }}</h2>
+                            <h2 class="mb-0">{{ contributor_count|default:"0" }}</h2>
                         </div>
                         <i class="bi bi-people-fill fs-1 opacity-50"></i>
                     </div>
@@ -127,25 +126,31 @@
                 <div class="card-header bg-white">
                     <h5 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Giving by Type</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-sm">
+                        <table class="table table-sm mb-0">
                             <thead>
                                 <tr>
                                     <th>Type</th>
                                     <th class="text-end">Amount</th>
                                     <th class="text-end">%</th>
-                                    <th class="text-end">Contributors</th>
+                                    <th class="text-end">Records</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td>Tithe</td><td class="text-end">$78,500</td><td class="text-end">73.4%</td><td class="text-end">312</td></tr>
-                                <tr><td>Offering</td><td class="text-end">$18,430</td><td class="text-end">17.2%</td><td class="text-end">245</td></tr>
-                                <tr><td>Donation</td><td class="text-end">$6,000</td><td class="text-end">5.6%</td><td class="text-end">34</td></tr>
-                                <tr><td>Mission</td><td class="text-end">$4,000</td><td class="text-end">3.7%</td><td class="text-end">67</td></tr>
+                                {% for item in by_category %}
+                                <tr>
+                                    <td>{{ item.giving_category|title }}</td>
+                                    <td class="text-end">{{ currency }} {{ item.total|intcomma }}</td>
+                                    <td class="text-end">{% widthratio item.total total_amount 1 %}%</td>
+                                    <td class="text-end">{{ item.count }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted py-3">No data</td></tr>
+                                {% endfor %}
                             </tbody>
                             <tfoot class="table-light">
-                                <tr><th>Total</th><th class="text-end">$106,930</th><th class="text-end">100%</th><th class="text-end">456</th></tr>
+                                <tr><th>Total</th><th class="text-end">{{ currency }} {{ total_amount|intcomma }}</th><th class="text-end">100%</th><th class="text-end">{{ total_records }}</th></tr>
                             </tfoot>
                         </table>
                     </div>
@@ -157,9 +162,9 @@
                 <div class="card-header bg-white">
                     <h5 class="card-title mb-0"><i class="bi bi-credit-card me-2"></i>By Payment Method</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-sm">
+                        <table class="table table-sm mb-0">
                             <thead>
                                 <tr>
                                     <th>Method</th>
@@ -169,10 +174,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td><i class="bi bi-phone me-1"></i>M-Pesa</td><td class="text-end">$62,350</td><td class="text-end">1,245</td><td class="text-end">58.3%</td></tr>
-                                <tr><td><i class="bi bi-cash me-1"></i>Cash</td><td class="text-end">$28,580</td><td class="text-end">892</td><td class="text-end">26.7%</td></tr>
-                                <tr><td><i class="bi bi-bank me-1"></i>Bank Transfer</td><td class="text-end">$12,500</td><td class="text-end">45</td><td class="text-end">11.7%</td></tr>
-                                <tr><td><i class="bi bi-receipt me-1"></i>Cheque</td><td class="text-end">$3,500</td><td class="text-end">12</td><td class="text-end">3.3%</td></tr>
+                                {% for item in by_payment_method %}
+                                <tr>
+                                    <td>{{ item.payment_method|title }}</td>
+                                    <td class="text-end">{{ currency }} {{ item.total|intcomma }}</td>
+                                    <td class="text-end">{{ item.count }}</td>
+                                    <td class="text-end">{% widthratio item.total total_amount 1 %}%</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted py-3">No data</td></tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -199,14 +210,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for gift in giving_records %}
+                        {% for gift in givings %}
                         <tr>
                             <td>{{ gift.date|date:"M d, Y" }}</td>
-                            <td class="fw-medium">{% if gift.contributor %}{{ gift.contributor.first_name }} {{ gift.contributor.last_name }}{% else %}{{ gift.contributor_name|default:"—" }}{% endif %}</td>
-                            <td><span class="badge bg-secondary">{{ gift.get_giving_type_display }}</span></td>
-                            <td class="text-end fw-bold text-success">${{ gift.amount|floatformat:2 }}</td>
+                            <td class="fw-medium">{{ gift.donor_name|default:"—" }}</td>
+                            <td><span class="badge bg-secondary">{{ gift.get_giving_category_display }}</span></td>
+                            <td class="text-end fw-bold text-success">{{ currency }} {{ gift.amount|intcomma }}</td>
                             <td>{{ gift.get_payment_method_display }}</td>
-                            <td><code>{{ gift.reference|default:"—" }}</code></td>
+                            <td><code>{{ gift.reference_number|default:"—" }}</code></td>
                         </tr>
                         {% empty %}
                         <tr>

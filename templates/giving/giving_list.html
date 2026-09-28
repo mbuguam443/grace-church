@@ -12,9 +12,14 @@
             </h1>
             <p class="text-muted mb-0">Track tithes, offerings, and donations</p>
         </div>
-        <a href="{% url 'giving:giving-create' %}" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Record Giving
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'giving:online-giving-list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-globe2 me-1"></i> Online Submissions
+            </a>
+            <a href="{% url 'giving:giving-create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Record Giving
+            </a>
+        </div>
     </div>
 
     <div class="row g-4 mb-4">
@@ -168,7 +173,7 @@
                                     <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
                                         <i class="bi bi-person text-primary small"></i>
                                     </div>
-                                    <span class="fw-medium">{{ giving.member.get_full_name|default:giving.member }}</span>
+                                    <span class="fw-medium">{{ giving.donor_name|default:"Online Giver" }}</span>
                                 </div>
                             </td>
                             <td>
@@ -184,6 +189,8 @@
                                     <span class="badge bg-info bg-opacity-10 text-info"><i class="bi bi-bank"></i> Bank</span>
                                 {% elif giving.payment_method == 'cheque' %}
                                     <span class="badge bg-warning bg-opacity-10 text-warning"><i class="bi bi-receipt"></i> Cheque</span>
+                                {% elif giving.payment_method == 'online' %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-globe2"></i> Online</span>
                                 {% else %}
                                     <span class="badge bg-light text-dark">{{ giving.payment_method }}</span>
                                 {% endif %}

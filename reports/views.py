@@ -1,3 +1,5 @@
+import csv
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Sum
 from django.http import HttpResponse
@@ -70,6 +72,8 @@ class PDFReportMixin:
     def get(self, request, *args, **kwargs):
         if request.GET.get('format') == 'pdf':
             return self.pdf_response(request)
+        if request.GET.get('export') == 'csv':
+            return self.csv_response(request)
         return super().get(request, *args, **kwargs)
 
     def get_report(self):
@@ -102,6 +106,16 @@ class PDFReportMixin:
         resp = HttpResponse(pdf_bytes, content_type='application/pdf')
         resp['Content-Disposition'] = 'attachment; filename="%s"' % self.pdf_filename
         return resp
+
+    def csv_response(self, request):
+        data = self.get_report()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="%s.csv"' % self.pdf_filename.replace('.pdf', '')
+        writer = csv.writer(response)
+        writer.writerow(data['columns'])
+        for row in data['rows']:
+            writer.writerow([str(c) for c in row])
+        return response
 
 
 class ReportsHomeView(LoginRequiredMixin, TemplateView):
@@ -262,6 +276,8 @@ class GivingReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
         request = self.request
         start = (request.GET.get('start_date') or request.GET.get('date_from') or '').strip()
         end = (request.GET.get('end_date') or request.GET.get('date_to') or '').strip()
+        giving_category = (request.GET.get('type') or '').strip()
+        payment_method = (request.GET.get('payment_method') or '').strip()
         currency = ChurchSetting.get_settings().currency or 'KES'
 
         qs = Giving.objects.select_related('member').all()
@@ -269,10 +285,17 @@ class GivingReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
             qs = qs.filter(date__gte=start)
         if end:
             qs = qs.filter(date__lte=end)
+        if giving_category:
+            qs = qs.filter(giving_category=giving_category)
+        if payment_method:
+            qs = qs.filter(payment_method=payment_method)
 
         givings = list(qs.order_by('-date'))
         total_amount = sum((g.amount or 0) for g in givings)
         records = len(givings)
+        tithes = sum((g.amount or 0) for g in givings if g.giving_category == 'tithe')
+        offerings = sum((g.amount or 0) for g in givings if g.giving_category == 'offering')
+        contributor_count = len({g.member_id for g in givings if g.member_id})
 
         period = 'All time'
         if start and end:
@@ -286,6 +309,12 @@ class GivingReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
             'givings': givings,
             'total_amount': total_amount,
             'total_records': records,
+            'total_tithes': tithes,
+            'total_offerings': offerings,
+            'contributor_count': contributor_count,
+            'currency': currency,
+            'giving_category_choices': Giving.GIVING_CATEGORIES,
+            'payment_method_choices': Giving.PAYMENT_METHODS,
             'by_category': qs.values('giving_category').annotate(total=Sum('amount'), count=Count('id')).order_by('-total'),
             'by_payment_method': qs.values('payment_method').annotate(total=Sum('amount'), count=Count('id')).order_by('-total'),
             'start_date': start,
@@ -296,7 +325,7 @@ class GivingReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
         for g in givings:
             rows.append([
                 _d(g.date),
-                _full_name(g.member, '—'),
+                g.donor_name or '—',
                 _display(g, 'giving_category'),
                 _money(g.amount, currency),
                 _display(g, 'payment_method'),

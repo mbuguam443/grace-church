@@ -1,0 +1,183 @@
+{% extends "admin/base.html" %}
+{% load static humanize %}
+
+{% block title %}Online Giving Submissions{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-globe2 text-primary"></i> Online Giving Submissions
+            </h1>
+            <p class="text-muted mb-0">Gifts submitted through the public website</p>
+        </div>
+        <a href="{% url 'giving:giving-list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Giving
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-globe2 text-primary fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Filtered Online Total</h6>
+                            <h4 class="mb-0">KSh {{ total_online|default:"0"|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-cash-stack text-success fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Online Giving</h6>
+                            <h4 class="mb-0">KSh {{ grand_total|default:"0"|intcomma }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-ui-checks text-info fs-5"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Total Submissions</h6>
+                            <h4 class="mb-0">{{ online_givings.paginator.count|default:"0" }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="id_status" class="form-label small text-muted">Status</label>
+                    <select name="status" id="id_status" class="form-select form-select-sm">
+                        <option value="">All Statuses</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="id_search" class="form-label small text-muted">Search</label>
+                    <input type="text" name="search" id="id_search" class="form-control form-control-sm"
+                           placeholder="Search name, email, or reference..." value="{{ search }}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-search me-1"></i> Filter
+                    </button>
+                </div>
+            </form>
+            {% if status_filter or search %}
+            <div class="mt-2">
+                <a href="{% url 'giving:online-giving-list' %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-circle me-1"></i> Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Reference</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Category</th>
+                            <th class="text-end">Amount</th>
+                            <th>Frequency</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for og in online_givings %}
+                        <tr>
+                            <td><small class="text-muted font-monospace">{{ og.reference_number }}</small></td>
+                            <td><span class="fw-medium">{{ og.name }}</span></td>
+                            <td><small class="text-muted">{{ og.email }}</small></td>
+                            <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ og.get_giving_category_display }}</span></td>
+                            <td class="text-end fw-semibold text-success">KSh {{ og.amount|intcomma }}</td>
+                            <td><span class="badge bg-light text-dark">{{ og.get_frequency_display }}</span></td>
+                            <td>
+                                {% if og.status == 'confirmed' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle"></i> Confirmed</span>
+                                {% elif og.status == 'voided' %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-x-circle"></i> Voided</span>
+                                {% else %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning"><i class="bi bi-hourglass"></i> Pending</span>
+                                {% endif %}
+                            </td>
+                            <td><small class="text-muted">{{ og.created_at|date:"M d, Y H:i" }}</small></td>
+                            <td class="text-center">
+                                {% if og.giving %}
+                                <a href="{% url 'giving:giving-update' og.giving.pk %}" class="btn btn-sm btn-outline-primary" title="View linked giving record">
+                                    <i class="bi bi-gift"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'giving:online-giving-delete' og.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">No online giving submissions found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if is_paginated %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Online giving pagination">
+            <ul class="pagination pagination-sm">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&search={{ search }}">Previous</a></li>
+                {% endif %}
+                <li class="page-item disabled">
+                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}&search={{ search }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

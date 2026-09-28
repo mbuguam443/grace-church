@@ -8,12 +8,14 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseNotFound, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
 
 from communication.models import Announcement
 from core.models import ChurchSetting, Leader
 from events.models import Event, EventRegistration
+from giving.forms import PublicGivingForm
 from ministries.models import Ministry
 from sermons.models import Sermon
 from services.models import Service
@@ -225,6 +227,23 @@ class PublicContactView(TemplateView):
 
 class PublicGiveView(TemplateView):
     template_name = 'public/give.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'form' not in context:
+            context['form'] = PublicGivingForm()
+        context['given_reference'] = self.request.GET.get('given', '')
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = PublicGivingForm(request.POST)
+        if form.is_valid():
+            online = form.save(commit=False)
+            online.status = 'pending'
+            online.save()
+            online.post_to_finance()
+            return redirect(f"{reverse('public:give')}?given={online.reference_number}")
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 def robots_txt(request):

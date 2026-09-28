@@ -187,30 +187,51 @@
                         <h2 class="display-5 fw-bold text-secondary">Online Giving</h2>
                         <p class="text-muted">Make a one-time or recurring gift securely online.</p>
                     </div>
+                    {% if given_reference %}
+                    <div class="alert alert-success">
+                        <h5 class="alert-heading mb-1"><i class="bi bi-check-circle-fill me-2"></i>Thank you for your gift!</h5>
+                        <p class="mb-1">Your giving reference is <strong>{{ given_reference }}</strong>. Keep this for your records; our team will follow up on receiving the gift.</p>
+                        <small>If your email matches a registered member account, this gift has been linked to it.</small>
+                    </div>
+                    {% endif %}
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>Please correct the following:</strong>
+                        <ul class="mb-0 mt-1">
+                            {% for field, errors in form.errors.items %}
+                            {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                     <form method="post" action="{% url 'public:give' %}" class="giving-form">
                         {% csrf_token %}
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="giveName" class="form-label fw-semibold">Full Name *</label>
-                                <input type="text" class="form-control form-control-lg" id="giveName" name="name" required>
+                                <input type="text" class="form-control form-control-lg" id="giveName" name="name"
+                                       value="{{ form.name.value|default:'' }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="giveEmail" class="form-label fw-semibold">Email Address *</label>
-                                <input type="email" class="form-control form-control-lg" id="giveEmail" name="email" required>
+                                <input type="email" class="form-control form-control-lg" id="giveEmail" name="email"
+                                       value="{{ form.email.value|default:'' }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="giveAmount" class="form-label fw-semibold">Amount (KES) *</label>
-                                <input type="number" class="form-control form-control-lg" id="giveAmount" name="amount" min="1" placeholder="Enter amount" required>
+                                <input type="number" class="form-control form-control-lg" id="giveAmount" name="amount"
+                                       min="1" step="0.01" placeholder="Enter amount"
+                                       value="{{ form.amount.value|default:'' }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="giveType" class="form-label fw-semibold">Giving Type *</label>
-                                <select class="form-select form-select-lg" id="giveType" name="giving_type" required>
+                                <select class="form-select form-select-lg" id="giveType" name="giving_category" required>
                                     <option value="" selected disabled>Select type...</option>
                                     <option value="tithe">Tithe</option>
                                     <option value="offering">Offering</option>
+                                    <option value="donation">Donation</option>
                                     <option value="missions">Missions</option>
-                                    <option value="outreach">Community Outreach</option>
-                                    <option value="building">Building Fund</option>
+                                    <option value="building_fund">Building Fund</option>
                                     <option value="other">Other</option>
                                 </select>
                             </div>
@@ -233,7 +254,7 @@
                             </div>
                             <div class="col-12">
                                 <label for="giveNote" class="form-label fw-semibold">Note (Optional)</label>
-                                <textarea class="form-control" id="giveNote" name="note" rows="2" placeholder="Any special dedication or note..."></textarea>
+                                <textarea class="form-control" id="giveNote" name="note" rows="2" placeholder="Any special dedication or note...">{{ form.note.value|default:'' }}</textarea>
                             </div>
                             <div class="col-12">
                                 <div class="form-check">
