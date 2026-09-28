@@ -54,6 +54,158 @@
             </div>
         </div>
         {% endif %}
+
+        {% if course.video or course.pdf_attachment or course.audio or course.video_url %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-collection-play me-2"></i>Course Materials
+                <span class="small text-muted fw-normal">(shared by the teacher)</span>
+            </div>
+            <div class="card-body">
+                {% if course.video_url %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-link-45deg me-1"></i>Video Link</label>
+                    {% if course.video_embed_url %}
+                    <div class="ratio ratio-16x9 rounded overflow-hidden mb-2">
+                        <iframe src="{{ course.video_embed_url }}"
+                                title="Course video" frameborder="0" allowfullscreen
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+                    </div>
+                    {% endif %}
+                    <div>
+                        {% if user.can_manage_content %}
+                        <form method="post" action="{% url 'sunday_school:course_attachment_delete' course.pk 'video_url' %}" class="d-inline"
+                              onsubmit="return confirm('Remove this video link?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if course.video %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-film me-1"></i>Video</label>
+                    <video controls preload="metadata" class="w-100 rounded" style="max-height: 420px;" src="{{ course.video.url }}"></video>
+                    <div class="mt-1">
+                        <small class="text-muted"><i class="bi bi-file-earmark-play me-1"></i>{{ course.video.name|cut:"sunday_school/" }}</small>
+                        {% if user.can_manage_content %}
+                        <form method="post" action="{% url 'sunday_school:course_attachment_delete' course.pk 'video' %}" class="d-inline"
+                              onsubmit="return confirm('Remove this video?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-2"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if course.audio %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-music-note-beamed me-1"></i>Audio</label>
+                    <audio controls preload="metadata" class="w-100" src="{{ course.audio.url }}"></audio>
+                    <div class="mt-1">
+                        <small class="text-muted"><i class="bi bi-file-earmark-music me-1"></i>{{ course.audio.name|cut:"sunday_school/" }}</small>
+                        {% if user.can_manage_content %}
+                        <form method="post" action="{% url 'sunday_school:course_attachment_delete' course.pk 'audio' %}" class="d-inline"
+                              onsubmit="return confirm('Remove this audio?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-2"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if course.pdf_attachment %}
+                <div>
+                    <label class="form-label fw-semibold small text-uppercase text-muted"><i class="bi bi-file-earmark-pdf me-1"></i>PDF Document</label>
+                    <div>
+                        <a href="{{ course.pdf_attachment.url }}" target="_blank" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-file-earmark-pdf me-1"></i>Open PDF ({{ course.pdf_attachment.name|cut:"sunday_school/" }})
+                        </a>
+                        {% if user.can_manage_content %}
+                        <form method="post" action="{% url 'sunday_school:course_attachment_delete' course.pk 'pdf_attachment' %}" class="d-inline"
+                              onsubmit="return confirm('Remove this PDF?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0 ms-2"><i class="bi bi-trash me-1"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-chat-dots me-2"></i>Discussion
+                <span class="badge bg-secondary ms-1">{{ comments|length }}</span>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'sunday_school:course_comment' course.pk %}" enctype="multipart/form-data" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <textarea name="body" class="form-control" rows="2" placeholder="Ask a question or share your thoughts..." required></textarea>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div>
+                            <label class="form-label small text-muted mb-1">
+                                <i class="bi bi-paperclip me-1"></i>Attach PDF (optional)
+                            </label>
+                            <input type="file" name="attachment" class="form-control form-control-sm" accept=".pdf,application/pdf">
+                        </div>
+                        <button type="submit" class="btn btn-primary ms-auto">
+                            <i class="bi bi-send me-1"></i>Post Comment
+                        </button>
+                    </div>
+                    <div class="form-text mt-2">Only PDF files can be attached. PDF attachments are visible to administrators only.</div>
+                </form>
+                <hr>
+                {% for comment in comments %}
+                <div class="d-flex mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center fw-bold text-secondary"
+                             style="width: 40px; height: 40px;">
+                            {{ comment.user.first_name|first }}{{ comment.user.last_name|first }}
+                        </div>
+                    </div>
+                    <div class="ms-3 flex-grow-1">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <strong>{{ comment.name }}</strong>
+                            <small class="text-muted">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                        </div>
+                        <p class="text-muted mb-1">{{ comment.body|linebreaks }}</p>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if comment.attachment %}
+                                {% if can_view_attachments %}
+                                <a href="{{ comment.attachment.url }}" target="_blank"
+                                   class="badge bg-danger text-white text-decoration-none">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>{{ comment.attachment.name|cut:"sunday_school/" }}
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                            {% if user.is_admin_user or comment.user == user %}
+                            <form method="post" action="{% url 'sunday_school:course_comment_delete' course.pk comment.pk %}"
+                                  class="d-inline" onsubmit="return confirm('Remove this comment?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link btn-sm text-danger p-0">
+                                    <i class="bi bi-trash me-1"></i>Remove
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if not forloop.last %}<hr class="my-3">{% endif %}
+                {% empty %}
+                <p class="text-muted mb-0">No comments yet. Be the first to share your thoughts.</p>
+                {% endfor %}
+            </div>
+        </div>
     </div>
     <div class="col-lg-4">
         <div class="card mb-4">
