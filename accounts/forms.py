@@ -12,7 +12,7 @@ class UserRegistrationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'role', 'photo']
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'role', 'age_group', 'photo']
 
 
 class MemberRegistrationForm(forms.Form):
@@ -65,7 +65,7 @@ class MemberRegistrationForm(forms.Form):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone', 'photo', 'role']
+        fields = ['first_name', 'last_name', 'email', 'phone', 'photo', 'role', 'age_group']
 
 
 class ProfileForm(forms.ModelForm):

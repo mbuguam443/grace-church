@@ -15,6 +15,7 @@ urlpatterns = [
     path('<int:pk>/add-student/', views.add_student, name='course_add_student'),
     path('<int:pk>/add-students/', views.add_students, name='course_add_students'),
     path('<int:pk>/add-ministry/', views.add_ministry, name='course_add_ministry'),
+    path('<int:pk>/add-age-group/', views.add_age_group, name='course_add_age_group'),
     path('<int:pk>/enrollment/<int:enrollment_id>/approve/', views.approve_enrollment, name='course_enroll_approve'),
     path('<int:pk>/enrollment/<int:enrollment_id>/reject/', views.reject_enrollment, name='course_enroll_reject'),
     path('<int:pk>/enrollment/<int:enrollment_id>/remove/', views.remove_enrollment, name='course_enroll_remove'),

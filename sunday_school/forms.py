@@ -107,3 +107,13 @@ class TargetMinistryForm(forms.Form):
         label='Select a ministry',
         widget=forms.Select(attrs={'class': 'form-select'}),
     )
+
+
+class TargetAgeGroupForm(forms.Form):
+    """Teacher targets a whole age group of the Sunday School class."""
+
+    age_group = forms.ChoiceField(
+        choices=[c for c in SundaySchoolCourse.AGE_GROUP_CHOICES if c[0] != 'all'],
+        label='Select an age group',
+        widget=forms.Select(attrs={'class': 'form-select'}),
+    )

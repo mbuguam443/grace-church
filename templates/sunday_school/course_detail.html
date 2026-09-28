@@ -101,6 +101,24 @@
                     </div>
                     <div class="form-text my-2">e.g. Worship, Outreach &amp; Missions - every member of that ministry joins this class.</div>
                 </form>
+                <form method="post" action="{% url 'sunday_school:course_add_age_group' course.pk %}"
+                      class="mb-3 p-2 rounded bg-light border">
+                    {% csrf_token %}
+                    <label class="form-label small text-muted mb-1"><i class="bi bi-diagram-3-fill me-1"></i>Target the class by age group</label>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="flex-grow-1" style="min-width: 200px;">
+                            <select name="age_group" class="form-select">
+                                {% for value, text in add_age_group_form.age_group.field.choices %}
+                                <option value="{{ value }}">{{ text }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-people me-1"></i>Add Age Group
+                        </button>
+                    </div>
+                    <div class="form-text my-2">Adds every member whose profile age group matches (set it on each member's profile).</div>
+                </form>
                 {% if pending_enrollments %}
                 <h6 class="text-muted small text-uppercase">Join requests ({{ pending_enrollments|length }})</h6>
                 {% for e in pending_enrollments %}

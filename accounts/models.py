@@ -17,7 +17,19 @@ class User(AbstractUser):
         ('member', 'Member'),
     ]
 
+    AGE_GROUP_CHOICES = [
+        ('', 'Not set'),
+        ('toddlers', 'Toddlers (2-4)'),
+        ('primary', 'Primary (5-9)'),
+        ('juniors', 'Juniors (10-13)'),
+        ('teens', 'Teens (14-18)'),
+    ]
+
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
+    age_group = models.CharField(
+        max_length=20, choices=AGE_GROUP_CHOICES, blank=True, default='',
+        help_text='Used to target Sunday School classes by age group.',
+    )
     phone = models.CharField(max_length=20, blank=True)
     photo = models.ImageField(upload_to='users/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

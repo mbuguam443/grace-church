@@ -8,8 +8,9 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
+from accounts.models import User
 from accounts.views import ContentWriteMixin
-from .forms import AddStudentForm, AddStudentsForm, CourseCommentForm, SundaySchoolCourseForm, TargetMinistryForm
+from .forms import AddStudentForm, AddStudentsForm, CourseCommentForm, SundaySchoolCourseForm, TargetAgeGroupForm, TargetMinistryForm
 from .models import CourseComment, CourseEnrollment, SundaySchoolCourse
 
 
@@ -74,6 +75,7 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
             context['add_student_form'] = AddStudentForm(course=course)
             context['add_students_form'] = AddStudentsForm(course=course)
             context['add_ministry_form'] = TargetMinistryForm()
+            context['add_age_group_form'] = TargetAgeGroupForm()
             context['my_enrollment'] = None
         else:
             context['my_enrollment'] = course.enrollments.filter(student=self.request.user).first()
@@ -272,6 +274,52 @@ def add_ministry(request, pk):
                 messages.error(request, 'No members were added.')
         else:
             messages.error(request, 'Please select a valid ministry.')
+    return redirect('sunday_school:course_detail', pk=course.pk)
+
+
+@login_required
+def add_age_group(request, pk):
+    """Teacher targets a whole age group - every member tagged with that
+    age group joins the class."""
+    course = get_object_or_404(SundaySchoolCourse, pk=pk)
+    if not request.user.can_manage_content:
+        messages.error(request, 'Only teachers can add students to the class.')
+        return redirect('sunday_school:course_detail', pk=course.pk)
+    if request.method == 'POST':
+        form = TargetAgeGroupForm(request.POST)
+        if form.is_valid():
+            group = form.cleaned_data['age_group']
+            label = dict(SundaySchoolCourse.AGE_GROUP_CHOICES)[group]
+            students = User.objects.filter(
+                age_group=group, is_active=True, is_staff=False, is_superuser=False,
+            )
+            added = 0
+            already = 0
+            for student in students:
+                if CourseEnrollment.objects.filter(course=course, student=student).exists():
+                    already += 1
+                    continue
+                if course.is_full:
+                    break
+                CourseEnrollment.objects.create(
+                    course=course, student=student,
+                    status='approved', approved_at=timezone.now(),
+                )
+                added += 1
+            if added:
+                messages.success(
+                    request,
+                    '%d member(s) from %s added to the class.' % (added, label),
+                )
+            elif already:
+                messages.info(request, 'All members in %s are already in the class.' % label)
+            else:
+                messages.error(
+                    request,
+                    'No members are tagged as %s yet. Set the age group on their profile first.' % label,
+                )
+        else:
+            messages.error(request, 'Please select a valid age group.')
     return redirect('sunday_school:course_detail', pk=course.pk)
 
 
