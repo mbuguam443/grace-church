@@ -95,6 +95,13 @@
                                         {% endif %}
                                     </div>
                                     <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Video Link (YouTube or other site)</label>
+                                        <input type="url" name="video_url" class="form-control"
+                                               value="{{ form.video_url.value|default:'' }}"
+                                               placeholder="https://youtube.com/watch?v=... ">
+                                        <div class="form-text">Paste a YouTube, Vimeo, or any video link. YouTube links play inline; other links appear as a "Watch video" button.</div>
+                                    </div>
+                                    <div class="col-md-6">
                                         <label class="form-label fw-semibold">Audio</label>
                                         <input type="file" name="audio" class="form-control" accept=".mp3,.m4a,.wav,.ogg,.oga">
                                         {% if form.instance.audio %}

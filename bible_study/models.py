@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 
 
@@ -23,6 +25,10 @@ class BibleStudyNote(models.Model):
         upload_to='bible_study/', blank=True, null=True,
         help_text='Audio file (e.g. MP3, M4A, OGG) shared with this study.',
     )
+    video_url = models.URLField(
+        blank=True,
+        help_text='External video link (YouTube, Vimeo, Facebook, etc.). YouTube videos play inline.',
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -32,6 +38,14 @@ class BibleStudyNote(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.bible_verse}"
+
+    @property
+    def video_id(self):
+        match = re.search(
+            r'(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})',
+            self.video_url or '',
+        )
+        return match.group(1) if match else ''
 
 
 class BibleStudyComment(models.Model):

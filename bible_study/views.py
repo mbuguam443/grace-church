@@ -88,18 +88,20 @@ def delete_comment(request, pk, comment_id):
 
 @login_required
 def delete_attachment(request, pk, attachment):
-    """Teacher-only removal of a study material (video/pdf/audio)."""
+    """Teacher-only removal of a study material (video/pdf/audio/link)."""
     if not request.user.can_manage_content:
         messages.error(request, 'Only teachers and administrators can remove study materials.')
         return redirect('bible_study:study_detail', pk=pk)
-    if attachment not in ('video', 'pdf_attachment', 'audio'):
+    if attachment not in ('video', 'pdf_attachment', 'audio', 'video_url'):
         messages.error(request, 'Unknown study material.')
         return redirect('bible_study:study_detail', pk=pk)
     study = get_object_or_404(BibleStudyNote, pk=pk)
     if request.method == 'POST':
         field = getattr(study, attachment, None)
         if field:
-            field.delete(save=False)
+            if hasattr(field, 'delete'):
+                field.delete(save=False)
+            setattr(study, attachment, '')
             study.save(update_fields=[attachment])
             messages.success(request, 'Study material removed.')
     return redirect('bible_study:study_detail', pk=study.pk)

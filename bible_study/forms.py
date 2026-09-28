@@ -13,8 +13,14 @@ class BibleStudyNoteForm(forms.ModelForm):
         fields = [
             'title', 'bible_verse', 'study_date', 'teacher', 'series',
             'content', 'key_points', 'prayer_points', 'discussion_questions',
-            'video', 'pdf_attachment', 'audio', 'is_active',
+            'video', 'pdf_attachment', 'audio', 'video_url', 'is_active',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['video_url'].widget.attrs.update({
+            'placeholder': 'https://youtube.com/watch?v=... or https://vimeo.com/...',
+        })
 
     def clean_video(self):
         video = self.cleaned_data.get('video')
