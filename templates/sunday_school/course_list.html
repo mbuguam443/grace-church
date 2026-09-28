@@ -88,7 +88,13 @@
                         <a href="{% url 'sunday_school:course_detail' course.pk %}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye me-1"></i>Read Lesson
                         </a>
+                        {% if my.is_child %}
+                        <span class="btn btn-sm btn-success disabled" title="{{ my.student_name }} is on this class">
+                            <i class="bi bi-emoji-smiley me-1"></i>{{ my.student_name }} Joined
+                        </span>
+                        {% else %}
                         <span class="btn btn-sm btn-success disabled"><i class="bi bi-check-lg me-1"></i>Joined</span>
+                        {% endif %}
                         {% elif my and my.status == 'pending' %}
                         <span class="btn btn-sm btn-warning disabled"><i class="bi bi-hourglass-split me-1"></i>Waiting Approval</span>
                         {% elif course.is_full %}

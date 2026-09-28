@@ -46,10 +46,19 @@ class CourseListView(LoginRequiredMixin, ListView):
         context['age_group'] = self.request.GET.get('age_group', '')
         context['age_groups'] = SundaySchoolCourse.AGE_GROUP_CHOICES
         page_ids = [c.pk for c in context['courses']]
-        context['my_enrollments'] = {
+        my_enrollments = {
             e.course_id: e
             for e in self.request.user.sunday_school_enrollments.filter(course_id__in=page_ids)
         }
+        # A child's enrolment belongs to the parent's account, so the parent sees the class.
+        member = Member.objects.filter(user=self.request.user).first()
+        child_ids = list(member.children.values_list('pk', flat=True)) if member else []
+        if child_ids:
+            for e in CourseEnrollment.objects.filter(
+                child_id__in=child_ids, course_id__in=page_ids,
+            ).select_related('child'):
+                my_enrollments.setdefault(e.course_id, e)
+        context['my_enrollments'] = my_enrollments
         return context
 
 
