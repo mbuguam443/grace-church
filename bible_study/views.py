@@ -131,7 +131,71 @@ def delete_attachment(request, pk, attachment):
     return redirect('bible_study:study_detail', pk=study.pk)
 
 
-class BibleStudyCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
+def add_users_to_study(study, users):
+    """Add the given users to a study, skipping duplicates and respecting capacity.
+
+    Returns (added, already_enrolled, skipped_full)."""
+    added = 0
+    already = 0
+    skipped_full = 0
+    for student in users:
+        if BibleStudyEnrollment.objects.filter(study=study, student=student).exists():
+            already += 1
+            continue
+        if study.is_full:
+            skipped_full += 1
+            continue
+        BibleStudyEnrollment.objects.create(
+            study=study, student=student,
+            status='approved', approved_at=timezone.now(),
+        )
+        added += 1
+    return added, already, skipped_full
+
+
+def add_ministry_to_study(study, ministry):
+    """Add every member of a ministry that has a login account."""
+    return add_users_to_study(
+        study,
+        [member.user for member in ministry.members.all().select_related('user') if member.user],
+    )
+
+
+def report_added(request, added, already=0, skipped_full=0, subject='class'):
+    if added:
+        note = '%d member(s) added to the %s.' % (added, subject)
+        if skipped_full:
+            note += ' %d not added because the class is full.' % skipped_full
+        messages.success(request, note)
+    elif already:
+        messages.info(request, 'Those members are already in the %s.' % subject)
+    else:
+        messages.error(request, 'No members were added to the %s.' % subject)
+
+
+class StudyRosterMixin:
+    """Applies the optional 'add members' fields on the study form."""
+
+    def apply_roster_additions(self, form, study):
+        added, already, skipped = 0, 0, 0
+        ministry = form.cleaned_data.get('add_ministry')
+        if ministry:
+            a, al, sk = add_ministry_to_study(study, ministry)
+            added += a
+            already += al
+            skipped += sk
+        picked = form.cleaned_data.get('add_students')
+        if picked:
+            a, al, sk = add_users_to_study(study, picked)
+            added += a
+            already += al
+            skipped += sk
+        if ministry or list(picked or []):
+            report_added(self.request, added, already, skipped, 'class')
+        return added
+
+
+class BibleStudyCreateView(LoginRequiredMixin, ContentWriteMixin, StudyRosterMixin, CreateView):
     model = BibleStudyNote
     template_name = 'bible_study/study_form.html'
     form_class = BibleStudyNoteForm
@@ -142,11 +206,13 @@ class BibleStudyCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
         return reverse('bible_study:study_detail', kwargs={'pk': self.object.pk})
 
     def form_valid(self, form):
-        messages.success(self.request, 'Bible study note posted successfully. You can now add or target members below.')
-        return super().form_valid(form)
+        messages.success(self.request, 'Bible study note posted successfully.')
+        response = super().form_valid(form)
+        self.apply_roster_additions(form, self.object)
+        return response
 
 
-class BibleStudyUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
+class BibleStudyUpdateView(LoginRequiredMixin, ContentWriteMixin, StudyRosterMixin, UpdateView):
     model = BibleStudyNote
     template_name = 'bible_study/study_form.html'
     form_class = BibleStudyNoteForm
@@ -154,7 +220,9 @@ class BibleStudyUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Bible study note updated successfully.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        self.apply_roster_additions(form, self.object)
+        return response
 
 
 class BibleStudyDeleteView(LoginRequiredMixin, ContentWriteMixin, DeleteView):

@@ -10,6 +10,22 @@ PDF_EXTENSIONS = ['.pdf']
 
 
 class BibleStudyNoteForm(forms.ModelForm):
+    # Optional: put members into the class in the same step as posting it.
+    add_students = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),
+        required=False,
+        label='Add these members now (optional)',
+        widget=forms.SelectMultiple(attrs={'size': '6', 'class': 'form-select'}),
+        help_text='Hold Ctrl (or Cmd) to pick more than one. They are added straight away when you post.',
+    )
+    add_ministry = forms.ModelChoiceField(
+        queryset=Ministry.objects.filter(is_active=True),
+        required=False,
+        label='Add all members of this ministry (optional)',
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text='Every member of the chosen ministry who has a login is added when you post.',
+    )
+
     class Meta:
         model = BibleStudyNote
         fields = [

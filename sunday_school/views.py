@@ -87,7 +87,85 @@ class CourseDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class CourseCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
+def add_users_to_course(course, users):
+    """Add the given users to a course, skipping duplicates and respecting capacity.
+
+    Returns (added, already_enrolled, skipped_full)."""
+    added = 0
+    already = 0
+    skipped_full = 0
+    for student in users:
+        if CourseEnrollment.objects.filter(course=course, student=student).exists():
+            already += 1
+            continue
+        if course.is_full:
+            skipped_full += 1
+            continue
+        CourseEnrollment.objects.create(
+            course=course, student=student,
+            status='approved', approved_at=timezone.now(),
+        )
+        added += 1
+    return added, already, skipped_full
+
+
+def add_ministry_to_course(course, ministry):
+    """Add every member of a ministry that has a login account."""
+    return add_users_to_course(
+        course,
+        [member.user for member in ministry.members.all().select_related('user') if member.user],
+    )
+
+
+def add_age_group_to_course(course, age_group):
+    """Add every member tagged with the given age group."""
+    return add_users_to_course(
+        course,
+        User.objects.filter(age_group=age_group, is_active=True, is_staff=False, is_superuser=False),
+    )
+
+
+def report_added(request, added, already=0, skipped_full=0, subject='class'):
+    if added:
+        note = '%d member(s) added to the %s.' % (added, subject)
+        if skipped_full:
+            note += ' %d not added because the class is full.' % skipped_full
+        messages.success(request, note)
+    elif already:
+        messages.info(request, 'Those members are already in the %s.' % subject)
+    else:
+        messages.error(request, 'No members were added to the %s.' % subject)
+
+
+class CourseRosterMixin:
+    """Applies the optional 'add members' fields on the course form."""
+
+    def apply_roster_additions(self, form, course):
+        added, already, skipped = 0, 0, 0
+        ministry = form.cleaned_data.get('add_ministry')
+        if ministry:
+            a, al, sk = add_ministry_to_course(course, ministry)
+            added += a
+            already += al
+            skipped += sk
+        age_group = form.cleaned_data.get('add_age_group')
+        if age_group:
+            a, al, sk = add_age_group_to_course(course, age_group)
+            added += a
+            already += al
+            skipped += sk
+        picked = form.cleaned_data.get('add_students')
+        if picked:
+            a, al, sk = add_users_to_course(course, picked)
+            added += a
+            already += al
+            skipped += sk
+        if ministry or age_group or list(picked or []):
+            report_added(self.request, added, already, skipped, 'class')
+        return added
+
+
+class CourseCreateView(LoginRequiredMixin, ContentWriteMixin, CourseRosterMixin, CreateView):
     model = SundaySchoolCourse
     template_name = 'sunday_school/course_form.html'
     form_class = SundaySchoolCourseForm
@@ -99,11 +177,13 @@ class CourseCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.posted_by = self.request.user
-        messages.success(self.request, 'Course posted successfully. You can now add or target members below.')
-        return super().form_valid(form)
+        messages.success(self.request, 'Course posted successfully.')
+        response = super().form_valid(form)
+        self.apply_roster_additions(form, self.object)
+        return response
 
 
-class CourseUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
+class CourseUpdateView(LoginRequiredMixin, ContentWriteMixin, CourseRosterMixin, UpdateView):
     model = SundaySchoolCourse
     template_name = 'sunday_school/course_form.html'
     form_class = SundaySchoolCourseForm
@@ -111,7 +191,9 @@ class CourseUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Course updated successfully.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        self.apply_roster_additions(form, self.object)
+        return response
 
 
 class CourseDeleteView(LoginRequiredMixin, ContentWriteMixin, DeleteView):

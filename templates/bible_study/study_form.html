@@ -156,6 +156,45 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card bg-light border-0 mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-people me-2"></i>Add Members Now (optional)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="form-text mb-3">
+                        You can add members in the same step as posting. Leave these empty and you can still add
+                        members on the study page afterwards. Members need a login account before they can be added.
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Add these members now</label>
+                            <select name="add_students" multiple size="6" class="form-select">
+                                {% for u in form.add_students.field.queryset %}
+                                <option value="{{ u.pk }}" {% if u.pk|stringformat:'s' in form.add_students.value %}selected{% endif %}>
+                                    {{ u.get_full_name|default:u.username }}{% if u.get_full_name %} ({{ u.username }}){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Hold Ctrl (or Cmd) to select more than one.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Add all members of this ministry</label>
+                            <select name="add_ministry" class="form-select">
+                                <option value="">-- None --</option>
+                                {% for m in form.add_ministry.field.queryset %}
+                                <option value="{{ m.pk }}" {% if m.pk|stringformat:'s' == form.add_ministry.value %}selected{% endif %}>
+                                    {{ m.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Every member of this ministry who has a login is added.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="d-flex justify-content-end gap-2">
