@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
@@ -137,8 +137,12 @@ class BibleStudyCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
     form_class = BibleStudyNoteForm
     success_url = reverse_lazy('bible_study:study_list')
 
+    def get_success_url(self):
+        # land on the new study so the teacher can add / target members straight away
+        return reverse('bible_study:study_detail', kwargs={'pk': self.object.pk})
+
     def form_valid(self, form):
-        messages.success(self.request, 'Bible study note posted successfully.')
+        messages.success(self.request, 'Bible study note posted successfully. You can now add or target members below.')
         return super().form_valid(form)
 
 

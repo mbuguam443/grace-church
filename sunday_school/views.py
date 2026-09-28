@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
@@ -93,9 +93,13 @@ class CourseCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
     form_class = SundaySchoolCourseForm
     success_url = reverse_lazy('sunday_school:course_list')
 
+    def get_success_url(self):
+        # land on the new course so the teacher can add / target members straight away
+        return reverse('sunday_school:course_detail', kwargs={'pk': self.object.pk})
+
     def form_valid(self, form):
         form.instance.posted_by = self.request.user
-        messages.success(self.request, 'Course posted successfully.')
+        messages.success(self.request, 'Course posted successfully. You can now add or target members below.')
         return super().form_valid(form)
 
 
