@@ -75,8 +75,8 @@
                         <div class="row g-3 mb-3">
                             <div class="col-sm-6">
                                 <p class="mb-1 d-flex align-items-start"><i class="bi bi-calendar-event text-primary me-2 fs-5"></i><span><strong>Date:</strong> {{ event.date|date:"l, M d, Y" }}{% if event.end_date %} &mdash; {{ event.end_date|date:"M d, Y" }}{% endif %}</span></p>
-                                {% if event.time %}
-                                <p class="mb-1 d-flex align-items-start"><i class="bi bi-clock text-primary me-2 fs-5"></i><span><strong>Time:</strong> {{ event.time|time:"H:i" }}</span></p>
+                                {% if event.time_range %}
+                                <p class="mb-1 d-flex align-items-start"><i class="bi bi-clock text-primary me-2 fs-5"></i><span><strong>Time:</strong> {{ event.time_range }}</span></p>
                                 {% endif %}
                             </div>
                             <div class="col-sm-6">

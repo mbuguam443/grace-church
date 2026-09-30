@@ -83,8 +83,8 @@
                     <td>
                         <i class="bi bi-calendar-event text-muted"></i>
                         {{ event.date|date:"M d, Y" }}
-                        {% if event.time %}
-                            <small class="text-muted">at {{ event.time|time:"H:i" }}</small>
+                        {% if event.time_range %}
+                            <small class="text-muted">at {{ event.time_range }}</small>
                         {% endif %}
                     </td>
                     <td>

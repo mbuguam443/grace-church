@@ -148,6 +148,8 @@ def _event_payload(request, e, member_id=None):
         'description': e.description,
         'date': e.date.isoformat(),
         'time': e.time.isoformat() if e.time else None,
+        'end_time': e.end_time.isoformat() if e.end_time else None,
+        'time_range': e.time_range,
         'end_date': e.end_date.isoformat() if e.end_date else None,
         'location': e.location,
         'speaker': e.speaker,

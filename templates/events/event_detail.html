@@ -58,8 +58,9 @@
                     <div class="col-md-6">
                         <label class="text-muted small text-uppercase">Time</label>
                         <p class="fw-semibold mb-0">
-                            {% if event.time %}
-                                <i class="bi bi-clock text-primary"></i> {{ event.time|time:"H:i" }}
+                            {% if event.time_range %}
+                                <i class="bi bi-clock text-primary"></i> {{ event.time_range }}
+                                {% if event.duration_label %}<span class="badge bg-light text-secondary border ms-1">{{ event.duration_label }}</span>{% endif %}
                             {% else %}
                                 <span class="text-muted">Not specified</span>
                             {% endif %}

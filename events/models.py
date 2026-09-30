@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from members.models import Member
@@ -9,7 +10,8 @@ class Event(models.Model):
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='events/', blank=True, null=True)
     date = models.DateField()
-    time = models.TimeField(blank=True, null=True)
+    time = models.TimeField(blank=True, null=True, verbose_name='start time')
+    end_time = models.TimeField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     location = models.CharField(max_length=200, blank=True)
     organizer = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, blank=True, related_name='organized_events')
@@ -25,6 +27,44 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.date}"
+
+    def clean(self):
+        super().clean()
+        # On a single day the end time has to be after the start time.
+        same_day = not self.end_date or self.end_date == self.date
+        if self.time and self.end_time and same_day and self.end_time <= self.time:
+            raise ValidationError({'end_time': 'End time must be after the start time.'})
+
+    @property
+    def time_range(self):
+        """e.g. '09:00 - 12:00', or just the start when no end time is set."""
+        if self.time and self.end_time:
+            return '%s - %s' % (self.time.strftime('%H:%M'), self.end_time.strftime('%H:%M'))
+        if self.time:
+            return self.time.strftime('%H:%M')
+        return ''
+
+    @property
+    def duration_minutes(self):
+        if not (self.time and self.end_time):
+            return None
+        if self.end_date and self.end_date > self.date:
+            return None  # spans days, a simple difference would be misleading
+        start = self.time.hour * 60 + self.time.minute
+        end = self.end_time.hour * 60 + self.end_time.minute
+        return max(0, end - start)
+
+    @property
+    def duration_label(self):
+        minutes = self.duration_minutes
+        if not minutes:
+            return ''
+        hours, mins = divmod(minutes, 60)
+        if hours and mins:
+            return '%dh %dm' % (hours, mins)
+        if hours:
+            return '%dh' % hours
+        return '%dm' % mins
 
     @property
     def registrations_count(self):
