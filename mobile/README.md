@@ -27,6 +27,9 @@ backend's JSON API (`/api/`). Built with **Expo Go** in mind — no native build
 - **Events** — register for / cancel event registration, with start and end times.
 - **Prayer requests** — submit new requests, choose a category, mark confidential.
 - **Sermons, devotionals, songs** — read notes, lyrics, YouTube and PDF links.
+- **Updates** — a bell with an unread count on the portal, and a notifications screen. Both read
+  `GET /api/notifications/`, so updates work with no push setup. When new items arrive while the app
+  is open, a banner appears at the top of the portal; tap it to read them.
 - **Profile** — view your member record, edit contact details, change photo, change password.
 
 ## Tech notes
@@ -35,6 +38,11 @@ backend's JSON API (`/api/`). Built with **Expo Go** in mind — no native build
 - Only Expo Go-compatible packages: `@expo/vector-icons`, `@react-native-async-storage/async-storage`,
   `expo-image`, `expo-image-picker`, `expo-web-browser`.
 - Auth via a bearer token stored in AsyncStorage. Backend endpoint: `POST /api/login/`.
+- No `expo-notifications`. Remote push was removed from Expo Go on Android in SDK 53 and does not
+  work there, so it was removed rather than left throwing on every launch. Member updates are
+  delivered in-app from `GET /api/notifications/` instead. If push is ever wanted it needs a
+  development build (`eas build`, or `npx expo run:android`) plus an `extra.eas.projectId` in
+  `app.json`, neither of which is set up.
 
 ## Run it
 

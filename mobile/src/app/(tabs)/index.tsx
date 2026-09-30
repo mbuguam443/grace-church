@@ -1,13 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Btn, Card, Chip, EmptyState, Loading, SectionTitle } from '../../components/ui';
 import { useAuth } from '../../lib/auth';
 import { api } from '../../lib/api';
-import { presentLocalNotification, registerPushToken, setupNotificationChannel } from '../../lib/notifications';
 import { Colors, formatDate, formatMoney, initials, Radius, Shadow, Spacing } from '../../lib/theme';
 import { Announcement, ChurchEvent, ChurchService, PortalData } from '../../lib/types';
 
@@ -29,14 +28,8 @@ export default function PortalScreen() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [freshNotice, setFreshNotice] = useState<{ title: string; body: string } | null>(null);
   const lastUnread = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (token) {
-      setupNotificationChannel();
-      registerPushToken(token);
-    }
-  }, [token]);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -62,7 +55,10 @@ export default function PortalScreen() {
       if (res.unread_count > lastUnread.current) {
         const fresh = res.results.find((n) => !n.is_read);
         if (fresh) {
-          presentLocalNotification(fresh.title || 'New update from Grace Church Munyaka', fresh.message || 'Tap to read the latest update.');
+          setFreshNotice({
+            title: fresh.title || 'New update from Grace Church Munyaka',
+            body: fresh.message || 'Tap to read the latest update.',
+          });
         }
       }
       lastUnread.current = res.unread_count;
@@ -127,6 +123,18 @@ export default function PortalScreen() {
 
         {data ? (
           <>
+            {freshNotice ? (
+              <Pressable style={styles.freshBanner} onPress={() => { setFreshNotice(null); router.push('/notifications'); }}>
+                <Ionicons name="notifications" size={20} color={Colors.gold} />
+                <View style={styles.freshText}>
+                  <Text style={styles.freshTitle} numberOfLines={1}>{freshNotice.title}</Text>
+                  <Text style={styles.freshBody} numberOfLines={2}>{freshNotice.body}</Text>
+                </View>
+                <Pressable onPress={() => setFreshNotice(null)} hitSlop={10}>
+                  <Ionicons name="close" size={18} color={Colors.muted} />
+                </Pressable>
+              </Pressable>
+            ) : null}
             <CheckInBanner services={data.today_services ?? []} token={token || ''} onDone={load} />
             <View style={styles.grid}>
               <StatTile
@@ -394,6 +402,17 @@ const styles = StyleSheet.create({
   goldBar: { height: 3, width: 64, borderRadius: 999, backgroundColor: Colors.gold },
   heroDate: { fontSize: 12, color: 'rgba(255,255,255,0.8)', fontWeight: '600' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  freshBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    backgroundColor: Colors.navy,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+  },
+  freshText: { flex: 1, gap: 2 },
+  freshTitle: { fontSize: 14, fontWeight: '800', color: '#FFF' },
+  freshBody: { fontSize: 12, color: 'rgba(255,255,255,0.82)', lineHeight: 17 },
   tileWrap: { width: '48%', flexGrow: 1 },
   tile: { gap: Spacing.xs, minHeight: 96 },
   tileIcon: {

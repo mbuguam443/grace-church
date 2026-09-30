@@ -1,13 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { EmptyState, Loading } from '../components/ui';
 import { useAuth } from '../lib/auth';
 import { api } from '../lib/api';
-import { requestNotificationPermission } from '../lib/notifications';
 import { Colors, Radius, Spacing } from '../lib/theme';
 import { AppNotification } from '../lib/types';
 
@@ -41,8 +40,7 @@ export default function NotificationsScreen() {
   const [items, setItems] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const askedPermission = useRef(false);
-
+  
   const load = useCallback(async (asRefresh = false) => {
     if (!token) return;
     if (asRefresh) setRefreshing(true);
@@ -64,10 +62,6 @@ export default function NotificationsScreen() {
   useFocusEffect(
     useCallback(() => {
       load();
-      if (!askedPermission.current) {
-        askedPermission.current = true;
-        requestNotificationPermission();
-      }
     }, [load]),
   );
 
