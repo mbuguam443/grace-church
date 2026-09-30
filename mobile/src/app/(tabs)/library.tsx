@@ -8,9 +8,10 @@ import { Colors, Radius, Shadow, Spacing } from '../../lib/theme';
 
 const GROUPS: { title: string; kinds: string[] }[] = [
   { title: 'The Word', kinds: ['sermons', 'bible-study', 'devotions'] },
+  { title: 'My church family', kinds: ['sunday-school', 'children', 'prayers'] },
   { title: 'Worship', kinds: ['songs'] },
-  { title: 'My records', kinds: ['groups', 'givings', 'attendance', 'prayers'] },
-  { title: 'Church life', kinds: ['events', 'announcements'] },
+  { title: 'My records', kinds: ['groups', 'givings', 'online-giving', 'attendance'] },
+  { title: 'Church life', kinds: ['events', 'announcements', 'ministries', 'facilities', 'my-bookings', 'groups-all', 'directory'] },
 ];
 
 const ACCENT: Record<string, { color: string; bg: string }> = {
@@ -19,11 +20,19 @@ const ACCENT: Record<string, { color: string; bg: string }> = {
   devotions: { color: '#D97706', bg: '#FEF3C7' },
   songs: { color: '#7E4F2D', bg: '#F0E3D3' },
   groups: { color: '#A8704A', bg: '#F0E3D3' },
+  'groups-all': { color: '#A8704A', bg: '#F0E3D3' },
   givings: { color: '#C9A227', bg: '#F7E9C3' },
+  'online-giving': { color: '#C9A227', bg: '#F7E9C3' },
   attendance: { color: '#198754', bg: '#E4F5EA' },
   prayers: { color: '#B5651D', bg: '#F7E6DC' },
   events: { color: '#7E4F2D', bg: '#F0E3D3' },
   announcements: { color: '#8A7763', bg: '#F1EADD' },
+  'sunday-school': { color: '#198754', bg: '#E4F5EA' },
+  children: { color: '#198754', bg: '#E4F5EA' },
+  ministries: { color: '#6F42C1', bg: '#F3EEFF' },
+  facilities: { color: '#7E4F2D', bg: '#F0E3D3' },
+  'my-bookings': { color: '#7E4F2D', bg: '#F0E3D3' },
+  directory: { color: '#8A7763', bg: '#F1EADD' },
 };
 
 export default function LibraryScreen() {

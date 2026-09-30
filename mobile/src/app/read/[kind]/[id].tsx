@@ -3,11 +3,12 @@ import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Btn, Chip, Loading } from '../../../components/ui';
+import { Btn, Card, Chip, Field, Loading } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
 import { api } from '../../../lib/api';
 import { moduleTitle } from '../../../lib/library';
 import { Colors, formatDate, Radius, Spacing } from '../../../lib/theme';
+import { CourseComment } from '../../../lib/types';
 
 const KIND_META: Record<string, { icon: keyof typeof Ionicons.glyphMap; label: string }> = {
   sermons: { icon: 'mic', label: 'Sermon' },
@@ -21,6 +22,10 @@ export default function ReadScreen() {
   const { token } = useAuth();
   const [item, setItem] = useState<Record<string, any> | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [comments, setComments] = useState<CourseComment[]>([]);
+  const [draft, setDraft] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const meta = KIND_META[kind] ?? { icon: 'document-text' as const, label: moduleTitle(kind) };
 
   const load = useCallback(async () => {
@@ -28,6 +33,10 @@ export default function ReadScreen() {
     try {
       const endpoint = kind === 'bible-study' ? `bible-study/${id}/` : kind === 'songs' ? `songs/${id}/` : `sermons/${id}/`;
       setItem(await api.detail<Record<string, any>>(token, endpoint));
+      if (kind === 'bible-study') {
+        const res = await api.studyComments(token, Number(id));
+        setComments(res.results ?? []);
+      }
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load the note.');
@@ -39,6 +48,36 @@ export default function ReadScreen() {
       load();
     }, [load]),
   );
+
+  async function toggleEnrollment() {
+    if (!token || !id) return;
+    setBusy(true);
+    setNotice(null);
+    try {
+      const mine = item?.my_enrollment;
+      const res = mine ? await api.leaveStudy(token, Number(id)) : await api.joinStudy(token, Number(id));
+      setNotice(res.message);
+      await load();
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : 'Could not update your enrolment.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function postComment() {
+    if (!token || !id || !draft.trim()) return;
+    setBusy(true);
+    try {
+      await api.addStudyComment(token, Number(id), draft.trim());
+      setDraft('');
+      await load();
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : 'Could not post your comment.');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const title = item?.title ? String(item.title) : moduleTitle(kind);
   const verse = item?.bible_verse || item?.scripture;
@@ -82,6 +121,64 @@ export default function ReadScreen() {
           </View>
 
           <View style={styles.body}>
+            {notice ? (
+              <View style={styles.noticeBox}>
+                <Text style={styles.noticeText}>{notice}</Text>
+              </View>
+            ) : null}
+
+            {kind === 'bible-study' && item ? (
+              <Card style={styles.enrolCard}>
+                {item.my_enrollment ? (
+                  <>
+                    <View style={styles.enrolTop}>
+                      <Ionicons
+                        name={
+                          item.my_enrollment.status === 'approved'
+                            ? 'checkmark-circle'
+                            : item.my_enrollment.status === 'pending'
+                              ? 'time-outline'
+                              : 'close-circle-outline'
+                        }
+                        size={22}
+                        color={item.my_enrollment.status === 'approved' ? Colors.success : Colors.muted}
+                      />
+                      <View style={styles.enrolText}>
+                        <Text style={styles.enrolTitle}>
+                          {item.my_enrollment.status === 'approved'
+                            ? 'You are on this study'
+                            : item.my_enrollment.status === 'pending'
+                              ? 'Waiting for approval'
+                              : 'Your request was declined'}
+                        </Text>
+                        <Text style={styles.enrolSub}>
+                          {item.my_enrollment.status === 'approved'
+                            ? `Joined ${formatDate(item.my_enrollment.joined_at)}`
+                            : 'The teacher will review your request.'}
+                        </Text>
+                      </View>
+                    </View>
+                    <Btn title="Leave this study" variant="outline" loading={busy} onPress={toggleEnrollment} />
+                  </>
+                ) : item.enable_registration && !item.is_full ? (
+                  <>
+                    <Text style={styles.enrolTitle}>
+                      {item.requires_approval ? 'Request to join this study' : 'Join this study'}
+                    </Text>
+                    <Text style={styles.enrolSub}>
+                      {item.enrolled_count ?? 0} joined
+                      {item.spots_left !== null && item.spots_left !== undefined ? ` · ${item.spots_left} spots left` : ''}
+                    </Text>
+                    <Btn title={item.requires_approval ? 'Request to join' : 'Join study'} loading={busy} onPress={toggleEnrollment} />
+                  </>
+                ) : (
+                  <Text style={styles.enrolSub}>
+                    {item.is_full ? 'This study is full.' : 'Registration is not open for this study.'}
+                  </Text>
+                )}
+              </Card>
+            ) : null}
+
             {verse ? (
               <View style={styles.verseBox}>
                 <Ionicons name="bookmark" size={16} color={Colors.gold} />
@@ -131,6 +228,37 @@ export default function ReadScreen() {
                 ) : null}
               </View>
             ) : null}
+
+            {kind === 'bible-study' ? (
+              <View style={styles.discussion}>
+                <View style={styles.discussionHead}>
+                  <Text style={styles.sectionTitle}>Discussion</Text>
+                  <Chip label={`${comments.length}`} bg="#EEECE5" color={Colors.muted} />
+                </View>
+                <Field
+                  label="Add a comment or question"
+                  value={draft}
+                  onChangeText={setDraft}
+                  placeholder="Share with the group…"
+                  multiline
+                  style={styles.commentInput}
+                />
+                <Btn title="Post comment" loading={busy} disabled={!draft.trim()} onPress={postComment} />
+                {comments.length === 0 ? (
+                  <Text style={styles.emptyText}>No comments yet. Be the first to say something.</Text>
+                ) : (
+                  comments.map((c) => (
+                    <Card key={c.id} style={styles.commentCard}>
+                      <View style={styles.commentTop}>
+                        <Text style={styles.commentAuthor}>{c.author}</Text>
+                        <Text style={styles.commentDate}>{formatDate(c.created_at)}</Text>
+                      </View>
+                      <Text style={styles.commentBody}>{c.body}</Text>
+                    </Card>
+                  ))
+                )}
+              </View>
+            ) : null}
           </View>
         </ScrollView>
       )}
@@ -162,6 +290,22 @@ function Article({ label, icon, body }: { label: string; icon: keyof typeof Ioni
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bg },
+  noticeBox: { backgroundColor: Colors.goldLight, borderRadius: Radius.md, padding: Spacing.md },
+  noticeText: { fontSize: 13, color: Colors.text, fontWeight: '600' },
+  enrolCard: { gap: Spacing.md },
+  enrolTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  enrolText: { flex: 1, gap: 2 },
+  enrolTitle: { fontSize: 15, fontWeight: '800', color: Colors.text },
+  enrolSub: { fontSize: 13, color: Colors.muted, lineHeight: 19 },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: Colors.text },
+  discussion: { gap: Spacing.md, marginTop: Spacing.sm },
+  discussionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  commentInput: { minHeight: 88, textAlignVertical: 'top' },
+  commentCard: { gap: Spacing.xs },
+  commentTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  commentAuthor: { fontSize: 14, fontWeight: '800', color: Colors.text },
+  commentDate: { fontSize: 12, color: Colors.muted },
+  commentBody: { fontSize: 15, lineHeight: 22, color: Colors.text },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
   errorText: { color: Colors.danger, fontSize: 14, textAlign: 'center' },
   scroll: { paddingBottom: Spacing.xl },

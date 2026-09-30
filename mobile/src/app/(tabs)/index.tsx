@@ -13,9 +13,13 @@ import { Announcement, ChurchEvent, ChurchService, PortalData } from '../../lib/
 
 const FEATURED = [
   { kind: 'sermons', title: 'Sermons', subtitle: 'Notes & messages', icon: 'mic', color: '#A8704A', bg: '#F0E3D3' },
+  { kind: 'sunday-school', title: 'Sunday School', subtitle: 'Classes & lessons', icon: 'school', color: '#198754', bg: '#E4F5EA' },
   { kind: 'bible-study', title: 'Bible Study', subtitle: 'Study notes', icon: 'book', color: '#6F42C1', bg: '#F3EEFF' },
+  { kind: 'children', title: 'My Children', subtitle: 'Check in & out', icon: 'happy', color: '#198754', bg: '#E4F5EA' },
   { kind: 'songs', title: 'Songs', subtitle: 'Hymns & lyrics', icon: 'musical-notes', color: '#7E4F2D', bg: '#F0E3D3' },
   { kind: 'prayers', title: 'Prayers', subtitle: 'Share a need', icon: 'hand-left', color: '#B5651D', bg: '#F7E6DC' },
+  { kind: 'ministries', title: 'Ministries', subtitle: 'Serve a team', icon: 'people-circle', color: '#6F42C1', bg: '#F3EEFF' },
+  { kind: 'facilities', title: 'Facilities', subtitle: 'Book a hall', icon: 'business', color: '#7E4F2D', bg: '#F0E3D3' },
 ];
 
 export default function PortalScreen() {
@@ -156,6 +160,22 @@ export default function PortalScreen() {
                 tint="#7E4F2D"
                 tintBg="#F0E3D3"
                 onPress={() => router.push({ pathname: '/list/[kind]', params: { kind: 'events' } })}
+              />
+              <StatTile
+                icon="card-outline"
+                label="Give"
+                value="Send"
+                tint="#C9A227"
+                tintBg="#F7E9C3"
+                onPress={() => router.push('/give')}
+              />
+              <StatTile
+                icon="call-outline"
+                label="Members"
+                value="Directory"
+                tint="#8A7763"
+                tintBg="#F1EADD"
+                onPress={() => router.push({ pathname: '/list/[kind]', params: { kind: 'directory' } })}
               />
             </View>
 

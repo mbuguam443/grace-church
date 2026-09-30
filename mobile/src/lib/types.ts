@@ -213,3 +213,150 @@ export interface ListResponse<T> {
   count: number;
   total?: string;
 }
+export interface CourseEnrollment {
+  id: number;
+  status: string;
+  status_label: string;
+  is_child: boolean;
+  student_name: string;
+  parent_name: string;
+  joined_at: string;
+}
+
+export interface SundaySchoolCourse {
+  id: number;
+  title: string;
+  age_group: string;
+  age_group_label: string;
+  lesson_date: string | null;
+  scripture: string;
+  video_url: string;
+  enrolled_count: number;
+  pending_count: number;
+  max_students: number | null;
+  spots_left: number | null;
+  is_full: boolean;
+  enable_registration: boolean;
+  requires_approval: boolean;
+  can_join: boolean;
+  can_view_content: boolean;
+  my_enrollment: CourseEnrollment | null;
+  memory_verse?: string;
+  lesson?: string;
+  activities?: string;
+  updated_at?: string;
+  pdf_url?: string | null;
+  audio_url?: string | null;
+  video_file_url?: string | null;
+  my_children_on_course?: string[];
+}
+
+export interface CourseComment {
+  id: number;
+  body: string;
+  author: string;
+  created_at: string;
+  is_mine: boolean;
+  can_delete: boolean;
+  attachment_url: string | null;
+}
+
+export interface ChildClassSummary {
+  id: number;
+  title: string;
+  status: string;
+  status_label: string;
+  age_group_label: string;
+}
+
+export interface Child {
+  id: number;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  date_of_birth: string;
+  age: number;
+  age_group: string;
+  age_group_label: string;
+  gender: string;
+  school_class: string;
+  teacher: string;
+  allergies: string;
+  emergency_contact: string;
+  photo_url: string | null;
+  is_active: boolean;
+  checked_in_today: boolean;
+  checked_out_today: boolean;
+  checkin_time: string | null;
+  classes: ChildClassSummary[];
+}
+
+export interface DirectoryMember {
+  id: number;
+  full_name: string;
+  first_name: string;
+  last_name: string;
+  member_number: string;
+  phone: string;
+  email: string;
+  gender: string;
+  membership_status: string;
+  membership_status_label: string;
+  photo_url: string | null;
+  family?: string | null;
+}
+
+export interface Ministry {
+  id: number;
+  name: string;
+  description: string;
+  leader: string | null;
+  purpose: string;
+  image_url: string | null;
+  members?: DirectoryMember[];
+}
+
+export interface GroupDetail extends Group {
+  members: { id: number; full_name: string; phone: string; email: string }[];
+}
+
+export interface Facility {
+  id: number;
+  name: string;
+  description: string;
+  capacity: number;
+  location: string;
+  is_available: boolean;
+}
+
+export interface FacilityBooking {
+  id: number;
+  facility: string;
+  event_name: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  purpose: string;
+  status: string;
+  status_label: string;
+}
+
+export interface OnlineGiving {
+  id: number;
+  name: string;
+  email: string;
+  amount: string;
+  giving_category: string;
+  giving_category_label: string;
+  frequency: string;
+  frequency_label: string;
+  reference_number: string;
+  status: string;
+  status_label: string;
+  created_at: string;
+}
+
+export interface SundaySchoolDetailResponse {
+  course: SundaySchoolCourse;
+  comments: CourseComment[];
+}

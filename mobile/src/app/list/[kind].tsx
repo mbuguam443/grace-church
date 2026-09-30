@@ -12,22 +12,33 @@ import {
   Announcement,
   AttendanceRecord,
   BibleStudyNote,
+  Child,
   ChurchEvent,
   ChurchService,
+  DirectoryMember,
+  Facility,
+  FacilityBooking,
   GivingRecord,
   Group,
+  Ministry,
+  OnlineGiving,
   Prayer,
   Sermon,
   Song,
+  SundaySchoolCourse,
 } from '../../lib/types';
 
-const READABLE_KINDS = ['sermons', 'bible-study', 'devotions', 'songs'];
-const SEARCHABLE_KINDS = ['sermons', 'bible-study', 'devotions', 'songs'];
+const READABLE_KINDS = ['sermons', 'bible-study', 'devotions', 'songs', 'sunday-school', 'groups-all', 'ministries', 'directory'];
+const SEARCHABLE_KINDS = ['sermons', 'bible-study', 'devotions', 'songs', 'sunday-school', 'groups-all', 'ministries', 'directory', 'children'];
 const KIND_ACCENT: Record<string, string> = {
   sermons: '#A8704A',
   'bible-study': '#6F42C1',
   devotions: '#D97706',
   songs: '#7E4F2D',
+  'sunday-school': '#198754',
+  children: '#198754',
+  ministries: '#6F42C1',
+  directory: '#8A7763',
 };
 
 export default function ListScreen() {
@@ -118,13 +129,25 @@ export default function ListScreen() {
         options={{
           title: moduleTitle(kind),
           headerRight:
-            kind === 'prayers'
-              ? () => (
-                  <Pressable onPress={() => router.push('/prayers/new')} hitSlop={10}>
-                    <Ionicons name="add-circle" size={26} color={Colors.navy} />
-                  </Pressable>
-                )
-              : undefined,
+            kind === 'prayers' ? (
+              () => (
+                <Pressable onPress={() => router.push('/prayers/new')} hitSlop={10}>
+                  <Ionicons name="add-circle" size={26} color={Colors.navy} />
+                </Pressable>
+              )
+            ) : kind === 'facilities' ? (
+              () => (
+                <Pressable onPress={() => router.push('/bookings/new')} hitSlop={10}>
+                  <Ionicons name="add-circle" size={26} color={Colors.navy} />
+                </Pressable>
+              )
+            ) : kind === 'online-giving' ? (
+              () => (
+                <Pressable onPress={() => router.push('/give')} hitSlop={10}>
+                  <Ionicons name="add-circle" size={26} color={Colors.navy} />
+                </Pressable>
+              )
+            ) : undefined,
         }}
       />
 
@@ -201,28 +224,32 @@ export default function ListScreen() {
             </>
           }
           ListEmptyComponent={<EmptyState icon="folder-open-outline" text="No records yet." />}
-          renderItem={({ item }) => (
-            <RowItem
-              kind={kind}
-              item={item as Record<string, any>}
-              busy={busyId === (item as unknown as ChurchEvent).id}
-              onRegister={() => toggleRegister((item as unknown as ChurchEvent).id)}
-              onOpen={
-                readable
-                  ? () =>
-                      router.push({
-                        pathname: '/read/[kind]/[id]',
-                        params: { kind, id: String((item as { id: number }).id) },
-                      })
-                  : undefined
-              }
-            />
-          )}
+          renderItem={({ item }) => {
+            const id = String((item as { id: number }).id);
+            return (
+              <RowItem
+                kind={kind}
+                item={item as Record<string, any>}
+                busy={busyId === (item as unknown as ChurchEvent).id}
+                onRegister={() => toggleRegister((item as unknown as ChurchEvent).id)}
+                onOpen={readable ? () => router.push(detailRoute(kind, id)) : undefined}
+              />
+            );
+          }}
           ItemSeparatorComponent={() => <View style={styles.sep} />}
         />
       )}
     </View>
   );
+}
+
+function detailRoute(kind: string, id: string) {
+  // Some modules need their own screen because they have actions (join, leave, check in).
+  if (kind === 'sunday-school') return { pathname: '/sunday-school/[id]' as const, params: { id } };
+  if (kind === 'ministries') return { pathname: '/ministries/[id]' as const, params: { id } };
+  if (kind === 'directory') return { pathname: '/members/[id]' as const, params: { id } };
+  if (kind === 'groups-all') return { pathname: '/groups/[id]' as const, params: { id } };
+  return { pathname: '/read/[kind]/[id]' as const, params: { kind, id } };
 }
 
 function RowItem({
@@ -377,13 +404,119 @@ function renderBody(kind: string, item: Record<string, any>, busy: boolean, onRe
       const p = item as Prayer;
       return (
         <View style={styles.rowBody}>
-          <RowLine icon="hand-left-outline" title={p.title} />
+          <RowLine icon="chatbubbles-outline" title={p.title} />
           <RowSub text={p.request} />
           <View style={styles.eventFooter}>
             <Chip label={p.category_label} />
             <Chip label={p.status_label} color={p.status === 'answered' ? Colors.success : Colors.info} bg="#E7EDF7" />
             <Chip label={formatDate(p.date)} bg="#EEECE5" color={Colors.muted} />
           </View>
+        </View>
+      );
+    }
+    case 'sunday-school': {
+      const c = item as SundaySchoolCourse;
+      const mine = c.my_enrollment;
+      return (
+        <View style={styles.rowBody}>
+          <Text style={[styles.kicker, { color: KIND_ACCENT['sunday-school'] }]}>
+            {c.age_group_label}
+          </Text>
+          <RowLine icon="school-outline" title={c.title} />
+          {c.scripture ? <RowSub text={c.scripture} /> : null}
+          <View style={styles.eventFooter}>
+            {c.lesson_date ? <Chip label={formatDate(c.lesson_date)} bg="#EEECE5" color={Colors.muted} /> : null}
+            <Chip label={`${c.enrolled_count} in class`} />
+            {c.spots_left !== null ? <Chip label={`${c.spots_left} spots left`} color={Colors.success} bg="#E4F5EA" /> : null}
+            {mine ? (
+              <Chip
+                label={`${mine.student_name} · ${mine.status_label}`}
+                color={mine.status === 'approved' ? Colors.success : '#B5651D'}
+                bg={mine.status === 'approved' ? '#E4F5EA' : '#F7E6DC'}
+              />
+            ) : c.can_join ? (
+              <Chip label="Open to join" color={Colors.navy} bg={Colors.goldLight} />
+            ) : c.is_full ? (
+              <Chip label="Class full" color={Colors.danger} bg="#F7E6DC" />
+            ) : null}
+          </View>
+        </View>
+      );
+    }
+    case 'children': {
+      const ch = item as Child;
+      return (
+        <View style={styles.rowBody}>
+          <RowLine icon="happy-outline" title={ch.full_name} />
+          <RowSub text={`${ch.age} yrs · ${ch.age_group_label}${ch.school_class ? ` · ${ch.school_class}` : ''}`} />
+          {ch.classes.length ? (
+            <View style={styles.eventFooter}>
+              {ch.classes.map((c) => (
+                <Chip key={c.id} label={c.title} color={c.status === 'approved' ? Colors.success : '#B5651D'} bg="#E4F5EA" />
+              ))}
+            </View>
+          ) : null}
+          <View style={styles.eventFooter}>
+            {ch.checked_in_today ? (
+              <Chip label={ch.checked_out_today ? 'Checked out' : `Checked in ${ch.checkin_time ?? ''}`} color={Colors.success} bg="#E4F5EA" />
+            ) : (
+              <Chip label="Not checked in" color={Colors.muted} bg="#EEECE5" />
+            )}
+          </View>
+        </View>
+      );
+    }
+    case 'ministries': {
+      const m = item as Ministry;
+      return (
+        <View style={styles.rowBody}>
+          <RowLine icon="hand-left-outline" title={m.name} />
+          {m.leader ? <RowSub text={`Led by ${m.leader}`} /> : null}
+          {m.description ? <RowSub text={m.description} /> : null}
+        </View>
+      );
+    }
+    case 'facilities': {
+      const f = item as Facility;
+      return (
+        <View style={styles.rowBody}>
+          <RowLine icon="business-outline" title={f.name} />
+          <RowSub text={[f.location, f.capacity ? `Seats ${f.capacity}` : null].filter(Boolean).join(' · ')} />
+          {f.description ? <RowSub text={f.description} /> : null}
+        </View>
+      );
+    }
+    case 'my-bookings': {
+      const b = item as FacilityBooking;
+      return (
+        <View style={styles.rowBody}>
+          <RowLine icon="calendar-number-outline" title={b.event_name} />
+          <RowSub text={`${formatDate(b.date)} · ${b.start_time} - ${b.end_time}`} />
+          <RowSub text={b.facility} />
+          <Chip label={b.status_label} color={b.status === 'approved' ? Colors.success : Colors.muted} bg="#EEECE5" />
+        </View>
+      );
+    }
+    case 'online-giving': {
+      const g = item as OnlineGiving;
+      return (
+        <View style={styles.rowBody}>
+          <View style={styles.amountRow}>
+            <Text style={styles.amount}>{formatMoney(g.amount)}</Text>
+            <Chip label={g.giving_category_label} />
+          </View>
+          <RowSub text={`${formatDate(g.created_at)} · ${g.frequency_label}`} />
+          <RowSub text={g.reference_number} />
+        </View>
+      );
+    }
+    case 'directory': {
+      const m = item as DirectoryMember;
+      return (
+        <View style={styles.rowBody}>
+          <RowLine icon="person-outline" title={m.full_name} />
+          <RowSub text={[m.phone, m.email].filter(Boolean).join(' · ')} />
+          {m.member_number ? <RowSub text={`No. ${m.member_number}`} /> : null}
         </View>
       );
     }

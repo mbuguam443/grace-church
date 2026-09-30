@@ -1,11 +1,20 @@
 import {
+  Child,
+  CourseComment,
+  CourseEnrollment,
+  DirectoryMember,
+  FacilityBooking,
+  GroupDetail,
   LoginResponse,
   ListResponse,
   Member,
+  Ministry,
   NotificationsResponse,
+  OnlineGiving,
   PortalData,
   ChurchService,
   Prayer,
+  SundaySchoolDetailResponse,
   User,
 } from './types';
 
@@ -15,7 +24,7 @@ export const STORAGE = {
   member: 'gc:member',
 };
 
-export const DEFAULT_SERVER_URL = 'https://fbmi.schones-heim-builders.co.ke';
+export const DEFAULT_SERVER_URL = 'https://gracechurch.schones-heim-builders.co.ke';
 
 export class ApiError extends Error {
   status: number;
@@ -137,10 +146,80 @@ export const api = {
 
   registerDevice: (token: string, deviceToken: string, platform: string) =>
     request<{ ok: boolean }>('devices/', { method: 'POST', token, json: { token: deviceToken, platform } }),
+
+  // --- Sunday School ---
+  sundaySchoolDetail: (token: string, id: number) =>
+    request<SundaySchoolDetailResponse>(`sunday-school/${id}/`, { token }),
+
+  joinClass: (token: string, id: number) =>
+    request<{ ok: boolean; message: string; enrollment: CourseEnrollment }>(`sunday-school/${id}/join/`, {
+      method: 'POST',
+      token,
+    }),
+
+  leaveClass: (token: string, id: number) =>
+    request<{ ok: boolean; message: string }>(`sunday-school/${id}/leave/`, { method: 'POST', token }),
+
+  addCourseComment: (token: string, id: number, body: string) =>
+    request<{ ok: boolean; comment: CourseComment }>(`sunday-school/${id}/comments/`, {
+      method: 'POST',
+      token,
+      json: { body },
+    }),
+
+  deleteCourseComment: (token: string, id: number, commentId: number) =>
+    request<{ ok: boolean }>(`sunday-school/${id}/comments/${commentId}/delete/`, { method: 'POST', token }),
+
+  // --- Bible study enrolment ---
+  joinStudy: (token: string, id: number) =>
+    request<{ ok: boolean; message: string }>(`bible-study/${id}/join/`, { method: 'POST', token }),
+
+  leaveStudy: (token: string, id: number) =>
+    request<{ ok: boolean; message: string }>(`bible-study/${id}/leave/`, { method: 'POST', token }),
+
+  studyComments: (token: string, id: number) =>
+    request<ListResponse<CourseComment>>(`bible-study/${id}/comments/`, { token }),
+
+  addStudyComment: (token: string, id: number, body: string) =>
+    request<{ ok: boolean; comment: { id: number; body: string } }>(`bible-study/${id}/comments/`, {
+      method: 'POST',
+      token,
+      json: { body },
+    }),
+
+  // --- Children ---
+  checkInChild: (token: string, id: number) =>
+    request<{ ok: boolean; child: Child }>(`children/${id}/checkin/`, { method: 'POST', token }),
+
+  checkOutChild: (token: string, id: number) =>
+    request<{ ok: boolean; child: Child }>(`children/${id}/checkout/`, { method: 'POST', token }),
+
+  // --- Giving ---
+  give: (token: string, data: { amount: string; giving_category: string; frequency: string; note: string }) =>
+    request<{ ok: boolean; giving: OnlineGiving }>('give/', { method: 'POST', token, json: data }),
+
+  myOnlineGivings: (token: string) => request<ListResponse<OnlineGiving>>('give/', { token }),
+
+  // --- Directory ---
+  directory: (token: string) => request<ListResponse<DirectoryMember>>('members/', { token }),
+
+  memberDetail: (token: string, id: number) =>
+    request<{ member: DirectoryMember }>(`members/${id}/`, { token }),
+
+  ministry: (token: string, id: number) => request<{ ministry: Ministry }>(`ministries/${id}/`, { token }),
+
+  groupDetail: (token: string, id: number) => request<{ group: GroupDetail }>(`groups/${id}/`, { token }),
+
+  // --- Facilities ---
+  createBooking: (
+    token: string,
+    data: { facility: number; event_name: string; date: string; start_time: string; end_time: string; purpose: string },
+  ) => request<{ ok: boolean; booking: FacilityBooking }>('facilities/', { method: 'POST', token, json: data }),
 };
 
 export const ENDPOINTS: Record<string, string> = {
   groups: 'groups/',
+  'groups-all': 'groups/browse/',
   givings: 'givings/',
   attendance: 'attendance/',
   events: 'events/',
@@ -148,6 +227,13 @@ export const ENDPOINTS: Record<string, string> = {
   sermons: 'sermons/',
   prayers: 'prayers/',
   'bible-study': 'bible-study/',
+  'sunday-school': 'sunday-school/',
   devotions: 'devotions/',
   songs: 'songs/',
+  children: 'children/',
+  ministries: 'ministries/',
+  facilities: 'facilities/',
+  'my-bookings': 'facilities/bookings/',
+  directory: 'members/',
+  'online-giving': 'give/',
 };
