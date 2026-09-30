@@ -35,7 +35,7 @@
                     <div>
                         <h3 class="mb-1">{{ service.name }}</h3>
                         <p class="text-muted mb-0">
-                            <i class="bi bi-calendar me-1"></i>{{ service.date|ldate:"l, F d, Y" }}
+                            <i class="bi bi-calendar me-1"></i>{{ service.date|date:"l, F d, Y" }}
                             <span class="mx-2">|</span>
                             <i class="bi bi-clock me-1"></i>{{ service.start_time|time:"H:i" }} - {{ service.end_time|time:"H:i" }}
                         </p>

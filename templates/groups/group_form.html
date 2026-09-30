@@ -83,9 +83,13 @@
                             <label for="id_meeting_day" class="form-label fw-semibold">Meeting Day</label>
                             <select name="meeting_day" id="id_meeting_day" class="form-select {% if form.meeting_day.errors %}is-invalid{% endif %}">
                                 <option value="">-- Select Day --</option>
-                                {% for day in "Monday Tuesday Wednesday Thursday Friday Saturday Sunday"|split:" " %}
-                                <option value="{{ day }}" {% if form.meeting_day.value == day %}selected{% endif %}>{{ day }}</option>
-                                {% endfor %}
+                                <option value="Monday" {% if form.meeting_day.value == 'Monday' %}selected{% endif %}>Monday</option>
+                                <option value="Tuesday" {% if form.meeting_day.value == 'Tuesday' %}selected{% endif %}>Tuesday</option>
+                                <option value="Wednesday" {% if form.meeting_day.value == 'Wednesday' %}selected{% endif %}>Wednesday</option>
+                                <option value="Thursday" {% if form.meeting_day.value == 'Thursday' %}selected{% endif %}>Thursday</option>
+                                <option value="Friday" {% if form.meeting_day.value == 'Friday' %}selected{% endif %}>Friday</option>
+                                <option value="Saturday" {% if form.meeting_day.value == 'Saturday' %}selected{% endif %}>Saturday</option>
+                                <option value="Sunday" {% if form.meeting_day.value == 'Sunday' %}selected{% endif %}>Sunday</option>
                             </select>
                             {% if form.meeting_day.errors %}
                             <div class="invalid-feedback">{{ form.meeting_day.errors.0 }}</div>
@@ -156,23 +160,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const dayInput = document.getElementById('id_meeting_day');
-        if (dayInput && dayInput.value === '') {
-            const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-            const currentValue = dayInput.dataset.value || '';
-            days.forEach(function(day) {
-                const option = document.createElement('option');
-                option.value = day;
-                option.textContent = day;
-                if (currentValue === day) option.selected = true;
-                dayInput.appendChild(option);
-            });
-        }
-    });
-</script>
 {% endblock %}
