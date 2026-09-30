@@ -29,4 +29,36 @@ urlpatterns = [
     path('prayers/', views.prayers_view, name='prayers'),
     path('notifications/', views.notifications_view, name='notifications'),
     path('devices/', views.device_token_view, name='devices'),
+    # Sunday School
+    path('sunday-school/', views.sunday_school_list_view, name='sunday-school'),
+    path('sunday-school/<int:course_id>/', views.sunday_school_detail_view, name='sunday-school-detail'),
+    path('sunday-school/<int:course_id>/join/', views.sunday_school_join_view, name='sunday-school-join'),
+    path('sunday-school/<int:course_id>/leave/', views.sunday_school_leave_view, name='sunday-school-leave'),
+    path('sunday-school/<int:course_id>/comments/', views.sunday_school_comment_view, name='sunday-school-comments'),
+    path('sunday-school/<int:course_id>/comments/<int:comment_id>/delete/',
+         views.sunday_school_comment_delete_view, name='sunday-school-comment-delete'),
+    # Bible study enrolment + discussion
+    path('bible-study/<int:note_id>/join/', views.bible_study_join_view, name='bible-study-join'),
+    path('bible-study/<int:note_id>/leave/', views.bible_study_leave_view, name='bible-study-leave'),
+    path('bible-study/<int:note_id>/comments/', views.bible_study_comment_view, name='bible-study-comments'),
+    # Children
+    path('children/', views.children_view, name='children'),
+    path('children/<int:child_id>/', views.child_detail_view, name='child-detail'),
+    path('children/<int:child_id>/checkin/', views.child_checkin_view, name='child-checkin'),
+    path('children/<int:child_id>/checkout/', views.child_checkout_view, name='child-checkout'),
+    # Giving
+    path('give/', views.give_view, name='give'),
+    # Directory
+    path('members/', views.member_directory_view, name='directory'),
+    path('members/<int:member_id>/', views.member_directory_detail_view, name='directory-detail'),
+    path('ministries/', views.ministries_view, name='ministries'),
+    path('ministries/<int:ministry_id>/', views.ministry_detail_view, name='ministry-detail'),
+    path('groups/browse/', views.groups_browse_view, name='groups-browse'),
+    path('groups/<int:group_id>/', views.group_detail_view, name='group-detail'),
+    # Facilities
+    path('facilities/', views.facilities_view, name='facilities'),
+    path('facilities/bookings/', views.my_bookings_view, name='my-bookings'),
+    # Single object details
+    path('events/<int:event_id>/', views.event_detail_view, name='event-detail'),
+    path('services/<int:service_id>/', views.service_detail_view, name='service-detail'),
 ]

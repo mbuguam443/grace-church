@@ -1,26 +1,32 @@
 import json
+from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from attendance.models import Attendance
-from bible_study.models import BibleStudyNote
+from bible_study.models import BibleStudyEnrollment, BibleStudyNote
+from children.models import Child, ChildAttendance
 from core.models import Notification
 from communication.models import Announcement
 from events.models import Event, EventRegistration
-from giving.models import Giving
+from facilities.models import Facility, FacilityBooking
+from giving.models import Giving, OnlineGiving
 from groups.models import Group
 from members.models import Member
+from ministries.models import Ministry
 from prayer.models import PrayerRequest
 from sermons.models import Sermon
 from services.models import Service
 from songs.models import Song
+from sunday_school.models import CourseComment, CourseEnrollment, SundaySchoolCourse
 
 from .auth import get_member, token_required
 from .models import ApiToken, DeviceToken
@@ -659,3 +665,677 @@ def prayers_view(request):
         is_confidential=bool(data.get('is_confidential', False)),
     )
     return JsonResponse({'ok': True, 'prayer': _prayer_payload(prayer, getattr(member, 'id', None))}, status=201)
+# ---------------------------------------------------------------------------
+# Sunday School
+# ---------------------------------------------------------------------------
+
+def _my_child_ids(user):
+    member = get_member(user)
+    if member is None:
+        return []
+    return list(member.children.values_list('pk', flat=True))
+
+
+def _enrollment_payload(enrollment):
+    if enrollment is None:
+        return None
+    return {
+        'id': enrollment.id,
+        'status': enrollment.status,
+        'status_label': enrollment.get_status_display(),
+        'is_child': enrollment.is_child,
+        'student_name': enrollment.student_name,
+        'parent_name': enrollment.parent_name,
+        'joined_at': enrollment.joined_at.isoformat(),
+    }
+
+
+def _course_payload(request, course, user, child_ids, detail=False):
+    enrollment = None
+    if child_ids:
+        from django.db.models import Q
+        enrollment = course.enrollments.filter(
+            Q(student=user) | Q(child_id__in=child_ids)
+        ).first()
+    else:
+        enrollment = course.enrollments.filter(student=user).first()
+    can_view = (
+        user.can_manage_content
+        or not course.enable_registration
+        or (enrollment is not None and enrollment.status == 'approved')
+    )
+    payload = {
+        'id': course.id,
+        'title': course.title,
+        'age_group': course.age_group,
+        'age_group_label': course.get_age_group_display(),
+        'lesson_date': course.lesson_date.isoformat() if course.lesson_date else None,
+        'scripture': course.scripture,
+        'video_url': course.video_url,
+        'enrolled_count': course.enrolled_count,
+        'pending_count': course.pending_count,
+        'max_students': course.max_students,
+        'spots_left': course.spots_left,
+        'is_full': course.is_full,
+        'enable_registration': course.enable_registration,
+        'requires_approval': course.requires_approval,
+        'can_join': bool(course.enable_registration and not course.is_full
+                         and not user.can_manage_content and enrollment is None),
+        'can_view_content': can_view,
+        'my_enrollment': _enrollment_payload(enrollment),
+    }
+    if detail:
+        payload.update({
+            'memory_verse': course.memory_verse if can_view else '',
+            'lesson': course.lesson if can_view else '',
+            'activities': course.activities if can_view else '',
+            'updated_at': course.updated_at.isoformat(),
+            # A parent with several children on the class needs to know which.
+            'my_children_on_course': [
+                e.student_name for e in course.enrollments.filter(child_id__in=child_ids)
+                if e.child_id
+            ] if child_ids else [],
+        })
+        # Files are only handed out to someone allowed to read the lesson.
+        if can_view:
+            payload['pdf_url'] = _photo_url(request, course.pdf_attachment)
+            payload['audio_url'] = _photo_url(request, course.audio)
+            payload['video_file_url'] = _photo_url(request, course.video)
+        else:
+            payload['pdf_url'] = None
+            payload['audio_url'] = None
+            payload['video_file_url'] = None
+    return payload
+
+
+def _course_comment_payload(request, comment, user):
+    payload = {
+        'id': comment.id,
+        'body': comment.body,
+        'author': comment.name,
+        'created_at': comment.created_at.isoformat(),
+        'is_mine': comment.user_id == user.id,
+        'can_delete': comment.user_id == user.id or user.is_admin_user,
+    }
+    # Attachments are staff-only, same as on the website.
+    payload['attachment_url'] = _photo_url(request, comment.attachment) if user.is_admin_user else None
+    return payload
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def sunday_school_list_view(request):
+    child_ids = _my_child_ids(request.user)
+    qs = SundaySchoolCourse.objects.filter(is_active=True)
+    age_group = (request.GET.get('age_group') or '').strip()
+    if age_group:
+        qs = qs.filter(age_group=age_group)
+    search = (request.GET.get('search') or '').strip()
+    if search:
+        from django.db.models import Q
+        qs = qs.filter(Q(title__icontains=search) | Q(scripture__icontains=search)
+                       | Q(lesson__icontains=search))
+    qs = qs.prefetch_related('enrollments__child__parent', 'enrollments__student')
+    results = [_course_payload(request, c, request.user, child_ids) for c in qs[:MAX_LIST]]
+    return JsonResponse({'results': results, 'count': qs.count()})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def sunday_school_detail_view(request, course_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=course_id, is_active=True)
+    child_ids = _my_child_ids(request.user)
+    payload = _course_payload(request, course, request.user, child_ids, detail=True)
+    comments = course.comments.select_related('user')
+    return JsonResponse({
+        'course': payload,
+        'comments': [_course_comment_payload(request, cm, request.user) for cm in comments[:MAX_LIST]],
+    })
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET', 'POST'])
+def sunday_school_join_view(request, course_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=course_id, is_active=True)
+    if not course.enable_registration:
+        return JsonResponse({'error': 'Registration is not open for this class'}, status=400)
+    if request.user.can_manage_content:
+        return JsonResponse({'error': 'Teachers cannot join their own class'}, status=400)
+    if course.is_full:
+        return JsonResponse({'error': 'This class is already full'}, status=400)
+    if course.enrollments.filter(student=request.user).exists():
+        return JsonResponse({'error': 'You have already joined this class'}, status=400)
+    enrollment = CourseEnrollment.objects.create(
+        course=course,
+        student=request.user,
+        status='pending' if course.requires_approval else 'approved',
+    )
+    message = 'Join request sent, waiting for teacher approval.' if course.requires_approval \
+        else 'You have joined this class.'
+    return JsonResponse({
+        'ok': True,
+        'message': message,
+        'enrollment': _enrollment_payload(enrollment),
+    }, status=201)
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['POST'])
+def sunday_school_leave_view(request, course_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=course_id)
+    enrollment = course.enrollments.filter(student=request.user).first()
+    if enrollment is None:
+        return JsonResponse({'error': 'You are not on this class'}, status=400)
+    enrollment.delete()
+    return JsonResponse({'ok': True, 'message': 'You have left this class.'})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET', 'POST'])
+def sunday_school_comment_view(request, course_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=course_id, is_active=True)
+    if request.method == 'GET':
+        comments = course.comments.select_related('user')
+        return JsonResponse({
+            'results': [_course_comment_payload(request, cm, request.user) for cm in comments[:MAX_LIST]],
+            'count': comments.count(),
+        })
+    data = _json_body(request)
+    body = (data.get('body') or '').strip()
+    if not body:
+        return JsonResponse({'error': 'Please write something first'}, status=400)
+    comment = course.comments.create(user=request.user, body=body)
+    return JsonResponse({'ok': True, 'comment': _course_comment_payload(request, comment, request.user)},
+                        status=201)
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['POST', 'DELETE'])
+def sunday_school_comment_delete_view(request, course_id, comment_id):
+    course = get_object_or_404(SundaySchoolCourse, pk=course_id)
+    comment = get_object_or_404(CourseComment, pk=comment_id, course=course)
+    if comment.user_id != request.user.id and not request.user.is_admin_user:
+        return JsonResponse({'error': 'You can only delete your own comment'}, status=403)
+    comment.delete()
+    return JsonResponse({'ok': True})
+
+
+# ---------------------------------------------------------------------------
+# Bible study enrolment and discussion
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET', 'POST'])
+def bible_study_join_view(request, note_id):
+    note = get_object_or_404(BibleStudyNote, pk=note_id, is_active=True)
+    if not note.enable_registration:
+        return JsonResponse({'error': 'Registration is not open for this study'}, status=400)
+    if request.user.can_manage_content:
+        return JsonResponse({'error': 'Teachers cannot join their own study'}, status=400)
+    if note.is_full:
+        return JsonResponse({'error': 'This study is already full'}, status=400)
+    if note.enrollments.filter(student=request.user).exists():
+        return JsonResponse({'error': 'You have already joined this study'}, status=400)
+    enrollment = BibleStudyEnrollment.objects.create(
+        study=note,
+        student=request.user,
+        status='pending' if note.requires_approval else 'approved',
+    )
+    message = 'Join request sent, waiting for teacher approval.' if note.requires_approval \
+        else 'You have joined this study.'
+    return JsonResponse({'ok': True, 'message': message, 'id': enrollment.id}, status=201)
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['POST'])
+def bible_study_leave_view(request, note_id):
+    note = get_object_or_404(BibleStudyNote, pk=note_id)
+    enrollment = note.enrollments.filter(student=request.user).first()
+    if enrollment is None:
+        return JsonResponse({'error': 'You are not on this study'}, status=400)
+    enrollment.delete()
+    return JsonResponse({'ok': True, 'message': 'You have left this study.'})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET', 'POST'])
+def bible_study_comment_view(request, note_id):
+    note = get_object_or_404(BibleStudyNote, pk=note_id, is_active=True)
+    if request.method == 'GET':
+        comments = note.comments.select_related('user')
+        return JsonResponse({
+            'results': [
+                {
+                    'id': cm.id,
+                    'body': cm.body,
+                    'author': cm.name,
+                    'created_at': cm.created_at.isoformat(),
+                    'is_mine': cm.user_id == request.user.id,
+                    'can_delete': cm.user_id == request.user.id or request.user.is_admin_user,
+                }
+                for cm in comments[:MAX_LIST]
+            ],
+            'count': comments.count(),
+        })
+    data = _json_body(request)
+    body = (data.get('body') or '').strip()
+    if not body:
+        return JsonResponse({'error': 'Please write something first'}, status=400)
+    comment = note.comments.create(user=request.user, body=body)
+    return JsonResponse({'ok': True, 'comment': {'id': comment.id, 'body': comment.body}}, status=201)
+
+# ---------------------------------------------------------------------------
+# Children
+# ---------------------------------------------------------------------------
+
+def _child_payload(request, child):
+    today = timezone.localdate()
+    attendance = child.attendances.filter(date=today).first()
+    courses = child.course_enrollments.filter(course__is_active=True).select_related('course')
+    return {
+        'id': child.id,
+        'first_name': child.first_name,
+        'last_name': child.last_name,
+        'full_name': child.get_full_name(),
+        'date_of_birth': child.date_of_birth.isoformat(),
+        'age': child.age,
+        'age_group': child.age_group,
+        'age_group_label': child.age_group_display,
+        'gender': child.gender,
+        'school_class': child.school_class,
+        'teacher': child.teacher,
+        'allergies': child.allergies,
+        'emergency_contact': child.emergency_contact,
+        'photo_url': _photo_url(request, child.photo),
+        'is_active': child.is_active,
+        'checked_in_today': bool(attendance and attendance.checked_in),
+        'checked_out_today': bool(attendance and attendance.checked_out),
+        'checkin_time': attendance.checkin_time.strftime('%H:%M') if attendance and attendance.checkin_time else None,
+        'classes': [
+            {
+                'id': c.course.id,
+                'title': c.course.title,
+                'status': c.status,
+                'status_label': c.get_status_display(),
+                'age_group_label': c.course.get_age_group_display(),
+            }
+            for c in courses
+        ],
+    }
+
+
+def _get_own_child(request, child_id):
+    """A member may only read and check in their own child."""
+    child_ids = _my_child_ids(request.user)
+    if not child_ids:
+        return None
+    return Child.objects.filter(pk=child_id, pk__in=child_ids).select_related('parent').first()
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def children_view(request):
+    member = get_member(request.user)
+    qs = member.children.select_related('parent').all() if member else Child.objects.none()
+    results = [_child_payload(request, ch) for ch in qs[:MAX_LIST]]
+    return JsonResponse({'results': results, 'count': qs.count()})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def child_detail_view(request, child_id):
+    child = _get_own_child(request, child_id)
+    if child is None:
+        return JsonResponse({'error': 'Child not found'}, status=404)
+    return JsonResponse({'child': _child_payload(request, child)})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['POST'])
+def child_checkin_view(request, child_id):
+    child = _get_own_child(request, child_id)
+    if child is None:
+        return JsonResponse({'error': 'Child not found'}, status=404)
+    today = timezone.localdate()
+    attendance, _ = ChildAttendance.objects.get_or_create(child=child, date=today)
+    attendance.checked_in = True
+    attendance.checkin_time = timezone.localtime().time().replace(microsecond=0)
+    attendance.checked_in_by = get_member(request.user)
+    attendance.save()
+    return JsonResponse({'ok': True, 'child': _child_payload(request, child)})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['POST'])
+def child_checkout_view(request, child_id):
+    child = _get_own_child(request, child_id)
+    if child is None:
+        return JsonResponse({'error': 'Child not found'}, status=404)
+    today = timezone.localdate()
+    attendance, _ = ChildAttendance.objects.get_or_create(child=child, date=today)
+    if not attendance.checked_in:
+        return JsonResponse({'error': 'This child is not checked in today'}, status=400)
+    attendance.checked_out = True
+    attendance.checkout_time = timezone.localtime().time().replace(microsecond=0)
+    attendance.checked_out_by = get_member(request.user)
+    attendance.save()
+    return JsonResponse({'ok': True, 'child': _child_payload(request, child)})
+
+
+# ---------------------------------------------------------------------------
+# Giving
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET', 'POST'])
+def give_view(request):
+    """Submit an online offering from the app."""
+    member = get_member(request.user)
+    if request.method == 'GET':
+        qs = member.online_givings.all() if member else OnlineGiving.objects.none()
+        return JsonResponse({
+            'results': [_online_giving_payload(g) for g in qs[:MAX_LIST]],
+            'count': qs.count(),
+        })
+    data = _json_body(request)
+    try:
+        # Money is handled as a Decimal so the amount is never stored as a float.
+        amount = Decimal(str(data.get('amount') or 0)).quantize(Decimal('0.01'))
+    except (TypeError, ValueError, ArithmeticError, InvalidOperation):
+        return JsonResponse({'error': 'Enter a valid amount'}, status=400)
+    if amount <= 0:
+        return JsonResponse({'error': 'Enter an amount greater than zero'}, status=400)
+    category = data.get('giving_category') or 'offering'
+    valid = [c[0] for c in Giving.GIVING_CATEGORIES]
+    if category not in valid:
+        return JsonResponse({'error': 'Choose a valid giving category'}, status=400)
+    frequency = data.get('frequency') or 'one_time'
+    if frequency not in [f[0] for f in OnlineGiving.FREQUENCY_CHOICES]:
+        frequency = 'one_time'
+    email = (data.get('email') or (member.email if member else '') or '').strip()
+    name = (data.get('name') or (str(member) if member else '') or '').strip()
+    if not name:
+        return JsonResponse({'error': 'Please enter your name'}, status=400)
+    record = OnlineGiving.objects.create(
+        name=name[:200],
+        email=email,
+        amount=amount,
+        giving_category=category,
+        frequency=frequency,
+        note=(data.get('note') or '').strip(),
+    )
+    record.post_to_finance()
+    return JsonResponse({'ok': True, 'giving': _online_giving_payload(record)}, status=201)
+
+
+def _online_giving_payload(g):
+    return {
+        'id': g.id,
+        'name': g.name,
+        'email': g.email,
+        'amount': str(g.amount),
+        'giving_category': g.giving_category,
+        'giving_category_label': g.get_giving_category_display(),
+        'frequency': g.frequency,
+        'frequency_label': g.get_frequency_display(),
+        'reference_number': g.reference_number,
+        'status': g.status,
+        'status_label': g.get_status_display(),
+        'created_at': g.created_at.isoformat(),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Directory: members, ministries, all groups
+# ---------------------------------------------------------------------------
+
+def _directory_member_payload(request, member):
+    """Limited view for the member directory: no address, no emergency contacts."""
+    return {
+        'id': member.id,
+        # str(member) would append the member number, so build the name plainly.
+        'full_name': '%s %s' % (member.first_name, member.last_name),
+        'first_name': member.first_name,
+        'last_name': member.last_name,
+        'member_number': member.member_number,
+        'phone': member.phone,
+        'email': member.email,
+        'gender': member.gender,
+        'gender_label': member.get_gender_display() if hasattr(member, 'get_gender_display') else '',
+        'membership_status': member.membership_status,
+        'membership_status_label': member.get_membership_status_display(),
+        'photo_url': _photo_url(request, member.photo) if hasattr(member, 'photo') else None,
+    }
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def member_directory_view(request):
+    qs = Member.objects.filter(membership_status='active')
+    search = (request.GET.get('search') or '').strip()
+    if search:
+        from django.db.models import Q
+        qs = qs.filter(
+            Q(first_name__icontains=search) | Q(last_name__icontains=search)
+            | Q(member_number__icontains=search) | Q(phone__icontains=search)
+        )
+    qs = qs.order_by('first_name', 'last_name')
+    return JsonResponse({
+        'results': [_directory_member_payload(request, m) for m in qs[:MAX_LIST]],
+        'count': qs.count(),
+    })
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def member_directory_detail_view(request, member_id):
+    member = get_object_or_404(Member, pk=member_id)
+    payload = _directory_member_payload(request, member)
+    payload['family'] = str(member.family) if member.family_id else None
+    return JsonResponse({'member': payload})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def ministries_view(request):
+    qs = Ministry.objects.filter(is_active=True)
+    search = (request.GET.get('search') or '').strip()
+    if search:
+        qs = qs.filter(name__icontains=search)
+    qs = qs.order_by('name')
+    return JsonResponse({
+        'results': [
+            {
+                'id': m.id,
+                'name': m.name,
+                'description': m.description,
+                'leader': str(m.leader) if m.leader_id else None,
+'purpose': '',
+                'image_url': _photo_url(request, m.image) if hasattr(m, 'image') else None,
+            }
+            for m in qs[:MAX_LIST]
+        ],
+        'count': qs.count(),
+    })
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def ministry_detail_view(request, ministry_id):
+    ministry = get_object_or_404(Ministry, pk=ministry_id)
+    members = ministry.members.filter(membership_status='active').order_by('first_name', 'last_name') \
+        if hasattr(ministry, 'members') else Member.objects.none()
+    return JsonResponse({
+        'ministry': {
+            'id': ministry.id,
+            'name': ministry.name,
+            'description': ministry.description,
+            'leader': str(ministry.leader) if ministry.leader_id else None,
+'purpose': '',
+            'image_url': _photo_url(request, ministry.image) if hasattr(ministry, 'image') else None,
+            'members': [_directory_member_payload(request, m) for m in members[:MAX_LIST]],
+        }
+    })
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def groups_browse_view(request):
+    """All groups, not just mine, so members can find a fellowship to join."""
+    qs = Group.objects.filter(is_active=True)
+    search = (request.GET.get('search') or '').strip()
+    if search:
+        from django.db.models import Q
+        qs = qs.filter(Q(name__icontains=search) | Q(description__icontains=search))
+    qs = qs.order_by('name')
+    return JsonResponse({
+        'results': [_group_payload(g) for g in qs[:MAX_LIST]],
+        'count': qs.count(),
+    })
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def group_detail_view(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+    payload = _group_payload(group)
+    members = group.members.all().order_by('first_name', 'last_name')
+    payload['members'] = [
+        {
+            'id': m.id,
+            'full_name': '%s %s' % (m.first_name, m.last_name),
+            'phone': m.phone,
+            'email': m.email,
+        }
+        for m in members[:MAX_LIST]
+    ]
+    return JsonResponse({'group': payload})
+
+
+# ---------------------------------------------------------------------------
+# Facilities
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET', 'POST'])
+def facilities_view(request):
+    if request.method == 'POST':
+        member = get_member(request.user)
+        if member is None:
+            return JsonResponse({'error': 'No member profile linked to your account'}, status=400)
+        data = _json_body(request)
+        facility = get_object_or_404(Facility, pk=data.get('facility'))
+        event_name = (data.get('event_name') or '').strip()
+        purpose = (data.get('purpose') or '').strip()
+        if not event_name:
+            return JsonResponse({'error': 'Please give the booking a name'}, status=400)
+        start_time = (data.get('start_time') or '').strip()
+        end_time = (data.get('end_time') or '').strip()
+        if not start_time or not end_time:
+            return JsonResponse({'error': 'Start and end time are required'}, status=400)
+        from datetime import date as date_cls, time as time_cls
+        try:
+            booking_date = date_cls.fromisoformat(
+                (data.get('date') or '').strip() or str(timezone.localdate()))
+            parsed_start = time_cls.fromisoformat(start_time)
+            parsed_end = time_cls.fromisoformat(end_time)
+        except ValueError:
+            return JsonResponse({'error': 'Enter a valid date and time'}, status=400)
+        if parsed_end <= parsed_start:
+            return JsonResponse({'error': 'End time must be after the start time'}, status=400)
+        booking = FacilityBooking.objects.create(
+            facility=facility,
+            booked_by=member,
+            event_name=event_name[:200],
+            date=booking_date,
+            start_time=parsed_start,
+            end_time=parsed_end,
+            purpose=purpose,
+        )
+        return JsonResponse({'ok': True, 'booking': _booking_payload(booking)}, status=201)
+    qs = Facility.objects.filter(is_available=True).order_by('name')
+    return JsonResponse({
+        'results': [
+            {
+                'id': f.id,
+                'name': f.name,
+                'description': f.description,
+                'capacity': f.capacity,
+                'location': f.location,
+                'is_available': f.is_available,
+            }
+            for f in qs[:MAX_LIST]
+        ],
+        'count': qs.count(),
+    })
+
+
+def _booking_payload(b):
+    return {
+        'id': b.id,
+        'facility': str(b.facility),
+        'event_name': b.event_name,
+        'date': b.date.isoformat(),
+        'start_time': b.start_time.strftime('%H:%M'),
+        'end_time': b.end_time.strftime('%H:%M'),
+        'purpose': b.purpose,
+        'status': b.status,
+        'status_label': b.get_status_display(),
+    }
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def my_bookings_view(request):
+    member = get_member(request.user)
+    qs = FacilityBooking.objects.filter(booked_by=member).select_related('facility') if member \
+        else FacilityBooking.objects.none()
+    return JsonResponse({
+        'results': [_booking_payload(b) for b in qs[:MAX_LIST]],
+        'count': qs.count(),
+    })
+
+
+# ---------------------------------------------------------------------------
+# Detail endpoints the app was missing
+# ---------------------------------------------------------------------------
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def event_detail_view(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    return JsonResponse({'event': _event_payload(request, event)})
+
+
+@csrf_exempt
+@token_required
+@require_http_methods(['GET'])
+def service_detail_view(request, service_id):
+    service = get_object_or_404(Service, pk=service_id)
+    member = get_member(request.user)
+    payload = _service_payload(service, member.id if member else None)
+    payload['notes'] = service.notes
+    return JsonResponse({'service': payload})
