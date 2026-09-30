@@ -1,0 +1,122 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Record Attendance - GC{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h2><i class="bi bi-person-check"></i> Record Attendance</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'attendance:attendance_list' %}">Attendance</a></li>
+                <li class="breadcrumb-item active">Record</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="{% url 'attendance:attendance_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> Attendance Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="id_service" class="form-label fw-semibold">Service <span class="text-danger">*</span></label>
+                        <select name="service" id="id_service" class="form-select {% if form.service.errors %}is-invalid{% endif %}">
+                            <option value="">-- Select Service --</option>
+                            {% for service in form.service.field.queryset %}
+                            <option value="{{ service.pk }}" {% if form.service.value|stringformat:'s' == service.pk|stringformat:'s' %}selected{% endif %}>{{ service.name }} ({{ service.date|date:"M d, Y" }})</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.service.errors %}
+                        <div class="invalid-feedback">{{ form.service.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_attendance_type" class="form-label fw-semibold">Attendance Type <span class="text-danger">*</span></label>
+                        <select name="attendance_type" id="id_attendance_type" class="form-select {% if form.attendance_type.errors %}is-invalid{% endif %}">
+                            {% for value, label in form.attendance_type.field.choices %}
+                            <option value="{{ value }}" {% if form.attendance_type.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.attendance_type.errors %}
+                        <div class="invalid-feedback">{{ form.attendance_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_member" class="form-label fw-semibold">Member</label>
+                        <select name="member" id="id_member" class="form-select {% if form.member.errors %}is-invalid{% endif %}">
+                            <option value="">-- Select Member --</option>
+                            {% for member in form.member.field.queryset %}
+                            <option value="{{ member.pk }}" {% if form.member.value|stringformat:'s' == member.pk|stringformat:'s' %}selected{% endif %}>{{ member }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Required for members and children. Leave empty for visitors.</div>
+                        {% if form.member.errors %}
+                        <div class="invalid-feedback">{{ form.member.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_visitor_name" class="form-label fw-semibold">Visitor Name</label>
+                        <input type="text" name="visitor_name" id="id_visitor_name" class="form-control {% if form.visitor_name.errors %}is-invalid{% endif %}" value="{{ form.visitor_name.value|default:'' }}" placeholder="Enter visitor name">
+                        <div class="form-text">Required when the attendance type is Visitor.</div>
+                        {% if form.visitor_name.errors %}
+                        <div class="invalid-feedback">{{ form.visitor_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_notes" class="form-label fw-semibold">Notes</label>
+                        <textarea name="notes" id="id_notes" class="form-control {% if form.notes.errors %}is-invalid{% endif %}" rows="3" placeholder="Optional notes">{{ form.notes.value|default:'' }}</textarea>
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback">{{ form.notes.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Save Attendance
+                        </button>
+                        <a href="{% url 'attendance:attendance_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="bi bi-lightbulb"></i> Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Pick the service being recorded.</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> Choose Member or Child, then select the person.</li>
+                    <li class="mb-2"><i class="bi bi-check2 text-success"></i> For visitors, choose Visitor and type the name.</li>
+                    <li><i class="bi bi-check2 text-success"></i> A person can only be recorded once per service.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
