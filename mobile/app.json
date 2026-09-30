@@ -39,6 +39,13 @@
         {
           "photosPermission": "Grace Church Members needs access to your photos so you can set your profile picture."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#A8704A",
+          "defaultChannel": "updates"
+        }
       ]
     ],
     "experiments": {
