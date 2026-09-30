@@ -198,7 +198,7 @@ def _sermon_payload(request, s, detail=False):
     return payload
 
 
-def _bible_note_payload(n, detail=False):
+def _bible_note_payload(n, detail=False, user=None):
     payload = {
         'id': n.id,
         'title': n.title,
@@ -206,7 +206,29 @@ def _bible_note_payload(n, detail=False):
         'study_date': n.study_date.isoformat(),
         'teacher': n.teacher,
         'series': n.series,
+        'enrolled_count': n.enrolled_count,
+        'is_full': n.is_full,
+        'spots_left': n.spots_left,
+        'enable_registration': n.enable_registration,
+        'requires_approval': n.requires_approval,
+        'my_enrollment': None,
     }
+    if user is not None:
+        enrollment = n.enrollments.filter(student=user).first()
+        if enrollment is not None:
+            payload['my_enrollment'] = {
+                'id': enrollment.id,
+                'status': enrollment.status,
+                'status_label': enrollment.get_status_display(),
+                'joined_at': enrollment.joined_at.isoformat(),
+            }
+        if not detail:
+            payload['can_join'] = bool(
+                n.enable_registration
+                and not n.is_full
+                and not user.can_manage_content
+                and payload['my_enrollment'] is None
+            )
     if detail:
         payload['content'] = n.content
         payload['key_points'] = n.key_points
@@ -568,7 +590,10 @@ def devotions_view(request):
 @require_http_methods(['GET'])
 def bible_study_view(request):
     qs = BibleStudyNote.objects.filter(is_active=True)[:MAX_LIST]
-    return JsonResponse({'results': [_bible_note_payload(n) for n in qs], 'count': qs.count()})
+    return JsonResponse({
+        'results': [_bible_note_payload(n, user=request.user) for n in qs],
+        'count': qs.count(),
+    })
 
 
 @csrf_exempt
@@ -579,7 +604,7 @@ def bible_study_detail_view(request, note_id):
         n = BibleStudyNote.objects.get(pk=note_id, is_active=True)
     except BibleStudyNote.DoesNotExist:
         return JsonResponse({'error': 'Study note not found'}, status=404)
-    return JsonResponse(_bible_note_payload(n, detail=True))
+    return JsonResponse(_bible_note_payload(n, detail=True, user=request.user))
 
 
 @csrf_exempt
@@ -987,6 +1012,10 @@ def _get_own_child(request, child_id):
 def children_view(request):
     member = get_member(request.user)
     qs = member.children.select_related('parent').all() if member else Child.objects.none()
+    search = (request.GET.get('search') or '').strip()
+    if search:
+        from django.db.models import Q
+        qs = qs.filter(Q(first_name__icontains=search) | Q(last_name__icontains=search))
     results = [_child_payload(request, ch) for ch in qs[:MAX_LIST]]
     return JsonResponse({'results': results, 'count': qs.count()})
 
