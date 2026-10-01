@@ -11,6 +11,8 @@
       "icon": "./assets/images/icon.png"
     },
     "android": {
+      "package": "com.gracechurch.munyaka.members",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#A8704A",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
