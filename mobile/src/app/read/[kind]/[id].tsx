@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Btn, Card, Chip, Field, Loading } from '../../../components/ui';
+import { SermonMedia } from '../../../components/sermon-media';
 import { useAuth } from '../../../lib/auth';
 import { api } from '../../../lib/api';
 import { moduleTitle } from '../../../lib/library';
@@ -218,16 +219,12 @@ export default function ReadScreen() {
               </>
             )}
 
-            {item.youtube_url || item.pdf_url ? (
-              <View style={styles.actions}>
-                {item.youtube_url ? (
-                  <Btn title="Watch on YouTube" onPress={() => Linking.openURL(String(item.youtube_url))} />
-                ) : null}
-                {item.pdf_url ? (
-                  <Btn title="Open study PDF" variant="outline" onPress={() => Linking.openURL(String(item.pdf_url))} />
-                ) : null}
-              </View>
-            ) : null}
+            <SermonMedia
+              videoUrl={item.video_url}
+              audioUrl={item.audio_url}
+              pdfUrl={item.pdf_url}
+              youtubeUrl={item.youtube_url}
+            />
 
             {kind === 'bible-study' ? (
               <View style={styles.discussion}>
@@ -384,5 +381,4 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   emptyText: { color: Colors.muted, fontSize: 14, textAlign: 'center' },
-  actions: { gap: Spacing.sm, marginTop: Spacing.xs },
 });

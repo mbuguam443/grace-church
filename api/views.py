@@ -189,6 +189,9 @@ def _sermon_payload(request, s, detail=False):
         'category': s.category,
         'description': s.description,
         'youtube_url': s.youtube_url,
+        'has_audio': bool(s.audio_file),
+        'has_video': bool(s.video_file),
+        'has_pdf': bool(s.pdf_file),
     }
     if detail:
         payload['sermon_notes'] = s.sermon_notes

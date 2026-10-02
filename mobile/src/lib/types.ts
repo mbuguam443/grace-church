@@ -121,6 +121,9 @@ export interface Sermon {
   category: string | null;
   description: string | null;
   youtube_url: string | null;
+  has_audio?: boolean;
+  has_video?: boolean;
+  has_pdf?: boolean;
   sermon_notes?: string | null;
   pdf_url?: string | null;
   audio_url?: string | null;

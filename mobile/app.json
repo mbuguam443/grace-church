@@ -41,6 +41,12 @@
         {
           "photosPermission": "Grace Church Members needs access to your photos so you can set your profile picture."
         }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsPictureInPicture": true
+        }
       ]
     ],
     "experiments": {

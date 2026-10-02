@@ -350,13 +350,15 @@ function renderBody(kind: string, item: Record<string, any>, busy: boolean, onRe
     }
     case 'sermons': {
       const s = item as Sermon;
+      const badges = sermonBadges(s);
       return (
         <StudyCard
           kicker={s.series || s.category || 'Sermon'}
           title={s.title}
           verse={s.bible_verse}
           meta={[s.speaker, formatDate(s.date)].filter(Boolean).join(' · ')}
-          action="Open notes"
+          badges={badges}
+          action={badges.length > 0 ? 'Watch or listen' : 'Open notes'}
           accent={KIND_ACCENT.sermons}
         />
       );
@@ -376,13 +378,15 @@ function renderBody(kind: string, item: Record<string, any>, busy: boolean, onRe
     }
     case 'devotions': {
       const s = item as Sermon;
+      const badges = sermonBadges(s);
       return (
         <StudyCard
           kicker="Devotion"
           title={s.title}
           verse={s.bible_verse}
           meta={[s.speaker, formatDate(s.date)].filter(Boolean).join(' · ')}
-          action="Open devotion"
+          badges={badges}
+          action={badges.length > 0 ? 'Watch or listen' : 'Open devotion'}
           accent={KIND_ACCENT.devotions}
         />
       );
@@ -532,6 +536,7 @@ function StudyCard({
   meta,
   action,
   accent,
+  badges,
 }: {
   kicker: string;
   title: string;
@@ -539,6 +544,7 @@ function StudyCard({
   meta?: string;
   action: string;
   accent: string;
+  badges?: { icon: keyof typeof Ionicons.glyphMap; label: string }[];
 }) {
   return (
     <View style={styles.studyBody}>
@@ -551,12 +557,31 @@ function StudyCard({
         </View>
       ) : null}
       {meta ? <Text style={styles.studyMeta}>{meta}</Text> : null}
+      {badges && badges.length > 0 ? (
+        <View style={styles.mediaBadges}>
+          {badges.map((b) => (
+            <View key={b.label} style={styles.mediaBadge}>
+              <Ionicons name={b.icon} size={12} color={Colors.muted} />
+              <Text style={styles.mediaBadgeText}>{b.label}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
       <View style={styles.readHint}>
         <Text style={[styles.readHintText, { color: accent }]}>{action}</Text>
         <Ionicons name="arrow-forward" size={14} color={accent} />
       </View>
     </View>
   );
+}
+
+function sermonBadges(s: Sermon): { icon: keyof typeof Ionicons.glyphMap; label: string }[] {
+  return [
+    s.youtube_url ? { icon: 'logo-youtube', label: 'YouTube' } : null,
+    s.has_video ? { icon: 'videocam', label: 'Video' } : null,
+    s.has_audio ? { icon: 'musical-notes', label: 'Audio' } : null,
+    s.has_pdf ? { icon: 'document-text', label: 'PDF' } : null,
+  ].filter((b): b is { icon: keyof typeof Ionicons.glyphMap; label: string } => b !== null);
 }
 
 function RowLine({ icon, title }: { icon: string; title: string }) {
@@ -615,6 +640,19 @@ const styles = StyleSheet.create({
   },
   verseStripText: { flex: 1, fontSize: 13, fontWeight: '700', fontStyle: 'italic', color: Colors.text, lineHeight: 18 },
   studyMeta: { fontSize: 13, color: Colors.muted, fontWeight: '600' },
+  mediaBadges: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
+  mediaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.bg,
+    borderRadius: Radius.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+  },
+  mediaBadgeText: { fontSize: 11, fontWeight: '700', color: Colors.muted },
   readHint: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, marginTop: Spacing.xs },
   readHintText: { fontSize: 13, fontWeight: '800' },
   rowBody: { gap: Spacing.xs },
