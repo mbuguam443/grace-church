@@ -19,6 +19,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
 EXCLUDE_DIRS = {
     '.git', 'venv', '.venv', 'env', '__pycache__', 'node_modules',
     '.expo', '.idea', '.vscode', 'staticfiles', '.pytest_cache',
+    'dist', 'web-build',
 }
 EXCLUDE_SUFFIXES = ('.pyc', '.pyo', '.log', '.orig', '.rej')
 EXCLUDE_NAMES = {'cpanel error.txt', '.DS_Store'}
