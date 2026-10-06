@@ -51,12 +51,27 @@ def seo_defaults(request):
     }
 
 
+# Which module keys each sidebar section needs before its heading is shown.
+SIDEBAR_SECTIONS = {
+    'management': ['members', 'families', 'visitors', 'services', 'attendance', 'ministries', 'groups', 'children'],
+    'church_life': ['events', 'sermons', 'ministries', 'songs', 'bible_study', 'sunday_school', 'announcements'],
+    'finance': ['finance', 'giving'],
+    'operations': ['assets', 'facilities', 'reports'],
+    'administration': ['users', 'settings'],
+}
+
+
 def module_permissions(request):
     allowed = None
     if request.user.is_authenticated:
         allowed = RoleModulePermission.allowed_modules_for(request.user.role)
+    sections = {
+        name: allowed is None or any(key in allowed for key in keys)
+        for name, keys in SIDEBAR_SECTIONS.items()
+    }
     return {
         'allowed_modules': allowed,
+        'sidebar_sections': sections,
     }
 
 

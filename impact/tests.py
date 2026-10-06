@@ -1,7 +1,8 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 
-from core.models import ChurchSetting
+from accounts.models import User
+from core.models import ChurchSetting, RoleModulePermission
 
 from .models import ChurchPlant, FundedPerson, impact_counts
 
@@ -47,17 +48,18 @@ class PublicGivePageTests(TestCase):
 class ImpactViewTests(TestCase):
     def setUp(self):
         self.client = Client()
+        self.admin = User.objects.create_superuser(
+            'impact_admin', 'impact_admin@test.com', 'test123', role='super_admin'
+        )
 
     def test_list_pages_require_login(self):
+        client = Client()
         for name in ['impact:funded-list', 'impact:churchplant-list']:
-            response = self.client.get(reverse(name))
+            response = client.get(reverse(name))
             self.assertEqual(response.status_code, 302, name)
 
     def test_admin_can_manage_records(self):
-        User = __import__('accounts.models', fromlist=['User']).User
-        self.client.force_login(
-            User.objects.create_superuser('admin', 'admin@test.com', 'test123', role='super_admin')
-        )
+        self.client.force_login(self.admin)
 
         response = self.client.post(reverse('impact:funded-create'), {
             'name': 'Jane Doe',
@@ -81,11 +83,80 @@ class ImpactViewTests(TestCase):
         self.assertTrue(ChurchPlant.objects.filter(name='Zone-T Church').exists())
 
     def test_dashboard_shows_impact_counts(self):
-        User = __import__('accounts.models', fromlist=['User']).User
-        self.client.force_login(
-            User.objects.create_superuser('admin2', 'admin2@test.com', 'test123', role='super_admin')
-        )
+        self.client.force_login(self.admin)
         FundedPerson.objects.create(name='Jane', category='food')
         response = self.client.get(reverse('dashboard:index'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['impact_counts']['people_funded'], 1)
+
+
+class SponsorAccessTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        ChurchSetting.get_settings()
+        self.sponsor = User.objects.create_user(
+            'donor1', 'donor@test.com', 'test123', role='sponsor'
+        )
+        self.member = User.objects.create_user(
+            'member1', 'member@test.com', 'test123', role='member'
+        )
+        FundedPerson.objects.create(name='Jane', category='food')
+        ChurchPlant.objects.create(name='Zone-T', status='planted')
+
+    def test_sponsor_role_is_seeded_with_impact_module(self):
+        self.assertTrue(
+            RoleModulePermission.objects.filter(role='sponsor', module='impact').exists()
+        )
+
+    def test_sponsor_sees_sponsorship_dashboard(self):
+        self.client.force_login(self.sponsor)
+        response = self.client.get(reverse('dashboard:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['is_sponsor_view'])
+        self.assertContains(response, 'Sponsorship Dashboard')
+        self.assertContains(response, 'Give Now')
+        self.assertContains(response, 'Recently Funded')
+
+    def test_sponsor_sidebar_only_offers_outreach(self):
+        self.client.force_login(self.sponsor)
+        response = self.client.get(reverse('dashboard:index'))
+        self.assertContains(response, 'Outreach')
+        self.assertContains(response, reverse('impact:funded-list'))
+        for section in ['Management', 'Church Life', 'Finance', 'Operations', 'Administration']:
+            self.assertNotContains(response, 'sidebar-section">%s<' % section)
+
+    def test_sponsor_can_read_outreach_records(self):
+        self.client.force_login(self.sponsor)
+        for name in ['impact:funded-list', 'impact:churchplant-list']:
+            response = self.client.get(reverse(name))
+            self.assertEqual(response.status_code, 200, name)
+        response = self.client.get(reverse('impact:funded-list'))
+        self.assertNotContains(response, 'Add Record')
+
+    def test_sponsor_cannot_create_records(self):
+        self.client.force_login(self.sponsor)
+        response = self.client.post(reverse('impact:funded-create'), {
+            'name': 'Sneaky', 'category': 'food',
+            'date_helped': '2026-10-06', 'status': 'active', 'note': '',
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(FundedPerson.objects.filter(name='Sneaky').exists())
+
+    def test_sponsor_is_blocked_from_other_modules(self):
+        self.client.force_login(self.sponsor)
+        for path in ['/members/', '/finance/', '/giving/', '/reports/', '/core/settings/',
+                     '/accounts/users/', '/accounts/permissions/']:
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 302, path)
+            self.assertEqual(response.url, reverse('dashboard:index'), path)
+
+    def test_sponsor_can_use_public_site(self):
+        self.client.force_login(self.sponsor)
+        for path in ['/', '/give-now/', '/about-us/']:
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200, path)
+
+    def test_other_roles_are_not_blocked(self):
+        self.client.force_login(self.member)
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)

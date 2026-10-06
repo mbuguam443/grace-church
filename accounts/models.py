@@ -14,6 +14,7 @@ class User(AbstractUser):
         ('media', 'Media'),
         ('usher', 'Usher'),
         ('worship_team', 'Praise & Worship Team'),
+        ('sponsor', 'Sponsor'),
         ('member', 'Member'),
     ]
 
@@ -56,6 +57,10 @@ class User(AbstractUser):
     @property
     def is_pastoral(self):
         return self.role in ['super_admin', 'admin', 'pastor']
+
+    @property
+    def is_sponsor(self):
+        return self.role == 'sponsor'
 
     @property
     def is_worship_team(self):

@@ -110,13 +110,15 @@
         </div>
         <div class="sidebar-nav">
             <a href="{% url 'dashboard:index' %}" class="{% if '/dashboard/' in request.path %}active{% endif %}">
-                <i class="bi bi-speedometer2"></i> {% if user.is_admin_user or user.is_leader %}Dashboard{% else %}My Portal{% endif %}
+                <i class="bi bi-speedometer2"></i> {% if user.is_sponsor %}Sponsorship{% elif user.is_admin_user or user.is_leader %}Dashboard{% else %}My Portal{% endif %}
             </a>
             {% if not user.is_admin_user and not user.is_leader %}
             <a href="{% url 'accounts:profile' %}" class="{% if '/accounts/profile' in request.path %}active{% endif %}"><i class="bi bi-person"></i> My Profile</a>
             {% endif %}
             {% if user.is_admin_user or user.is_leader %}
+            {% if sidebar_sections.management %}
             <div class="sidebar-section">Management</div>
+            {% endif %}
             {% if allowed_modules is None or 'members' in allowed_modules %}
             <a href="{% url 'members:member-list' %}" class="{% if '/members' in request.path %}active{% endif %}"><i class="bi bi-people"></i> Members</a>
             {% endif %}
@@ -141,14 +143,17 @@
             {% if allowed_modules is None or 'children' in allowed_modules %}
             <a href="{% url 'children:child_list' %}" class="{% if '/children' in request.path %}active{% endif %}"><i class="bi bi-emoji-smile"></i> Children</a>
             {% endif %}
+            {% endif %}
+
             {% if allowed_modules is None or 'impact' in allowed_modules %}
             <div class="sidebar-section">Outreach</div>
             <a href="{% url 'impact:funded-list' %}" class="{% if '/impact' in request.path and '/impact/churches' not in request.path %}active{% endif %}"><i class="bi bi-heart-handshake"></i> People Funded</a>
             <a href="{% url 'impact:churchplant-list' %}" class="{% if '/impact/churches' in request.path %}active{% endif %}"><i class="bi bi-globe-americas"></i> Church Plants</a>
             {% endif %}
-            {% endif %}
 
+            {% if sidebar_sections.church_life %}
             <div class="sidebar-section">Church Life</div>
+            {% endif %}
             {% if allowed_modules is None or 'events' in allowed_modules %}
             <a href="{% url 'events:event-list' %}" class="{% if '/events' in request.path %}active{% endif %}"><i class="bi bi-calendar3"></i> Events</a>
             {% endif %}
@@ -172,7 +177,9 @@
             {% endif %}
 
             {% if user.is_admin_user or user.is_finance %}
+            {% if sidebar_sections.finance %}
             <div class="sidebar-section">Finance</div>
+            {% endif %}
             {% if allowed_modules is None or 'finance' in allowed_modules %}
             <a href="{% url 'finance:finance-dashboard' %}" class="{% if '/finance' in request.path %}active{% endif %}"><i class="bi bi-graph-up"></i> Finance</a>
             {% endif %}
@@ -182,7 +189,9 @@
             {% endif %}
 
             {% if user.is_admin_user or user.is_leader %}
+            {% if sidebar_sections.operations %}
             <div class="sidebar-section">Operations</div>
+            {% endif %}
             {% if allowed_modules is None or 'assets' in allowed_modules %}
             <a href="{% url 'assets:asset-list' %}" class="{% if '/assets' in request.path %}active{% endif %}"><i class="bi bi-box"></i> Assets</a>
             {% endif %}
@@ -195,7 +204,9 @@
             {% endif %}
 
             {% if user.is_admin_user or user.is_leader %}
+            {% if sidebar_sections.administration %}
             <div class="sidebar-section">Administration</div>
+            {% endif %}
             {% if user.is_admin_user %}
             {% if allowed_modules is None or 'users' in allowed_modules %}
             <a href="{% url 'accounts:approval' %}" class="{% if '/accounts/approve' in request.path %}active{% endif %}">

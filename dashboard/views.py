@@ -11,7 +11,7 @@ from communication.models import Announcement
 from events.models import Event
 from finance.models import Transaction
 from giving.models import Giving
-from impact.models import impact_counts
+from impact.models import ChurchPlant, FundedPerson, impact_counts
 from members.models import Member
 from prayer.models import PrayerRequest
 from visitors.models import Visitor
@@ -72,6 +72,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 'pending_prayers': pending_prayers,
                 'impact_counts': impact_counts(),
                 'is_admin_view': True,
+            })
+        elif user.is_sponsor:
+            context.update({
+                'is_admin_view': False,
+                'is_sponsor_view': True,
+                'impact_counts': impact_counts(),
+                'funded_people': FundedPerson.objects.all()[:8],
+                'church_plants': ChurchPlant.objects.all()[:8],
+                'funded_total': FundedPerson.objects.count(),
+                'plant_total': ChurchPlant.objects.count(),
             })
         else:
             try:

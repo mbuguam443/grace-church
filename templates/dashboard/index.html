@@ -5,9 +5,9 @@
 
 {% block content %}
 <div class="page-header">
-    <h2>{% if is_admin_view %}Dashboard{% else %}My Portal{% endif %}</h2>
+    <h2>{% if is_sponsor_view %}Sponsorship Dashboard{% elif is_admin_view %}Dashboard{% else %}My Portal{% endif %}</h2>
     <nav class="breadcrumb">
-        <a href="{% url 'dashboard:index' %}">Home</a> / {% if is_admin_view %}Dashboard{% else %}My Portal{% endif %}
+        <a href="{% url 'dashboard:index' %}">Home</a> / {% if is_sponsor_view %}Sponsorship Dashboard{% elif is_admin_view %}Dashboard{% else %}My Portal{% endif %}
     </nav>
 </div>
 
@@ -143,6 +143,100 @@
                 </ul>
                 {% else %}
                 <div class="empty-state"><i class="bi bi-megaphone"></i><p>No announcements</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif is_sponsor_view %}
+<!-- SPONSOR DASHBOARD -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h3 class="mb-1">Your sponsorship is changing lives</h3>
+        <p class="text-muted mb-0">A live view of everyone and every church your giving helps support.</p>
+    </div>
+    <a href="{% url 'public:give' %}" class="btn btn-primary">
+        <i class="bi bi-heart-fill me-1"></i>Give Now
+    </a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #d63384;"><i class="bi bi-heart-handshake"></i></div>
+            <div class="stat-info"><h3>{{ impact_counts.people_funded }}</h3><p>People Funded</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--gold);"><i class="bi bi-basket-fill"></i></div>
+            <div class="stat-info"><h3>{{ impact_counts.families_fed }}</h3><p>Families Fed</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--primary);"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="stat-info"><h3>{{ impact_counts.students_sponsored }}</h3><p>Students Sponsored</p></div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--secondary);"><i class="bi bi-globe-americas"></i></div>
+            <div class="stat-info"><h3>{{ impact_counts.churches_planted }}</h3><p>Churches Planted</p></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-heart-handshake"></i> Recently Funded</span>
+                <a href="{% url 'impact:funded-list' %}" class="small">View all {{ funded_total }}</a>
+            </div>
+            <div class="card-body">
+                {% if funded_people %}
+                <table class="table">
+                    <thead><tr><th>Name</th><th>Category</th><th>Date</th></tr></thead>
+                    <tbody>
+                        {% for person in funded_people %}
+                        <tr>
+                            <td>{{ person.name }}</td>
+                            <td><span class="badge bg-secondary">{{ person.get_category_display }}</span></td>
+                            <td>{{ person.date_helped|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-heart"></i><p>No sponsorship records yet</p></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-globe-americas"></i> Church Plants</span>
+                <a href="{% url 'impact:churchplant-list' %}" class="small">View all {{ plant_total }}</a>
+            </div>
+            <div class="card-body">
+                {% if church_plants %}
+                <table class="table">
+                    <thead><tr><th>Church</th><th>Location</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for plant in church_plants %}
+                        <tr>
+                            <td>{{ plant.name }}</td>
+                            <td>{{ plant.location|default:"-" }}</td>
+                            <td>{{ plant.get_status_display }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state"><i class="bi bi-globe"></i><p>No church plants recorded yet</p></div>
                 {% endif %}
             </div>
         </div>

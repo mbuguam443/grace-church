@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'communication',
     'assets',
     'facilities',
+    'impact',
     'reports',
     'dashboard',
     'public',
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'core.middleware.SponsorAccessMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 

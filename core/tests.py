@@ -1,4 +1,7 @@
-from django.test import TestCase, Client
+import ast
+from pathlib import Path
+
+from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 from accounts.models import User
 from members.models import Family, Member
@@ -131,3 +134,34 @@ class PermissionTests(TestCase):
     def test_contact_page_accessible(self):
         response = self.client.get(reverse('public:contact'))
         self.assertEqual(response.status_code, 200)
+
+
+class ProductionSettingsSyncTests(SimpleTestCase):
+    """The server runs fbms.settings_production - it must not drift from settings.py."""
+
+    def list_setting(self, filename, name):
+        path = Path(__file__).resolve().parent.parent / 'fbms' / filename
+        tree = ast.parse(path.read_text(encoding='utf-8'))
+        for node in tree.body:
+            if isinstance(node, ast.Assign):
+                if any(getattr(target, 'id', None) == name for target in node.targets):
+                    return [item.value for item in node.value.elts]
+        self.fail('%s not found in fbms/%s' % (name, filename))
+
+    def test_production_has_every_installed_app(self):
+        dev = self.list_setting('settings.py', 'INSTALLED_APPS')
+        prod = self.list_setting('settings_production.py', 'INSTALLED_APPS')
+        missing = [app for app in dev if app not in prod]
+        self.assertEqual(
+            missing, [],
+            'fbms/settings_production.py is missing INSTALLED_APPS: %s' % missing,
+        )
+
+    def test_production_has_every_middleware(self):
+        dev = self.list_setting('settings.py', 'MIDDLEWARE')
+        prod = self.list_setting('settings_production.py', 'MIDDLEWARE')
+        missing = [mw for mw in dev if mw not in prod]
+        self.assertEqual(
+            missing, [],
+            'fbms/settings_production.py is missing MIDDLEWARE: %s' % missing,
+        )
