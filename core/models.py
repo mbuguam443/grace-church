@@ -201,6 +201,10 @@ class ChurchSetting(models.Model):
         return color_rgb(self.section_text_color)
 
     @property
+    def accent_rgb(self):
+        return color_rgb(self.accent_color or _DEFAULT_COLOR)
+
+    @property
     def history_paragraphs(self):
         body = self.about_history_body or ''
         return [p.strip() for p in body.split('\n\n') if p.strip()]

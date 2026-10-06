@@ -73,14 +73,14 @@
 </section>
 
 <!-- Upcoming Events Section -->
-<section id="upcoming-events" class="section bg-light">
+<section id="upcoming-events" class="section events-section">
     <div class="container">
         <div class="section-header">
             <h6>What's Happening</h6>
             <h2>Upcoming Events</h2>
             <p>Join us for these exciting upcoming events. There's something for everyone in our church family.</p>
         </div>
-        <div class="row g-4">
+        <div class="row g-4 justify-content-center">
             {% if upcoming_events %}
                 {% for event in upcoming_events %}
                 <div class="col-md-6 col-lg-4">
@@ -92,25 +92,28 @@
                             {% elif event.registration_required %}
                             <span class="event-card-flag">Registration Open</span>
                             {% endif %}
+                            <div class="event-date-tile">
+                                <span class="event-date-tile-day">{{ event.date|date:"d" }}</span>
+                                <span class="event-date-tile-month">{{ event.date|date:"M" }}</span>
+                            </div>
                         </div>
                         <div class="card-body p-4 d-flex flex-column">
-                            <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3 flex-shrink-0">
-                                    <span class="d-block">{{ event.date|date:"d" }}</span>
-                                    <span class="d-block text-uppercase">{{ event.date|date:"M" }}</span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="card-title">{{ event.name }}</h5>
-                                    <div class="event-meta">
-                                        <span class="event-meta-item"><i class="bi bi-clock"></i>{{ event.time_range|default:"TBA" }}</span>
-                                        {% if event.location %}
-                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>{{ event.location }}</span>
-                                        {% endif %}
-                                        {% if event.speaker %}
-                                        <span class="event-meta-item"><i class="bi bi-mic"></i>{{ event.speaker }}</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
+                            <h5 class="card-title">{{ event.name }}</h5>
+                            <div class="event-meta">
+                                {% if event.days_until == 0 %}
+                                <span class="event-meta-item event-countdown"><i class="bi bi-bolt-fill"></i>Today</span>
+                                {% elif event.days_until == 1 %}
+                                <span class="event-meta-item event-countdown"><i class="bi bi-bolt-fill"></i>Tomorrow</span>
+                                {% elif event.days_until <= 14 %}
+                                <span class="event-meta-item event-countdown"><i class="bi bi-bolt-fill"></i>In {{ event.days_until }} days</span>
+                                {% endif %}
+                                <span class="event-meta-item"><i class="bi bi-clock"></i>{{ event.time_range|default:"TBA" }}</span>
+                                {% if event.location %}
+                                <span class="event-meta-item"><i class="bi bi-geo-alt"></i>{{ event.location }}</span>
+                                {% endif %}
+                                {% if event.speaker %}
+                                <span class="event-meta-item"><i class="bi bi-mic"></i>{{ event.speaker }}</span>
+                                {% endif %}
                             </div>
                             <p class="text-muted event-card-desc">{{ event.description|truncatewords:20 }}</p>
                             <div class="event-card-footer">
@@ -127,20 +130,16 @@
                     <div class="card event-card h-100">
                         <div class="event-card-media">
                             <span class="event-card-image" style="background-image:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}');"></span>
+                            <div class="event-date-tile">
+                                <span class="event-date-tile-day">15</span>
+                                <span class="event-date-tile-month">Oct</span>
+                            </div>
                         </div>
                         <div class="card-body p-4 d-flex flex-column">
-                            <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3 flex-shrink-0">
-                                    <span class="d-block">15</span>
-                                    <span class="d-block text-uppercase">Oct</span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="card-title">Annual Harvest Festival</h5>
-                                    <div class="event-meta">
-                                        <span class="event-meta-item"><i class="bi bi-clock"></i>10:00 - 16:00</span>
-                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Main Hall</span>
-                                    </div>
-                                </div>
+                            <h5 class="card-title">Annual Harvest Festival</h5>
+                            <div class="event-meta">
+                                <span class="event-meta-item"><i class="bi bi-clock"></i>10:00 - 16:00</span>
+                                <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Main Hall</span>
                             </div>
                             <p class="text-muted event-card-desc">Join us for a day of praise, food, games, and fellowship as we celebrate God's abundant blessings.</p>
                             <div class="event-card-footer">
@@ -153,20 +152,16 @@
                     <div class="card event-card h-100">
                         <div class="event-card-media">
                             <span class="event-card-image" style="background-image:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}');"></span>
+                            <div class="event-date-tile">
+                                <span class="event-date-tile-day">22</span>
+                                <span class="event-date-tile-month">Oct</span>
+                            </div>
                         </div>
                         <div class="card-body p-4 d-flex flex-column">
-                            <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3 flex-shrink-0">
-                                    <span class="d-block">22</span>
-                                    <span class="d-block text-uppercase">Oct</span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="card-title">Youth Conference 2024</h5>
-                                    <div class="event-meta">
-                                        <span class="event-meta-item"><i class="bi bi-clock"></i>09:00 - 17:00</span>
-                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Youth Centre</span>
-                                    </div>
-                                </div>
+                            <h5 class="card-title">Youth Conference 2024</h5>
+                            <div class="event-meta">
+                                <span class="event-meta-item"><i class="bi bi-clock"></i>09:00 - 17:00</span>
+                                <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Youth Centre</span>
                             </div>
                             <p class="text-muted event-card-desc">A transformative conference for young people aged 13-25. Theme: "Arise and Shine."</p>
                             <div class="event-card-footer">
@@ -179,20 +174,16 @@
                     <div class="card event-card h-100">
                         <div class="event-card-media">
                             <span class="event-card-image" style="background-image:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}');"></span>
+                            <div class="event-date-tile">
+                                <span class="event-date-tile-day">29</span>
+                                <span class="event-date-tile-month">Oct</span>
+                            </div>
                         </div>
                         <div class="card-body p-4 d-flex flex-column">
-                            <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3 flex-shrink-0">
-                                    <span class="d-block">29</span>
-                                    <span class="d-block text-uppercase">Oct</span>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="card-title">Prayer &amp; Fasting Week</h5>
-                                    <div class="event-meta">
-                                        <span class="event-meta-item"><i class="bi bi-clock"></i>All Day</span>
-                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Main Sanctuary</span>
-                                    </div>
-                                </div>
+                            <h5 class="card-title">Prayer &amp; Fasting Week</h5>
+                            <div class="event-meta">
+                                <span class="event-meta-item"><i class="bi bi-clock"></i>All Day</span>
+                                <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Main Sanctuary</span>
                             </div>
                             <p class="text-muted event-card-desc">A week dedicated to spiritual renewal through prayer, fasting, and intensive Bible study.</p>
                             <div class="event-card-footer">

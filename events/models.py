@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -65,6 +67,11 @@ class Event(models.Model):
         if hours:
             return '%dh' % hours
         return '%dm' % mins
+
+    @property
+    def days_until(self):
+        """Whole days from today until the event starts; 0 means today."""
+        return (self.date - date.today()).days
 
     @property
     def registrations_count(self):
