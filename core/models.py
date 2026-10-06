@@ -205,6 +205,34 @@ class ChurchSetting(models.Model):
         return color_rgb(self.accent_color or _DEFAULT_COLOR)
 
     @property
+    def primary_rgb(self):
+        return color_rgb(self.primary_color or _DEFAULT_COLOR)
+
+    @property
+    def secondary_rgb(self):
+        return color_rgb(self.secondary_color or _DEFAULT_COLOR)
+
+    @property
+    def gold_rgb(self):
+        return color_rgb(self.gold_color or _DEFAULT_COLOR)
+
+    @property
+    def primary_text_color(self):
+        return readable_text_color(self.primary_color or _DEFAULT_COLOR)
+
+    @property
+    def secondary_text_color(self):
+        return readable_text_color(self.secondary_color or _DEFAULT_COLOR)
+
+    @property
+    def accent_text_color(self):
+        return readable_text_color(self.accent_color or _DEFAULT_COLOR)
+
+    @property
+    def gold_text_color(self):
+        return readable_text_color(self.gold_color or _DEFAULT_COLOR)
+
+    @property
     def history_paragraphs(self):
         body = self.about_history_body or ''
         return [p.strip() for p in body.split('\n\n') if p.strip()]

@@ -6,9 +6,17 @@
     --secondary-dark: #3A2B20;
     --accent: #B5651D;
     --accent-dark: #8F4B16;
-    --accent-rgb: 181, 101, 29;
     --gold: #C9A24B;
     --gold-light: #E6D39A;
+    --primary-rgb: 168, 112, 74;
+    --secondary-rgb: 78, 58, 44;
+    --accent-rgb: 181, 101, 29;
+    --gold-rgb: 201, 162, 75;
+    --primary-text: #ffffff;
+    --secondary-text: #ffffff;
+    --accent-text: #ffffff;
+    --gold-text: #1f2933;
+    --section-text: #ffffff;
     --dark: #3A3129;
     --light: #f8f4ef;
     --white: #FDFBF7;
@@ -219,8 +227,11 @@ nav.navbar.scrolled ul.navbar-nav a.btn-outline-light:hover {
 .section { padding: 100px 20px; position: relative; }
 .section-sm { padding: 60px 20px; }
 .section-light { background: #f8f4ef; }
-.section-primary { background: var(--section-color); color: white; }
-section.bg-primary { background-color: var(--section-color) !important; }
+.section-primary { background: var(--section-color); color: var(--section-text); }
+section.bg-primary:not([class*="bg-opacity"]) {
+    background-color: var(--section-color) !important;
+    color: var(--section-text);
+}
 .section-dark { background: var(--secondary); color: white; }
 
 .section-header { text-align: center; margin-bottom: 60px; }
@@ -445,10 +456,14 @@ footer a:hover { color: var(--gold); }
 .text-gold { color: var(--gold) !important; }
 .text-primary { color: var(--primary) !important; }
 .text-secondary { color: var(--secondary) !important; }
-.bg-primary { background-color: var(--primary) !important; }
-.bg-accent { background-color: var(--accent) !important; }
-.bg-gold { background-color: var(--gold) !important; }
-.bg-secondary { background-color: var(--secondary) !important; }
+.bg-primary { background-color: rgba(var(--primary-rgb), var(--bs-bg-opacity, 1)) !important; }
+.bg-secondary { background-color: rgba(var(--secondary-rgb), var(--bs-bg-opacity, 1)) !important; }
+.bg-accent { background-color: rgba(var(--accent-rgb), var(--bs-bg-opacity, 1)) !important; }
+.bg-gold { background-color: rgba(var(--gold-rgb), var(--bs-bg-opacity, 1)) !important; }
+.bg-primary:not([class*="bg-opacity"]) { color: var(--primary-text); }
+.bg-secondary:not([class*="bg-opacity"]) { color: var(--secondary-text); }
+.bg-accent:not([class*="bg-opacity"]) { color: var(--accent-text); }
+.bg-gold:not([class*="bg-opacity"]) { color: var(--gold-text); }
 .ls-2 { letter-spacing: 2px; }
 .z-2 { z-index: 2; }
 .position-relative { position: relative; }
