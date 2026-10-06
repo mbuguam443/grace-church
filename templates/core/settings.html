@@ -431,6 +431,53 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-braces me-2"></i>Navbar, Footer &amp; Sections</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        Solid colours that replace the old gradient. Leave a field blank to fall back to the Primary Color.
+                        The text colour is chosen automatically so links and headings stay readable.
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.navbar_color.id_for_label }}" class="form-label">Navbar Color</label>
+                            <div class="input-group">
+                                <span class="input-group-text color-preview" id="navbar_color_preview" style="background-color: {{ form.navbar_color.value|default:form.primary_color.value|default:'#A8704A' }}; width: 40px;"></span>
+                                <input type="color" name="navbar_color" id="{{ form.navbar_color.id_for_label }}" value="{{ form.navbar_color.value|default:form.primary_color.value|default:'#A8704A' }}" class="form-control form-control-color" style="width:50px; padding:0.25rem;">
+                                <input type="text" name="navbar_color_text" value="{{ form.navbar_color.value|default:form.primary_color.value|default:'#A8704A' }}" class="form-control color-hex-input" maxlength="7" style="max-width:90px;">
+                            </div>
+                            {% if form.navbar_color.errors %}
+                            <div class="invalid-feedback d-block">{{ form.navbar_color.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.footer_color.id_for_label }}" class="form-label">Footer Color</label>
+                            <div class="input-group">
+                                <span class="input-group-text color-preview" id="footer_color_preview" style="background-color: {{ form.footer_color.value|default:form.primary_color.value|default:'#A8704A' }}; width: 40px;"></span>
+                                <input type="color" name="footer_color" id="{{ form.footer_color.id_for_label }}" value="{{ form.footer_color.value|default:form.primary_color.value|default:'#A8704A' }}" class="form-control form-control-color" style="width:50px; padding:0.25rem;">
+                                <input type="text" name="footer_color_text" value="{{ form.footer_color.value|default:form.primary_color.value|default:'#A8704A' }}" class="form-control color-hex-input" maxlength="7" style="max-width:90px;">
+                            </div>
+                            {% if form.footer_color.errors %}
+                            <div class="invalid-feedback d-block">{{ form.footer_color.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.section_color.id_for_label }}" class="form-label">Section Color</label>
+                            <div class="input-group">
+                                <span class="input-group-text color-preview" id="section_color_preview" style="background-color: {{ form.section_color.value|default:form.primary_color.value|default:'#A8704A' }}; width: 40px;"></span>
+                                <input type="color" name="section_color" id="{{ form.section_color.id_for_label }}" value="{{ form.section_color.value|default:form.primary_color.value|default:'#A8704A' }}" class="form-control form-control-color" style="width:50px; padding:0.25rem;">
+                                <input type="text" name="section_color_text" value="{{ form.section_color.value|default:form.primary_color.value|default:'#A8704A' }}" class="form-control color-hex-input" maxlength="7" style="max-width:90px;">
+                            </div>
+                            {% if form.section_color.errors %}
+                            <div class="invalid-feedback d-block">{{ form.section_color.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-4">
@@ -458,6 +505,9 @@
                             <div class="color-swatch rounded" id="swatch_secondary" style="width: 32px; height: 32px; background-color: {{ form.secondary_color.value|default:'#4E3A2C' }};" title="Secondary"></div>
                             <div class="color-swatch rounded" id="swatch_accent" style="width: 32px; height: 32px; background-color: {{ form.accent_color.value|default:'#B5651D' }};" title="Accent"></div>
                             <div class="color-swatch rounded" id="swatch_gold" style="width: 32px; height: 32px; background-color: {{ form.gold_color.value|default:'#C9A24B' }};" title="Gold"></div>
+                            <div class="color-swatch rounded" id="swatch_navbar" style="width: 32px; height: 32px; background-color: {{ form.navbar_color.value|default:form.primary_color.value|default:'#A8704A' }};" title="Navbar"></div>
+                            <div class="color-swatch rounded" id="swatch_footer" style="width: 32px; height: 32px; background-color: {{ form.footer_color.value|default:form.primary_color.value|default:'#A8704A' }};" title="Footer"></div>
+                            <div class="color-swatch rounded" id="swatch_section" style="width: 32px; height: 32px; background-color: {{ form.section_color.value|default:form.primary_color.value|default:'#A8704A' }};" title="Sections"></div>
                         </div>
                     </div>
                     <div class="d-grid">
@@ -523,7 +573,8 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const colorFields = ['primary_color', 'secondary_color', 'accent_color', 'gold_color'];
+        const colorFields = ['primary_color', 'secondary_color', 'accent_color', 'gold_color',
+            'navbar_color', 'footer_color', 'section_color'];
         colorFields.forEach(function(field) {
             const colorInput = document.querySelector('input[type="color"][name="' + field + '"]');
             const textInput = document.querySelector('input[type="text"][name="' + field + '_text"]');

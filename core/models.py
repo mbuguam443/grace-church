@@ -1,8 +1,40 @@
+import re
+
 from django.db import models
 
 from accounts.models import User
 from .about_defaults import about_defaults
 from .modules import MODULES
+
+_HEX_COLOR_RE = re.compile(r'^#([0-9a-fA-F]{6})$')
+_DEFAULT_COLOR = '#A8704A'
+_LIGHT_TEXT = '#ffffff'
+_DARK_TEXT = '#1f2933'
+
+
+def readable_text_color(background):
+    """Return a foreground colour that stays readable on ``background``.
+
+    Uses WCAG relative luminance so a solid navbar, footer or section colour
+    always keeps its own text legible, whether it is light or dark.
+    """
+    match = _HEX_COLOR_RE.match((background or '').strip())
+    if not match:
+        return _LIGHT_TEXT
+    digits = match.group(1)
+    channels = [int(digits[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    linear = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+    luminance = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+    return _DARK_TEXT if luminance > 0.197 else _LIGHT_TEXT
+
+
+def color_rgb(hex_color):
+    """Return ``R, G, B`` for a hex colour so it can be used inside ``rgba()``."""
+    match = _HEX_COLOR_RE.match((hex_color or '').strip())
+    if not match:
+        return '255, 255, 255'
+    digits = match.group(1)
+    return ', '.join(str(int(digits[i:i + 2], 16)) for i in (0, 2, 4))
 
 
 class RoleModulePermission(models.Model):
@@ -44,6 +76,18 @@ class ChurchSetting(models.Model):
     secondary_color = models.CharField(max_length=7, default='#4E3A2C')
     accent_color = models.CharField(max_length=7, default='#B5651D')
     gold_color = models.CharField(max_length=7, default='#C9A24B')
+    navbar_color = models.CharField(
+        max_length=7, blank=True,
+        help_text='Solid navbar background colour. Leave blank to use the primary colour.',
+    )
+    footer_color = models.CharField(
+        max_length=7, blank=True,
+        help_text='Solid footer background colour. Leave blank to use the primary colour.',
+    )
+    section_color = models.CharField(
+        max_length=7, blank=True,
+        help_text='Solid background colour for section header bands. Leave blank to use the primary colour.',
+    )
     audio_file = models.FileField(upload_to='church/audio/', blank=True, null=True, help_text='Homepage sermon player audio (MP3 recommended, keep under ~10MB)')
     audio_title = models.CharField(max_length=120, blank=True)
     audio_speaker = models.CharField(max_length=120, blank=True)
@@ -117,6 +161,42 @@ class ChurchSetting(models.Model):
     def get_settings(cls):
         obj, created = cls.objects.get_or_create(pk=1, defaults=about_defaults())
         return obj
+
+    @property
+    def effective_navbar_color(self):
+        return self.navbar_color or self.primary_color or _DEFAULT_COLOR
+
+    @property
+    def effective_footer_color(self):
+        return self.footer_color or self.primary_color or _DEFAULT_COLOR
+
+    @property
+    def effective_section_color(self):
+        return self.section_color or self.primary_color or _DEFAULT_COLOR
+
+    @property
+    def navbar_text_color(self):
+        return readable_text_color(self.effective_navbar_color)
+
+    @property
+    def footer_text_color(self):
+        return readable_text_color(self.effective_footer_color)
+
+    @property
+    def section_text_color(self):
+        return readable_text_color(self.effective_section_color)
+
+    @property
+    def navbar_text_rgb(self):
+        return color_rgb(self.navbar_text_color)
+
+    @property
+    def footer_text_rgb(self):
+        return color_rgb(self.footer_text_color)
+
+    @property
+    def section_text_rgb(self):
+        return color_rgb(self.section_text_color)
 
     @property
     def history_paragraphs(self):
