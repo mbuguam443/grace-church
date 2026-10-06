@@ -281,37 +281,45 @@
 </section>
 
 <!-- Impact Section -->
+{% if church_settings.impact_1_label or church_settings.impact_2_label or church_settings.impact_3_label %}
 <section class="py-5">
     <div class="container py-4">
         <div class="text-center mb-5">
             <h6 class="text-accent fw-bold text-uppercase ls-2">Your Impact</h6>
             <h2 class="display-5 fw-bold text-secondary">Lives Changed Through Giving</h2>
         </div>
-        <div class="row g-4">
+        <div class="row g-4 justify-content-center">
+            {% if church_settings.impact_1_label %}
             <div class="col-md-4 text-center">
                 <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <h2 class="fw-bold text-primary mb-0">500+</h2>
+                    <h2 class="fw-bold text-primary mb-0">{{ church_settings.impact_1_value }}</h2>
                 </div>
-                <h5 class="fw-bold">Families Fed Monthly</h5>
-                <p class="text-muted small">Through our community food program</p>
+                <h5 class="fw-bold">{{ church_settings.impact_1_label }}</h5>
+                {% if church_settings.impact_1_note %}<p class="text-muted small">{{ church_settings.impact_1_note }}</p>{% endif %}
             </div>
+            {% endif %}
+            {% if church_settings.impact_2_label %}
             <div class="col-md-4 text-center">
                 <div class="bg-accent bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <h2 class="fw-bold text-accent mb-0">120</h2>
+                    <h2 class="fw-bold text-accent mb-0">{{ church_settings.impact_2_value }}</h2>
                 </div>
-                <h5 class="fw-bold">Students Sponsored</h5>
-                <p class="text-muted small">Receiving education through our scholarship fund</p>
+                <h5 class="fw-bold">{{ church_settings.impact_2_label }}</h5>
+                {% if church_settings.impact_2_note %}<p class="text-muted small">{{ church_settings.impact_2_note }}</p>{% endif %}
             </div>
+            {% endif %}
+            {% if church_settings.impact_3_label %}
             <div class="col-md-4 text-center">
                 <div class="bg-gold bg-opacity-25 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <h2 class="fw-bold text-gold mb-0">12</h2>
+                    <h2 class="fw-bold text-gold mb-0">{{ church_settings.impact_3_value }}</h2>
                 </div>
-                <h5 class="fw-bold">Churches Planted</h5>
-                <p class="text-muted small">New congregations established across the region</p>
+                <h5 class="fw-bold">{{ church_settings.impact_3_label }}</h5>
+                {% if church_settings.impact_3_note %}<p class="text-muted small">{{ church_settings.impact_3_note }}</p>{% endif %}
             </div>
+            {% endif %}
         </div>
     </div>
 </section>
+{% endif %}
 
 <!-- CTA -->
 <section class="py-5 bg-primary text-white">

@@ -150,6 +150,21 @@ class ChurchSetting(models.Model):
         null=True, blank=True,
         help_text='Optional button link (leave blank to use the contact page).',
     )
+    impact_1_value = models.CharField(max_length=16, default='500+', blank=True)
+    impact_1_label = models.CharField(max_length=60, default='Families Fed Monthly', blank=True)
+    impact_1_note = models.CharField(
+        max_length=140, default='Through our community food program', blank=True,
+    )
+    impact_2_value = models.CharField(max_length=16, default='120', blank=True)
+    impact_2_label = models.CharField(max_length=60, default='Students Sponsored', blank=True)
+    impact_2_note = models.CharField(
+        max_length=140, default='Receiving education through our scholarship fund', blank=True,
+    )
+    impact_3_value = models.CharField(max_length=16, default='12', blank=True)
+    impact_3_label = models.CharField(max_length=60, default='Churches Planted', blank=True)
+    impact_3_note = models.CharField(
+        max_length=140, default='New congregations established across the region', blank=True,
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

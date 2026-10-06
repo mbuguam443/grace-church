@@ -24,7 +24,10 @@ class SettingsView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
               'about_history_image', 'about_call', 'about_divine_promise', 'about_milestones',
               'featured_event_title', 'featured_event_description', 'featured_event_image',
               'featured_event_date', 'featured_event_time', 'featured_event_venue',
-              'featured_event_audience', 'featured_event_link']
+              'featured_event_audience', 'featured_event_link',
+              'impact_1_value', 'impact_1_label', 'impact_1_note',
+              'impact_2_value', 'impact_2_label', 'impact_2_note',
+              'impact_3_value', 'impact_3_label', 'impact_3_note']
 
     def get_object(self):
         return ChurchSetting.get_settings()
