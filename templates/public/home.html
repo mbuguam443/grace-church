@@ -85,83 +85,126 @@
                 {% for event in upcoming_events %}
                 <div class="col-md-6 col-lg-4">
                     <div class="card event-card h-100">
-                        <div class="card-img-top" style="height:160px;background:url('{% if event.image %}{{ event.image.url }}{% elif church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}') center/cover;border-radius:12px 12px 0 0;"></div>
-                        <div class="card-body p-4">
+                        <div class="event-card-media">
+                            <span class="event-card-image" style="background-image:url('{% if event.image %}{{ event.image.url }}{% elif church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}');"></span>
+                            {% if event.is_full %}
+                            <span class="event-card-flag is-muted">Fully Booked</span>
+                            {% elif event.registration_required %}
+                            <span class="event-card-flag">Registration Open</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3">
-                                    <span class="d-block fw-bold fs-4">{{ event.date|date:"d" }}</span>
-                                    <span class="d-block text-uppercase small opacity-75">{{ event.date|date:"M" }}</span>
+                                <div class="event-date-box text-center me-3 flex-shrink-0">
+                                    <span class="d-block">{{ event.date|date:"d" }}</span>
+                                    <span class="d-block text-uppercase">{{ event.date|date:"M" }}</span>
                                 </div>
-                                <div>
-                                    <h5 class="card-title fw-bold mb-1">{{ event.name }}</h5>
-                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>{{ event.time_range|default:"TBA" }}</p>
-                                    <p class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ event.location|default:"Main Hall" }}</p>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">{{ event.name }}</h5>
+                                    <div class="event-meta">
+                                        <span class="event-meta-item"><i class="bi bi-clock"></i>{{ event.time_range|default:"TBA" }}</span>
+                                        {% if event.location %}
+                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>{{ event.location }}</span>
+                                        {% endif %}
+                                        {% if event.speaker %}
+                                        <span class="event-meta-item"><i class="bi bi-mic"></i>{{ event.speaker }}</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
-                            <p class="text-muted">{{ event.description|truncatewords:20 }}</p>
-                            <a href="{% url 'public:event-detail' event.pk %}" class="text-accent fw-semibold">
-                                Learn More <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
+                            <p class="text-muted event-card-desc">{{ event.description|truncatewords:20 }}</p>
+                            <div class="event-card-footer">
+                                <a href="{% url 'public:event-detail' event.pk %}" class="event-card-link">
+                                    Learn More <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="col-md-4">
+                <div class="col-md-6 col-lg-4">
                     <div class="card event-card h-100">
-                        <div class="card-body p-4">
+                        <div class="event-card-media">
+                            <span class="event-card-image" style="background-image:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}');"></span>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3">
-                                    <span class="d-block fw-bold fs-4">15</span>
-                                    <span class="d-block text-uppercase small opacity-75">Oct</span>
+                                <div class="event-date-box text-center me-3 flex-shrink-0">
+                                    <span class="d-block">15</span>
+                                    <span class="d-block text-uppercase">Oct</span>
                                 </div>
-                                <div>
-                                    <h5 class="card-title fw-bold mb-1">Annual Harvest Festival</h5>
-                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>10:00 AM - 4:00 PM</p>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">Annual Harvest Festival</h5>
+                                    <div class="event-meta">
+                                        <span class="event-meta-item"><i class="bi bi-clock"></i>10:00 - 16:00</span>
+                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Main Hall</span>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="text-muted">Join us for a day of praise, food, games, and fellowship as we celebrate God's abundant blessings.</p>
+                            <p class="text-muted event-card-desc">Join us for a day of praise, food, games, and fellowship as we celebrate God's abundant blessings.</p>
+                            <div class="event-card-footer">
+                                <a href="{% url 'public:events' %}" class="event-card-link">Learn More <i class="bi bi-arrow-right"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6 col-lg-4">
                     <div class="card event-card h-100">
-                        <div class="card-body p-4">
+                        <div class="event-card-media">
+                            <span class="event-card-image" style="background-image:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}');"></span>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3">
-                                    <span class="d-block fw-bold fs-4">22</span>
-                                    <span class="d-block text-uppercase small opacity-75">Oct</span>
+                                <div class="event-date-box text-center me-3 flex-shrink-0">
+                                    <span class="d-block">22</span>
+                                    <span class="d-block text-uppercase">Oct</span>
                                 </div>
-                                <div>
-                                    <h5 class="card-title fw-bold mb-1">Youth Conference 2024</h5>
-                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>9:00 AM - 5:00 PM</p>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">Youth Conference 2024</h5>
+                                    <div class="event-meta">
+                                        <span class="event-meta-item"><i class="bi bi-clock"></i>09:00 - 17:00</span>
+                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Youth Centre</span>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="text-muted">A transformative conference for young people aged 13-25. Theme: "Arise and Shine."</p>
+                            <p class="text-muted event-card-desc">A transformative conference for young people aged 13-25. Theme: "Arise and Shine."</p>
+                            <div class="event-card-footer">
+                                <a href="{% url 'public:events' %}" class="event-card-link">Learn More <i class="bi bi-arrow-right"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6 col-lg-4">
                     <div class="card event-card h-100">
-                        <div class="card-body p-4">
+                        <div class="event-card-media">
+                            <span class="event-card-image" style="background-image:url('{% if church_settings.events_image %}{{ church_settings.events_image.url }}{% else %}{% static 'img/congregation.jpg' %}{% endif %}');"></span>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
                             <div class="d-flex align-items-start mb-3">
-                                <div class="event-date-box text-center me-3">
-                                    <span class="d-block fw-bold fs-4">29</span>
-                                    <span class="d-block text-uppercase small opacity-75">Oct</span>
+                                <div class="event-date-box text-center me-3 flex-shrink-0">
+                                    <span class="d-block">29</span>
+                                    <span class="d-block text-uppercase">Oct</span>
                                 </div>
-                                <div>
-                                    <h5 class="card-title fw-bold mb-1">Prayer & Fasting Week</h5>
-                                    <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>All Day</p>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">Prayer &amp; Fasting Week</h5>
+                                    <div class="event-meta">
+                                        <span class="event-meta-item"><i class="bi bi-clock"></i>All Day</span>
+                                        <span class="event-meta-item"><i class="bi bi-geo-alt"></i>Main Sanctuary</span>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="text-muted">A week dedicated to spiritual renewal through prayer, fasting, and intensive Bible study.</p>
+                            <p class="text-muted event-card-desc">A week dedicated to spiritual renewal through prayer, fasting, and intensive Bible study.</p>
+                            <div class="event-card-footer">
+                                <a href="{% url 'public:events' %}" class="event-card-link">Learn More <i class="bi bi-arrow-right"></i></a>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endif %}
         </div>
         <div class="text-center mt-5">
-            <a href="{% url 'public:events' %}" class="btn btn-outline-primary btn-lg">
+            <a href="{% url 'public:events' %}" class="btn btn-accent text-white btn-lg">
                 View All Events <i class="bi bi-arrow-right ms-2"></i>
             </a>
         </div>

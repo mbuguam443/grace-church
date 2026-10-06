@@ -249,14 +249,68 @@ section.bg-primary { background-color: var(--section-color) !important; }
 .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
 
 /* Event Cards */
-.event-card { box-shadow: 0 0.5rem 1.5rem rgba(78, 58, 44, 0.18); }
-.event-date-box {
-    min-width: 55px; padding: 8px 12px; border-radius: var(--radius-sm);
-    background: #B5651D;
-    color: white;
+.event-card {
+    box-shadow: 0 0.5rem 1.5rem rgba(78, 58, 44, 0.14);
+    display: flex; flex-direction: column;
 }
-.event-date-box span:first-child { font-size: 1.4rem; line-height: 1.1; }
-.event-date-box span:last-child { font-size: 0.7rem; opacity: 0.9; }
+.event-card:hover { box-shadow: 0 1.25rem 2.5rem rgba(78, 58, 44, 0.22); }
+.event-card-media {
+    position: relative; height: 180px; overflow: hidden; background: #EDE4DA;
+}
+.event-card-image {
+    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    background-position: center; background-size: cover; background-repeat: no-repeat;
+    transition: transform 0.5s ease;
+}
+.event-card:hover .event-card-image { transform: scale(1.07); }
+.event-card-media::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 45%, rgba(0,0,0,0.5) 100%);
+    opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
+}
+.event-card:hover .event-card-media::after { opacity: 1; }
+.event-card-flag {
+    position: absolute; top: 14px; right: 14px; z-index: 2;
+    padding: 5px 12px; border-radius: 999px;
+    background: var(--accent); color: #fff;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.event-card-flag.is-muted { background: #6c757d; }
+.event-date-box {
+    min-width: 62px; padding: 10px 12px; border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 6px 16px rgba(181, 101, 29, 0.32);
+}
+.event-date-box span:first-child { font-size: 1.5rem; line-height: 1.1; font-weight: 700; }
+.event-date-box span:last-child { font-size: 0.7rem; letter-spacing: 1px; opacity: 0.9; }
+.event-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.event-meta-item {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px; border-radius: 999px;
+    background: rgba(168, 112, 74, 0.1); color: var(--secondary);
+    font-size: 0.78rem; font-weight: 500; line-height: 1.2;
+}
+.event-meta-item i { color: var(--accent); }
+.event-card .card-title {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.event-card-desc {
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.event-card-footer {
+    margin-top: auto; padding-top: 18px;
+    border-top: 1px solid rgba(78, 58, 44, 0.12);
+}
+.event-card-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--accent); font-weight: 600;
+}
+.event-card-link i { transition: transform 0.3s ease; }
+.event-card:hover .event-card-link i { transform: translateX(6px); }
 
 /* Sermon Cards */
 .sermon-card .sermon-placeholder {
