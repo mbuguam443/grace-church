@@ -15,8 +15,10 @@ _DARK_TEXT = '#1f2933'
 def readable_text_color(background):
     """Return a foreground colour that stays readable on ``background``.
 
-    Uses WCAG relative luminance so a solid navbar, footer or section colour
-    always keeps its own text legible, whether it is light or dark.
+    White is the site's default text colour, so it is preferred unless the
+    background is genuinely pale (a cream, pastel or near-white), where white
+    would become invisible. 0.30 is the luminance where white text starts to
+    fail, which keeps brand colours such as #4292c6 and #A8704A on white text.
     """
     match = _HEX_COLOR_RE.match((background or '').strip())
     if not match:
@@ -25,7 +27,7 @@ def readable_text_color(background):
     channels = [int(digits[i:i + 2], 16) / 255 for i in (0, 2, 4)]
     linear = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
     luminance = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
-    return _DARK_TEXT if luminance > 0.197 else _LIGHT_TEXT
+    return _DARK_TEXT if luminance > 0.30 else _LIGHT_TEXT
 
 
 def color_rgb(hex_color):
