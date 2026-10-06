@@ -28,6 +28,7 @@ urlpatterns = [
     path('communication/', include('communication.urls')),
     path('assets/', include('assets.urls')),
     path('facilities/', include('facilities.urls')),
+    path('impact/', include('impact.urls')),
     path('reports/', include('reports.urls')),
     path('core/', include('core.urls')),
     path('songs/', include('songs.urls')),

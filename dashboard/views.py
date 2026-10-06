@@ -11,6 +11,7 @@ from communication.models import Announcement
 from events.models import Event
 from finance.models import Transaction
 from giving.models import Giving
+from impact.models import impact_counts
 from members.models import Member
 from prayer.models import PrayerRequest
 from visitors.models import Visitor
@@ -69,6 +70,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 'monthly_giving': monthly_giving,
                 'monthly_expenses': monthly_expenses,
                 'pending_prayers': pending_prayers,
+                'impact_counts': impact_counts(),
                 'is_admin_view': True,
             })
         else:

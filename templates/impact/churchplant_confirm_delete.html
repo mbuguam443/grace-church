@@ -1,0 +1,63 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}Delete Church Plant{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion
+                    </h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-globe text-danger" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Delete Church Plant</h4>
+                    <p class="text-muted mb-4">
+                        Are you sure you want to delete <strong>"{{ plant.name }}"</strong>?
+                        This action cannot be undone.
+                    </p>
+
+                    <div class="card mb-4 text-start">
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <small class="text-muted">Location</small>
+                                    <p class="mb-0 fw-medium">{{ plant.location|default:"-" }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Pastor</small>
+                                    <p class="mb-0 fw-medium">{{ plant.pastor|default:"-" }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Date Planted</small>
+                                    <p class="mb-0 fw-medium">{{ plant.date_planted|date:"M d, Y"|default:"Not yet" }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Status</small>
+                                    <p class="mb-0 fw-medium">{{ plant.get_status_display }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{% url 'impact:churchplant-list' %}" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-x-lg me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-trash me-1"></i>Yes, Delete Church Plant
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

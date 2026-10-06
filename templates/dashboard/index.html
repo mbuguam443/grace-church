@@ -35,7 +35,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card">
             <div class="stat-icon" style="background: var(--accent);"><i class="bi bi-calendar-check"></i></div>
-            <div class="stat-info"><h3>{{ today_attendance }}</h3><p>Today's Attendance</p></div>
+            <div class="stat-info"><h3>{{ todays_attendance }}</h3><p>Today's Attendance</p></div>
         </div>
     </div>
 </div>
@@ -66,6 +66,43 @@
         </div>
     </div>
 </div>
+
+{% if allowed_modules is None or 'impact' in allowed_modules %}
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <a href="{% url 'impact:funded-list' %}" style="text-decoration:none;color:inherit;">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #d63384;"><i class="bi bi-heart-handshake"></i></div>
+                <div class="stat-info"><h3>{{ impact_counts.people_funded }}</h3><p>People Funded</p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <a href="{% url 'impact:funded-list' %}?category=food" style="text-decoration:none;color:inherit;">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--gold);"><i class="bi bi-basket-fill"></i></div>
+                <div class="stat-info"><h3>{{ impact_counts.families_fed }}</h3><p>Families Fed</p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <a href="{% url 'impact:funded-list' %}?category=scholarship" style="text-decoration:none;color:inherit;">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--primary);"><i class="bi bi-mortarboard-fill"></i></div>
+                <div class="stat-info"><h3>{{ impact_counts.students_sponsored }}</h3><p>Students Sponsored</p></div>
+            </div>
+        </a>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <a href="{% url 'impact:churchplant-list' %}" style="text-decoration:none;color:inherit;">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--secondary);"><i class="bi bi-globe-americas"></i></div>
+                <div class="stat-info"><h3>{{ impact_counts.churches_planted }}</h3><p>Churches Planted</p></div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endif %}
 
 <div class="row g-3">
     <div class="col-lg-8">

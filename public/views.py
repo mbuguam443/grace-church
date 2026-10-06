@@ -16,6 +16,7 @@ from communication.models import Announcement
 from core.models import ChurchSetting, Leader
 from events.models import Event, EventRegistration
 from giving.forms import PublicGivingForm
+from impact.models import impact_counts
 from ministries.models import Ministry
 from sermons.models import Sermon
 from services.models import Service
@@ -228,11 +229,28 @@ class PublicContactView(TemplateView):
 class PublicGiveView(TemplateView):
     template_name = 'public/give.html'
 
+    def impact_display(self):
+        """Live counts from Impact records, falling back to Church Settings."""
+        church = ChurchSetting.get_settings()
+        counts = impact_counts()
+
+        def display(count, attribute):
+            if count:
+                return count
+            return (getattr(church, attribute, '') or '0') if church else '0'
+
+        return {
+            'impact_1_display': display(counts['families_fed'], 'impact_1_value'),
+            'impact_2_display': display(counts['students_sponsored'], 'impact_2_value'),
+            'impact_3_display': display(counts['churches_planted'], 'impact_3_value'),
+        }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if 'form' not in context:
             context['form'] = PublicGivingForm()
         context['given_reference'] = self.request.GET.get('given', '')
+        context.update(self.impact_display())
         return context
 
     def post(self, request, *args, **kwargs):

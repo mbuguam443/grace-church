@@ -292,7 +292,7 @@
             {% if church_settings.impact_1_label %}
             <div class="col-md-4 text-center">
                 <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <h2 class="fw-bold text-primary mb-0">{{ church_settings.impact_1_value }}</h2>
+                    <h2 class="fw-bold text-primary mb-0">{{ impact_1_display|default:church_settings.impact_1_value }}</h2>
                 </div>
                 <h5 class="fw-bold">{{ church_settings.impact_1_label }}</h5>
                 {% if church_settings.impact_1_note %}<p class="text-muted small">{{ church_settings.impact_1_note }}</p>{% endif %}
@@ -301,7 +301,7 @@
             {% if church_settings.impact_2_label %}
             <div class="col-md-4 text-center">
                 <div class="bg-accent bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <h2 class="fw-bold text-accent mb-0">{{ church_settings.impact_2_value }}</h2>
+                    <h2 class="fw-bold text-accent mb-0">{{ impact_2_display|default:church_settings.impact_2_value }}</h2>
                 </div>
                 <h5 class="fw-bold">{{ church_settings.impact_2_label }}</h5>
                 {% if church_settings.impact_2_note %}<p class="text-muted small">{{ church_settings.impact_2_note }}</p>{% endif %}
@@ -310,7 +310,7 @@
             {% if church_settings.impact_3_label %}
             <div class="col-md-4 text-center">
                 <div class="bg-gold bg-opacity-25 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <h2 class="fw-bold text-gold mb-0">{{ church_settings.impact_3_value }}</h2>
+                    <h2 class="fw-bold text-gold mb-0">{{ impact_3_display|default:church_settings.impact_3_value }}</h2>
                 </div>
                 <h5 class="fw-bold">{{ church_settings.impact_3_label }}</h5>
                 {% if church_settings.impact_3_note %}<p class="text-muted small">{{ church_settings.impact_3_note }}</p>{% endif %}

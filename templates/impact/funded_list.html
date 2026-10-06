@@ -1,0 +1,165 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block title %}People Funded{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="bi bi-heart-handshake me-2"></i>People Funded
+            </h1>
+            <p class="text-muted mb-0">{{ total_count }} record{{ total_count|pluralize }} tracked</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'impact:churchplant-list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-globe-americas me-1"></i>Church Plants
+            </a>
+            {% if user.can_manage_content %}
+            <a href="{% url 'impact:funded-create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Add Record
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        {% for card in category_cards %}
+        <div class="col-md-3">
+            <div class="card shadow-sm text-center h-100">
+                <div class="card-body py-3">
+                    <h4 class="mb-0">{{ card.count }}</h4>
+                    <small class="text-muted">{{ card.label }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Search name or note..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for key, label in category_choices %}
+                        <option value="{{ key }}" {% if category_filter == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        {% for key, label in status_choices %}
+                        <option value="{{ key }}" {% if status_filter == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary flex-fill">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                    <a href="{% url 'impact:funded-list' %}" class="btn btn-outline-secondary" title="Clear">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Date Helped</th>
+                        <th>Status</th>
+                        <th>Note</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in people %}
+                    <tr>
+                        <td class="fw-medium">{{ person.name }}</td>
+                        <td><span class="badge bg-secondary">{{ person.get_category_display }}</span></td>
+                        <td>{{ person.date_helped|date:"M d, Y" }}</td>
+                        <td>
+                            {% if person.status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Completed</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ person.note|truncatewords:12|default:"-" }}</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                {% if user.can_manage_content %}
+                                <a href="{% url 'impact:funded-update' person.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'impact:funded-delete' person.pk %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            No funded records yet.
+                            {% if user.can_manage_content %}
+                            <a href="{% url 'impact:funded-create' %}">Add the first record</a>.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <div class="card-footer bg-white">
+            <nav aria-label="People funded pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

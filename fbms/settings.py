@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'communication',
     'assets',
     'facilities',
+    'impact',
     'reports',
     'dashboard',
     'public',

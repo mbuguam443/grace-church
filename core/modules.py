@@ -18,6 +18,7 @@ MODULES = [
     ('giving', 'Giving'),
     ('assets', 'Assets'),
     ('facilities', 'Facilities'),
+    ('impact', 'Impact & Outreach'),
     ('reports', 'Reports'),
     ('users', 'User Management'),
     ('settings', 'Settings'),
