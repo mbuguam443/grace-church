@@ -99,6 +99,12 @@
                             {% if person.household_size %}
                             <div class="text-muted small"><i class="bi bi-people"></i> {{ person.household_size }} in household</div>
                             {% endif %}
+                            {% if person.age %}
+                            <div class="text-muted small"><i class="bi bi-person"></i> {{ person.age }} yrs</div>
+                            {% endif %}
+                            {% if person.phone_number %}
+                            <div class="text-muted small"><i class="bi bi-telephone"></i> {{ person.phone_number }}</div>
+                            {% endif %}
                         </td>
                         <td><span class="badge bg-secondary">{{ person.get_category_display }}</span></td>
                         <td>{{ person.date_helped|date:"M d, Y" }}</td>

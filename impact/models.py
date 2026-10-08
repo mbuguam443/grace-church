@@ -18,6 +18,12 @@ class FundedPerson(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='food')
     date_helped = models.DateField(default=timezone.localdate)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    age = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Person's age in years."
+    )
+    phone_number = models.CharField(
+        max_length=30, blank=True, help_text='Contact number for follow-up.'
+    )
     household_size = models.PositiveIntegerField(
         null=True, blank=True, help_text='Number of people in the household.'
     )

@@ -225,7 +225,8 @@ class OutreachStoryTests(TestCase):
         self.client.force_login(self.admin)
         response = self.client.get(reverse('impact:funded-create'))
         self.assertEqual(response.status_code, 200)
-        for field in ['household_size', 'location', 'story', 'image', 'is_public']:
+        for field in ['household_size', 'location', 'story', 'image', 'is_public',
+                      'age', 'phone_number']:
             self.assertContains(response, 'name="%s"' % field)
 
     def test_writer_can_save_life_detail_and_approval(self):
@@ -237,6 +238,8 @@ class OutreachStoryTests(TestCase):
             'status': 'active',
             'household_size': '4',
             'location': 'Theta Ward',
+            'age': '34',
+            'phone_number': '0712345678',
             'story': 'A widow with four children now has regular meals.',
             'is_public': 'on',
             'note': 'internal only',
@@ -246,9 +249,21 @@ class OutreachStoryTests(TestCase):
         self.assertTrue(person.is_public)
         self.assertEqual(person.household_size, 4)
         self.assertEqual(person.location, 'Theta Ward')
+        self.assertEqual(person.age, 34)
+        self.assertEqual(person.phone_number, '0712345678')
 
         public_page = self.client.get(reverse('public:give'))
         self.assertContains(public_page, 'Wanjiku Family')
+
+
+    def test_search_matches_phone_number(self):
+        FundedPerson.objects.create(name='Phone Family', category='food', phone_number='0799887766')
+        FundedPerson.objects.create(name='Other Family', category='food')
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('impact:funded-list'), {'search': '0799887766'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Phone Family')
+        self.assertNotContains(response, 'Other Family')
 
 
 class SponsorAccessTests(TestCase):
