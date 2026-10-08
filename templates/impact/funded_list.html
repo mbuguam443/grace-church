@@ -10,7 +10,7 @@
             <h1 class="h3 mb-0 text-gray-800">
                 <i class="bi bi-heart-handshake me-2"></i>People Funded
             </h1>
-            <p class="text-muted mb-0">{{ total_count }} record{{ total_count|pluralize }} tracked</p>
+            <p class="text-muted mb-0">{{ total_count }} record{{ total_count|pluralize }} tracked &middot; {{ public_count }} approved for the public Give page</p>
         </div>
         <div class="d-flex gap-2">
             <a href="{% url 'impact:churchplant-list' %}" class="btn btn-outline-secondary">
@@ -83,6 +83,7 @@
                         <th>Category</th>
                         <th>Date Helped</th>
                         <th>Status</th>
+                        <th>Public</th>
                         <th>Note</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -90,7 +91,15 @@
                 <tbody>
                     {% for person in people %}
                     <tr>
-                        <td class="fw-medium">{{ person.name }}</td>
+                        <td>
+                            <div class="fw-medium">{{ person.name }}</div>
+                            {% if person.location %}
+                            <div class="text-muted small"><i class="bi bi-geo-alt"></i> {{ person.location }}</div>
+                            {% endif %}
+                            {% if person.household_size %}
+                            <div class="text-muted small"><i class="bi bi-people"></i> {{ person.household_size }} in household</div>
+                            {% endif %}
+                        </td>
                         <td><span class="badge bg-secondary">{{ person.get_category_display }}</span></td>
                         <td>{{ person.date_helped|date:"M d, Y" }}</td>
                         <td>
@@ -102,8 +111,28 @@
                         </td>
                         <td class="text-muted small">{{ person.note|truncatewords:12|default:"-" }}</td>
                         <td>
+                            {% if person.is_public %}
+                            <span class="badge bg-success"><i class="bi bi-globe2 me-1"></i>Public</span>
+                            {% else %}
+                            <span class="badge bg-light text-dark border"><i class="bi bi-lock me-1"></i>Private</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ person.note|truncatewords:12|default:"-" }}</td>
+                        <td>
                             <div class="d-flex justify-content-center gap-1">
                                 {% if user.can_manage_content %}
+                                <form method="post" action="{% url 'impact:funded-toggle-public' person.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    {% if person.is_public %}
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Remove from the public Give page">
+                                        <i class="bi bi-eye-slash"></i>
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Approve for the public Give page">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    {% endif %}
+                                </form>
                                 <a href="{% url 'impact:funded-update' person.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
@@ -116,7 +145,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-4 text-muted">
+                        <td colspan="7" class="text-center py-4 text-muted">
                             <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                             No funded records yet.
                             {% if user.can_manage_content %}

@@ -162,6 +162,95 @@ class YourImpactStatsTests(TestCase):
         self.assertNotContains(response, 'Edit Your Impact')
 
 
+class OutreachStoryTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        ChurchSetting.get_settings()
+        self.admin = User.objects.create_superuser(
+            'story_admin', 'story_admin@test.com', 'test123', role='super_admin'
+        )
+        self.sponsor = User.objects.create_user(
+            'donor3', 'donor3@test.com', 'test123', role='sponsor'
+        )
+        self.private = FundedPerson.objects.create(
+            name='Private Family', category='food',
+            story='Secret story that must never be public.',
+        )
+        self.public = FundedPerson.objects.create(
+            name='Kamau Family', category='food',
+            story='Food parcels kept this household going through the drought.',
+            location='Munyaka', household_size=5, is_public=True,
+        )
+
+    def test_records_are_private_by_default(self):
+        self.assertFalse(FundedPerson.objects.create(name='New Family').is_public)
+
+    def test_give_page_shows_only_approved_stories(self):
+        response = self.client.get(reverse('public:give'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Kamau Family')
+        self.assertContains(response, 'kept this household going')
+        self.assertContains(response, 'Munyaka')
+        self.assertNotContains(response, 'Private Family')
+        self.assertNotContains(response, 'Secret story')
+        self.assertContains(response, 'Families We&rsquo;ve Helped')
+
+    def test_private_story_leaves_the_public_page_when_unapproved(self):
+        self.assertTrue(self.public.is_public)
+        self.public.is_public = False
+        self.public.save()
+        response = self.client.get(reverse('public:give'))
+        self.assertNotContains(response, 'Kamau Family')
+
+    def test_writer_can_publish_and_unpublish(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('impact:funded-toggle-public', args=[self.private.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.private.refresh_from_db()
+        self.assertTrue(self.private.is_public)
+
+        response = self.client.post(reverse('impact:funded-toggle-public', args=[self.private.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.private.refresh_from_db()
+        self.assertFalse(self.private.is_public)
+
+    def test_sponsor_cannot_publish(self):
+        self.client.force_login(self.sponsor)
+        response = self.client.post(reverse('impact:funded-toggle-public', args=[self.private.pk]))
+        self.assertEqual(response.status_code, 403)
+        self.private.refresh_from_db()
+        self.assertFalse(self.private.is_public)
+
+    def test_form_covers_the_life_detail_fields(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('impact:funded-create'))
+        self.assertEqual(response.status_code, 200)
+        for field in ['household_size', 'location', 'story', 'image', 'is_public']:
+            self.assertContains(response, 'name="%s"' % field)
+
+    def test_writer_can_save_life_detail_and_approval(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('impact:funded-create'), {
+            'name': 'Wanjiku Family',
+            'category': 'food',
+            'date_helped': '2026-10-06',
+            'status': 'active',
+            'household_size': '4',
+            'location': 'Theta Ward',
+            'story': 'A widow with four children now has regular meals.',
+            'is_public': 'on',
+            'note': 'internal only',
+        })
+        self.assertEqual(response.status_code, 302)
+        person = FundedPerson.objects.get(name='Wanjiku Family')
+        self.assertTrue(person.is_public)
+        self.assertEqual(person.household_size, 4)
+        self.assertEqual(person.location, 'Theta Ward')
+
+        public_page = self.client.get(reverse('public:give'))
+        self.assertContains(public_page, 'Wanjiku Family')
+
+
 class SponsorAccessTests(TestCase):
     def setUp(self):
         self.client = Client()

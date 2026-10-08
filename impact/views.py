@@ -1,7 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from accounts.views import ContentWriteMixin
@@ -13,6 +15,11 @@ IMPACT_FIELDS = [
     'impact_1_value', 'impact_1_label', 'impact_1_note',
     'impact_2_value', 'impact_2_label', 'impact_2_note',
     'impact_3_value', 'impact_3_label', 'impact_3_note',
+]
+
+FUNDED_FIELDS = [
+    'name', 'category', 'date_helped', 'status', 'household_size',
+    'location', 'story', 'image', 'is_public', 'note',
 ]
 
 
@@ -59,7 +66,10 @@ class FundedPersonListView(LoginRequiredMixin, ListView):
 
         if search:
             queryset = queryset.filter(
-                Q(name__icontains=search) | Q(note__icontains=search)
+                Q(name__icontains=search)
+                | Q(note__icontains=search)
+                | Q(story__icontains=search)
+                | Q(location__icontains=search)
             )
         if category:
             queryset = queryset.filter(category=category)
@@ -75,6 +85,7 @@ class FundedPersonListView(LoginRequiredMixin, ListView):
         context['category_choices'] = FundedPerson.CATEGORY_CHOICES
         context['status_choices'] = FundedPerson.STATUS_CHOICES
         context['total_count'] = FundedPerson.objects.count()
+        context['public_count'] = FundedPerson.objects.filter(is_public=True).count()
         context['category_cards'] = [
             {'label': label, 'count': FundedPerson.objects.filter(category=key).count()}
             for key, label in FundedPerson.CATEGORY_CHOICES
@@ -85,7 +96,7 @@ class FundedPersonListView(LoginRequiredMixin, ListView):
 class FundedPersonCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
     model = FundedPerson
     template_name = 'impact/funded_form.html'
-    fields = ['name', 'category', 'date_helped', 'status', 'note']
+    fields = FUNDED_FIELDS
     success_url = reverse_lazy('impact:funded-list')
 
     def form_valid(self, form):
@@ -96,12 +107,26 @@ class FundedPersonCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
 class FundedPersonUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
     model = FundedPerson
     template_name = 'impact/funded_form.html'
-    fields = ['name', 'category', 'date_helped', 'status', 'note']
+    fields = FUNDED_FIELDS
     success_url = reverse_lazy('impact:funded-list')
 
     def form_valid(self, form):
         messages.success(self.request, 'Record updated successfully.')
         return super().form_valid(form)
+
+
+class FundedPersonTogglePublicView(LoginRequiredMixin, ContentWriteMixin, View):
+    """Approve / unapprove a record for the public Give page."""
+
+    def post(self, request, pk):
+        person = get_object_or_404(FundedPerson, pk=pk)
+        person.is_public = not person.is_public
+        person.save(update_fields=['is_public', 'updated_at'])
+        if person.is_public:
+            messages.success(request, f'"{person.name}" is now shown on the public Give page.')
+        else:
+            messages.success(request, f'"{person.name}" is no longer shown publicly.')
+        return redirect('impact:funded-list')
 
 
 class FundedPersonDeleteView(LoginRequiredMixin, ContentWriteMixin, DeleteView):

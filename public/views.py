@@ -16,7 +16,7 @@ from communication.models import Announcement
 from core.models import ChurchSetting, Leader
 from events.models import Event, EventRegistration
 from giving.forms import PublicGivingForm
-from impact.models import impact_counts
+from impact.models import impact_counts, public_stories
 from ministries.models import Ministry
 from sermons.models import Sermon
 from services.models import Service
@@ -250,6 +250,7 @@ class PublicGiveView(TemplateView):
         if 'form' not in context:
             context['form'] = PublicGivingForm()
         context['given_reference'] = self.request.GET.get('given', '')
+        context['impact_stories'] = public_stories()
         context.update(self.impact_display())
         return context
 

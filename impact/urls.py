@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.FundedPersonListView.as_view(), name='funded-list'),
     path('funded/create/', views.FundedPersonCreateView.as_view(), name='funded-create'),
     path('funded/<int:pk>/update/', views.FundedPersonUpdateView.as_view(), name='funded-update'),
+    path('funded/<int:pk>/toggle-public/', views.FundedPersonTogglePublicView.as_view(), name='funded-toggle-public'),
     path('funded/<int:pk>/delete/', views.FundedPersonDeleteView.as_view(), name='funded-delete'),
 
     path('churches/', views.ChurchPlantListView.as_view(), name='churchplant-list'),

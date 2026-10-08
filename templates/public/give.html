@@ -321,6 +321,45 @@
 </section>
 {% endif %}
 
+{% if impact_stories %}
+<!-- Outreach Stories -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h6 class="text-accent fw-bold text-uppercase ls-2">Your Impact</h6>
+            <h2 class="display-6 fw-bold text-secondary">Families We&rsquo;ve Helped</h2>
+            <p class="text-muted mb-0">Real households from our community food programme</p>
+        </div>
+        <div class="row g-4">
+            {% for person in impact_stories %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    {% if person.image %}
+                    <img src="{{ person.image.url }}" class="card-img-top" alt="{{ person.name }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <h5 class="fw-bold mb-0">{{ person.name }}</h5>
+                            <span class="badge bg-primary text-uppercase">{{ person.get_category_display }}</span>
+                        </div>
+                        {% if person.location or person.household_size %}
+                        <p class="small text-muted mb-2">
+                            {% if person.location %}<i class="bi bi-geo-alt me-1"></i>{{ person.location }}{% endif %}
+                            {% if person.household_size %}<span class="ms-2"><i class="bi bi-people me-1"></i>{{ person.household_size }} people</span>{% endif %}
+                        </p>
+                        {% endif %}
+                        {% if person.story %}
+                        <p class="mb-0">{{ person.story|truncatewords:45 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- CTA -->
 <section class="py-5 bg-primary text-white">
     <div class="container py-4 text-center">
