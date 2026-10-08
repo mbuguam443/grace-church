@@ -183,7 +183,7 @@
                             <td><span class="badge {% if person.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">{{ person.get_status_display }}</span></td>
                             <td>{% if person.age is not None %}{{ person.age }} yrs{% else %}—{% endif %}</td>
                             <td>{{ person.location|default:"—" }}</td>
-                            <td>{{ person.assigned_deacon|default:"—" }}</td>
+                            <td>{{ person.deacon_name|default:"—" }}</td>
                             <td class="text-end">
                                 <a href="{% url 'reports:funded-person-report' person.pk %}" class="btn btn-sm btn-outline-danger" title="Download single-person PDF">
                                     <i class="bi bi-file-earmark-pdf"></i> PDF

@@ -29,8 +29,9 @@ class FundedPerson(models.Model):
         null=True, blank=True, help_text='Number of people in the household.'
     )
     location = models.CharField(max_length=200, blank=True, help_text='Estate, village or ward.')
-    assigned_deacon = models.CharField(
-        max_length=150, blank=True,
+    assigned_deacon = models.ForeignKey(
+        'members.Member', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name='assigned_funded_people',
         help_text='Deacon or deaconess assigned for follow-up, prayer and discipleship.',
     )
     story = models.TextField(
@@ -73,6 +74,12 @@ class FundedPerson(models.Model):
         if (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day):
             years -= 1
         return years
+
+    @property
+    def deacon_name(self):
+        if not self.assigned_deacon:
+            return ''
+        return f"{self.assigned_deacon.first_name} {self.assigned_deacon.last_name}".strip()
 
 
 class ChurchPlant(models.Model):

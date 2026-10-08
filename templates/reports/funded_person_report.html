@@ -80,7 +80,7 @@
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">Assigned Deacon(ness)</small>
-                            <p class="mb-0 fw-medium">{{ person.assigned_deacon|default:"—" }}</p>
+                            <p class="mb-0 fw-medium">{{ person.deacon_name|default:"—" }}{% if person.assigned_deacon %} <span class="text-muted">({{ person.assigned_deacon.member_number }})</span>{% endif %}</p>
                         </div>
                         <div class="col-md-6">
                             <small class="text-muted">Public on Give page</small>

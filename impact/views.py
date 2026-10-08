@@ -9,17 +9,13 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from accounts.views import ContentWriteMixin
 from core.models import ChurchSetting
 
+from .forms import FundedPersonForm
 from .models import ChurchPlant, FundedPerson, impact_counts
 
 IMPACT_FIELDS = [
     'impact_1_value', 'impact_1_label', 'impact_1_note',
     'impact_2_value', 'impact_2_label', 'impact_2_note',
     'impact_3_value', 'impact_3_label', 'impact_3_note',
-]
-
-FUNDED_FIELDS = [
-    'name', 'category', 'date_helped', 'status', 'date_of_birth', 'phone_number',
-    'household_size', 'location', 'assigned_deacon', 'story', 'image', 'is_public', 'note',
 ]
 
 
@@ -72,7 +68,8 @@ class FundedPersonListView(LoginRequiredMixin, ListView):
                 | Q(story__icontains=search)
                 | Q(location__icontains=search)
                 | Q(phone_number__icontains=search)
-                | Q(assigned_deacon__icontains=search)
+                | Q(assigned_deacon__first_name__icontains=search)
+                | Q(assigned_deacon__last_name__icontains=search)
             )
         if category:
             queryset = queryset.filter(category=category)
@@ -98,8 +95,8 @@ class FundedPersonListView(LoginRequiredMixin, ListView):
 
 class FundedPersonCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
     model = FundedPerson
+    form_class = FundedPersonForm
     template_name = 'impact/funded_form.html'
-    fields = FUNDED_FIELDS
     success_url = reverse_lazy('impact:funded-list')
 
     def form_valid(self, form):
@@ -109,8 +106,8 @@ class FundedPersonCreateView(LoginRequiredMixin, ContentWriteMixin, CreateView):
 
 class FundedPersonUpdateView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
     model = FundedPerson
+    form_class = FundedPersonForm
     template_name = 'impact/funded_form.html'
-    fields = FUNDED_FIELDS
     success_url = reverse_lazy('impact:funded-list')
 
     def form_valid(self, form):

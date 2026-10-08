@@ -75,6 +75,9 @@ class MemberDetailView(LoginRequiredMixin, DetailView):
             )
         else:
             context['login_form'] = MemberLoginForm(member=member)
+        context['assigned_people'] = member.assigned_funded_people.select_related(
+            'assigned_deacon'
+        ).order_by('-date_helped')
         return context
 
 

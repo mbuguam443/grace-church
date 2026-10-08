@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from accounts.models import User
 from core.models import ChurchSetting, RoleModulePermission
+from members.models import Member
 
 from .models import ChurchPlant, FundedPerson, impact_counts
 
@@ -172,6 +173,9 @@ class OutreachStoryTests(TestCase):
         self.sponsor = User.objects.create_user(
             'donor3', 'donor3@test.com', 'test123', role='sponsor'
         )
+        self.deacon = Member.objects.create(
+            first_name='Ruth', last_name='Wanjiru', gender='female',
+        )
         self.private = FundedPerson.objects.create(
             name='Private Family', category='food',
             story='Secret story that must never be public.',
@@ -238,7 +242,7 @@ class OutreachStoryTests(TestCase):
             'status': 'active',
             'household_size': '4',
             'location': 'Theta Ward',
-            'assigned_deacon': 'Deacon Ruth',
+            'assigned_deacon': self.deacon.pk,
             'date_of_birth': '1992-04-15',
             'phone_number': '0712345678',
             'story': 'A widow with four children now has regular meals.',
@@ -250,7 +254,7 @@ class OutreachStoryTests(TestCase):
         self.assertTrue(person.is_public)
         self.assertEqual(person.household_size, 4)
         self.assertEqual(person.location, 'Theta Ward')
-        self.assertEqual(person.assigned_deacon, 'Deacon Ruth')
+        self.assertEqual(person.assigned_deacon, self.deacon)
         self.assertEqual(person.date_of_birth.isoformat(), '1992-04-15')
         self.assertEqual(person.phone_number, '0712345678')
         self.assertGreaterEqual(person.age, 33)
@@ -275,12 +279,30 @@ class OutreachStoryTests(TestCase):
         self.assertContains(response, 'Phone Family')
 
     def test_search_matches_assigned_deacon(self):
-        FundedPerson.objects.create(name='Deacon Family', assigned_deacon='Deacon Ruth')
+        deacon = Member.objects.create(first_name='Ruth', last_name='Wanjiru', gender='female')
+        FundedPerson.objects.create(name='Deacon Family', assigned_deacon=deacon)
+        FundedPerson.objects.create(name='Other Family')
         self.client.force_login(self.admin)
         response = self.client.get(reverse('impact:funded-list'), {'search': 'Ruth'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Deacon Family')
         self.assertNotContains(response, 'Other Family')
+
+    def test_assignment_shows_on_the_member_profile(self):
+        FundedPerson.objects.create(name='Follow-up Family', assigned_deacon=self.deacon)
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('members:member-detail', args=[self.deacon.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'People Funded — Assigned for Follow-up')
+        self.assertContains(response, 'Follow-up Family')
+
+    def test_deacon_dropdown_lists_active_members(self):
+        Member.objects.create(first_name='Inactive', last_name='Person', gender='male',
+                              membership_status='inactive')
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('impact:funded-create'))
+        self.assertContains(response, 'Ruth Wanjiru')
+        self.assertNotContains(response, 'Inactive Person')
 
 
     def test_record_number_is_generated_like_a_member_number(self):
