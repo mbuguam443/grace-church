@@ -14,9 +14,10 @@ class FundedPerson(models.Model):
         ('completed', 'Completed'),
     ]
 
+    record_number = models.CharField(max_length=20, unique=True, blank=True)
     name = models.CharField(max_length=150)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='food')
-    date_helped = models.DateField(default=timezone.localdate)
+    date_helped = models.DateField(default=timezone.localdate, verbose_name='Date Admitted')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     age = models.PositiveIntegerField(
         null=True, blank=True, help_text="Person's age in years."
@@ -44,8 +45,20 @@ class FundedPerson(models.Model):
     class Meta:
         ordering = ['-date_helped', 'name']
 
+    def save(self, *args, **kwargs):
+        if not self.record_number:
+            last = FundedPerson.objects.exclude(record_number='').order_by('-id').first()
+            num = 1
+            if last and last.record_number.startswith('OF-'):
+                try:
+                    num = int(last.record_number.split('-')[1]) + 1
+                except (IndexError, ValueError):
+                    num = FundedPerson.objects.count() + 1
+            self.record_number = f"OF-{num:05d}"
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.record_number})"
 
 
 class ChurchPlant(models.Model):

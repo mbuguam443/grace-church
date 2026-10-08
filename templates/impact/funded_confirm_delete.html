@@ -25,11 +25,15 @@
                         <div class="card-body">
                             <div class="row g-2">
                                 <div class="col-6">
+                                    <small class="text-muted">Record No.</small>
+                                    <p class="mb-0 fw-medium font-monospace">{{ person.record_number }}</p>
+                                </div>
+                                <div class="col-6">
                                     <small class="text-muted">Category</small>
                                     <p class="mb-0 fw-medium">{{ person.get_category_display }}</p>
                                 </div>
                                 <div class="col-6">
-                                    <small class="text-muted">Date Helped</small>
+                                    <small class="text-muted">Date Admitted</small>
                                     <p class="mb-0 fw-medium">{{ person.date_helped|date:"M d, Y" }}</p>
                                 </div>
                                 <div class="col-6">

@@ -10,7 +10,7 @@
             <h1 class="h3 mb-0">
                 <i class="bi bi-heart-handshake me-2"></i>{% if form.instance.pk %}Edit Funding Record{% else %}Add Person Funded{% endif %}
             </h1>
-            <p class="text-muted mb-0">{% if form.instance.pk %}Update this record{% else %}Record a person or family the church has supported{% endif %}</p>
+            <p class="text-muted mb-0">{% if form.instance.pk %}Record <span class="font-monospace">{{ form.instance.record_number }}</span> &mdash; update this record{% else %}Record a person or family the church has supported. A record number is created automatically.{% endif %}</p>
         </div>
         <a href="{% url 'impact:funded-list' %}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Back to List
@@ -52,7 +52,7 @@
                                 <div class="form-text">Food feeds &ldquo;Families Fed&rdquo; and Scholarships feed &ldquo;Students Sponsored&rdquo; on the Give page.</div>
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ form.date_helped.id_for_label }}" class="form-label">Date Helped <span class="text-danger">*</span></label>
+                                <label for="{{ form.date_helped.id_for_label }}" class="form-label">Date Admitted <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
                                     {{ form.date_helped }}

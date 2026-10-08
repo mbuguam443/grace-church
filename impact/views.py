@@ -67,6 +67,7 @@ class FundedPersonListView(LoginRequiredMixin, ListView):
         if search:
             queryset = queryset.filter(
                 Q(name__icontains=search)
+                | Q(record_number__icontains=search)
                 | Q(note__icontains=search)
                 | Q(story__icontains=search)
                 | Q(location__icontains=search)

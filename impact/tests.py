@@ -266,6 +266,33 @@ class OutreachStoryTests(TestCase):
         self.assertNotContains(response, 'Other Family')
 
 
+    def test_record_number_is_generated_like_a_member_number(self):
+        self.client.force_login(self.admin)
+        self.client.post(reverse('impact:funded-create'), {
+            'name': 'Numbered Family', 'category': 'food', 'date_helped': '2026-10-06',
+            'status': 'active',
+        })
+        person = FundedPerson.objects.get(name='Numbered Family')
+        self.assertTrue(person.record_number.startswith('OF-'))
+        self.assertEqual(len(person.record_number), 8)
+
+        second = FundedPerson.objects.create(name='Second Family')
+        self.assertNotEqual(second.record_number, person.record_number)
+
+    def test_date_field_is_labelled_date_admitted(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('impact:funded-create'))
+        self.assertContains(response, 'Date Admitted')
+        self.assertNotContains(response, 'Date Helped')
+
+    def test_list_shows_record_number_column(self):
+        self.client.force_login(self.admin)
+        FundedPerson.objects.create(name='Listed Family')
+        response = self.client.get(reverse('impact:funded-list'))
+        self.assertContains(response, 'Record No.')
+        self.assertContains(response, 'Listed Family')
+
+
 class SponsorAccessTests(TestCase):
     def setUp(self):
         self.client = Client()
