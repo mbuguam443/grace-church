@@ -90,6 +90,78 @@ class ImpactViewTests(TestCase):
         self.assertEqual(response.context['impact_counts']['people_funded'], 1)
 
 
+class YourImpactStatsTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        ChurchSetting.get_settings()
+        self.admin = User.objects.create_superuser(
+            'stats_admin', 'stats_admin@test.com', 'test123', role='super_admin'
+        )
+        self.sponsor = User.objects.create_user(
+            'donor2', 'donor2@test.com', 'test123', role='sponsor'
+        )
+
+    def test_admin_can_open_and_save_the_control(self):
+        self.client.force_login(self.admin)
+
+        response = self.client.get(reverse('impact:stats'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'impact_1_label')
+        self.assertContains(response, 'impact_2_value')
+        self.assertContains(response, 'Families Fed')
+        self.assertContains(response, 'Students Sponsored')
+        self.assertContains(response, 'Churches Planted')
+
+        response = self.client.post(reverse('impact:stats'), {
+            'impact_1_value': '750', 'impact_1_label': 'Families Fed',
+            'impact_1_note': 'meals shared this year',
+            'impact_2_value': '45', 'impact_2_label': 'Students Sponsored',
+            'impact_2_note': 'in school today',
+            'impact_3_value': '8', 'impact_3_label': 'Churches Planted',
+            'impact_3_note': 'across Kenya',
+        })
+        self.assertEqual(response.status_code, 302)
+
+        settings_obj = ChurchSetting.get_settings()
+        self.assertEqual(settings_obj.impact_1_value, '750')
+        self.assertEqual(settings_obj.impact_2_label, 'Students Sponsored')
+        self.assertEqual(settings_obj.impact_3_note, 'across Kenya')
+
+        give = self.client.get(reverse('public:give'))
+        self.assertEqual(str(give.context['impact_1_display']), '750')
+
+    def test_sponsor_cannot_change_the_control(self):
+        self.client.force_login(self.sponsor)
+        response = self.client.get(reverse('impact:stats'))
+        self.assertEqual(response.status_code, 403)
+        response = self.client.post(reverse('impact:stats'), {
+            'impact_1_value': '999999', 'impact_1_label': 'Hacked',
+            'impact_2_value': '1', 'impact_2_label': 'x',
+            'impact_3_value': '1', 'impact_3_label': 'y',
+        })
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(ChurchSetting.get_settings().impact_1_value, '500+')
+
+    def test_requires_login(self):
+        response = Client().get(reverse('impact:stats'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_dashboard_offers_the_control_to_admin_only(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('dashboard:index'))
+        self.assertContains(response, reverse('impact:stats'))
+
+        self.client.force_login(self.sponsor)
+        response = self.client.get(reverse('dashboard:index'))
+        self.assertNotContains(response, 'Edit Your Impact')
+
+        member = User.objects.create_user('member2', 'member2@test.com', 'test123', role='member')
+        self.client.force_login(member)
+        response = self.client.get(reverse('dashboard:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Edit Your Impact')
+
+
 class SponsorAccessTests(TestCase):
     def setUp(self):
         self.client = Client()

@@ -5,6 +5,7 @@ from . import views
 app_name = 'impact'
 
 urlpatterns = [
+    path('stats/', views.ImpactStatsView.as_view(), name='stats'),
     path('', views.FundedPersonListView.as_view(), name='funded-list'),
     path('funded/create/', views.FundedPersonCreateView.as_view(), name='funded-create'),
     path('funded/<int:pk>/update/', views.FundedPersonUpdateView.as_view(), name='funded-update'),

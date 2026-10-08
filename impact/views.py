@@ -1,11 +1,48 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 from accounts.views import ContentWriteMixin
-from .models import ChurchPlant, FundedPerson
+from core.models import ChurchSetting
+
+from .models import ChurchPlant, FundedPerson, impact_counts
+
+IMPACT_FIELDS = [
+    'impact_1_value', 'impact_1_label', 'impact_1_note',
+    'impact_2_value', 'impact_2_label', 'impact_2_note',
+    'impact_3_value', 'impact_3_label', 'impact_3_note',
+]
+
+
+class ImpactStatsView(LoginRequiredMixin, ContentWriteMixin, UpdateView):
+    """The dashboard control for the public 'Your Impact' section."""
+
+    model = ChurchSetting
+    fields = IMPACT_FIELDS
+    template_name = 'impact/stats.html'
+    success_url = reverse_lazy('impact:stats')
+
+    def get_object(self, queryset=None):
+        return ChurchSetting.get_settings()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        counts = impact_counts()
+        context['live_counts'] = [
+            {'label': 'Families Fed', 'count': counts['families_fed'],
+             'source': 'Food & Family Support records', 'url': reverse('impact:funded-list') + '?category=food'},
+            {'label': 'Students Sponsored', 'count': counts['students_sponsored'],
+             'source': 'School Fees & Scholarship records', 'url': reverse('impact:funded-list') + '?category=scholarship'},
+            {'label': 'Churches Planted', 'count': counts['churches_planted'],
+             'source': 'Planted / Active church records', 'url': reverse('impact:churchplant-list')},
+        ]
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, 'The "Your Impact" section has been updated.')
+        return super().form_valid(form)
 
 
 class FundedPersonListView(LoginRequiredMixin, ListView):

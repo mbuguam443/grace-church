@@ -147,8 +147,11 @@
 
             {% if allowed_modules is None or 'impact' in allowed_modules %}
             <div class="sidebar-section">Outreach</div>
-            <a href="{% url 'impact:funded-list' %}" class="{% if '/impact' in request.path and '/impact/churches' not in request.path %}active{% endif %}"><i class="bi bi-heart-handshake"></i> People Funded</a>
+            <a href="{% url 'impact:funded-list' %}" class="{% if '/impact' in request.path and '/impact/churches' not in request.path and '/impact/stats' not in request.path %}active{% endif %}"><i class="bi bi-heart-handshake"></i> People Funded</a>
             <a href="{% url 'impact:churchplant-list' %}" class="{% if '/impact/churches' in request.path %}active{% endif %}"><i class="bi bi-globe-americas"></i> Church Plants</a>
+            {% if user.can_manage_content %}
+            <a href="{% url 'impact:stats' %}" class="{% if '/impact/stats' in request.path %}active{% endif %}"><i class="bi bi-bar-chart-fill"></i> Your Impact</a>
+            {% endif %}
             {% endif %}
 
             {% if sidebar_sections.church_life %}
