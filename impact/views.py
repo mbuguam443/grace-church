@@ -18,7 +18,7 @@ IMPACT_FIELDS = [
 ]
 
 FUNDED_FIELDS = [
-    'name', 'category', 'date_helped', 'status', 'age', 'phone_number',
+    'name', 'category', 'date_helped', 'status', 'date_of_birth', 'phone_number',
     'household_size', 'location', 'story', 'image', 'is_public', 'note',
 ]
 

@@ -226,7 +226,7 @@ class OutreachStoryTests(TestCase):
         response = self.client.get(reverse('impact:funded-create'))
         self.assertEqual(response.status_code, 200)
         for field in ['household_size', 'location', 'story', 'image', 'is_public',
-                      'age', 'phone_number']:
+                      'date_of_birth', 'phone_number']:
             self.assertContains(response, 'name="%s"' % field)
 
     def test_writer_can_save_life_detail_and_approval(self):
@@ -238,7 +238,7 @@ class OutreachStoryTests(TestCase):
             'status': 'active',
             'household_size': '4',
             'location': 'Theta Ward',
-            'age': '34',
+            'date_of_birth': '1992-04-15',
             'phone_number': '0712345678',
             'story': 'A widow with four children now has regular meals.',
             'is_public': 'on',
@@ -249,12 +249,20 @@ class OutreachStoryTests(TestCase):
         self.assertTrue(person.is_public)
         self.assertEqual(person.household_size, 4)
         self.assertEqual(person.location, 'Theta Ward')
-        self.assertEqual(person.age, 34)
+        self.assertEqual(person.date_of_birth.isoformat(), '1992-04-15')
         self.assertEqual(person.phone_number, '0712345678')
+        self.assertGreaterEqual(person.age, 33)
 
         public_page = self.client.get(reverse('public:give'))
         self.assertContains(public_page, 'Wanjiku Family')
 
+
+    def test_age_is_calculated_from_birth_date(self):
+        from datetime import date
+        person = FundedPerson.objects.create(name='Age Family', date_of_birth=date(2000, 1, 1))
+        self.assertGreaterEqual(person.age, 25)
+        no_dob = FundedPerson.objects.create(name='No DOB Family')
+        self.assertIsNone(no_dob.age)
 
     def test_search_matches_phone_number(self):
         FundedPerson.objects.create(name='Phone Family', category='food', phone_number='0799887766')

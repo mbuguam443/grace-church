@@ -77,12 +77,15 @@
                                 <div class="form-text">Number of people fed by this support.</div>
                             </div>
                             <div class="col-md-3">
-                                <label for="{{ form.age.id_for_label }}" class="form-label">Age</label>
-                                {{ form.age }}
-                                {% if form.age.errors %}
-                                <div class="invalid-feedback d-block">{{ form.age.errors.0 }}</div>
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Birth Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar-heart"></i></span>
+                                    {{ form.date_of_birth }}
+                                </div>
+                                {% if form.date_of_birth.errors %}
+                                <div class="invalid-feedback d-block">{{ form.date_of_birth.errors.0 }}</div>
                                 {% endif %}
-                                <div class="form-text">Years.</div>
+                                <div class="form-text">{% if form.instance.pk and form.instance.age %}Age: {{ form.instance.age }} yrs{% else %}Age is calculated automatically.{% endif %}</div>
                             </div>
                             <div class="col-md-3">
                                 <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>

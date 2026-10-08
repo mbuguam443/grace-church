@@ -19,8 +19,8 @@ class FundedPerson(models.Model):
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='food')
     date_helped = models.DateField(default=timezone.localdate, verbose_name='Date Admitted')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
-    age = models.PositiveIntegerField(
-        null=True, blank=True, help_text="Person's age in years."
+    date_of_birth = models.DateField(
+        null=True, blank=True, help_text="Person's date of birth."
     )
     phone_number = models.CharField(
         max_length=30, blank=True, help_text='Contact number for follow-up.'
@@ -59,6 +59,16 @@ class FundedPerson(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.record_number})"
+
+    @property
+    def age(self):
+        if not self.date_of_birth:
+            return None
+        today = timezone.localdate()
+        years = today.year - self.date_of_birth.year
+        if (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day):
+            years -= 1
+        return years
 
 
 class ChurchPlant(models.Model):
