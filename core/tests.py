@@ -5,6 +5,7 @@ from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 from accounts.models import User
 from members.models import Family, Member
+from .models import RoleModulePermission
 
 
 class AuthenticationTests(TestCase):
@@ -165,3 +166,44 @@ class ProductionSettingsSyncTests(SimpleTestCase):
             missing, [],
             'fbms/settings_production.py is missing MIDDLEWARE: %s' % missing,
         )
+
+
+class OutreachSidebarTests(TestCase):
+    """Outreach must be reachable even when a role's saved permissions predate it."""
+
+    def setUp(self):
+        self.client = Client()
+        self.writer = User.objects.create_user(
+            'writer1', 'writer1@test.com', 'test123', role='secretary'
+        )
+        self.finance = User.objects.create_user(
+            'finance2', 'finance2@test.com', 'test123', role='finance_officer'
+        )
+
+    def _old_permissions_without_impact(self, role):
+        RoleModulePermission.objects.filter(role=role).delete()
+        RoleModulePermission.objects.bulk_create([
+            RoleModulePermission(role=role, module='finance'),
+            RoleModulePermission(role=role, module='giving'),
+        ])
+
+    def test_content_writer_sees_outreach_despite_old_permissions(self):
+        self._old_permissions_without_impact('secretary')
+        self.client.force_login(self.writer)
+        response = self.client.get(reverse('dashboard:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'sidebar-section">Outreach<')
+        self.assertContains(response, reverse('impact:funded-list'))
+
+    def test_non_writer_without_impact_module_does_not_see_outreach(self):
+        self._old_permissions_without_impact('finance_officer')
+        self.client.force_login(self.finance)
+        response = self.client.get(reverse('dashboard:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'sidebar-section">Outreach<')
+
+    def test_finance_role_can_still_reach_its_own_modules(self):
+        self._old_permissions_without_impact('finance_officer')
+        self.client.force_login(self.finance)
+        response = self.client.get(reverse('giving:giving-list'))
+        self.assertEqual(response.status_code, 200)
