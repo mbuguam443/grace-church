@@ -49,8 +49,9 @@ class Giving(models.Model):
         if self.member:
             parts = [p for p in (self.member.first_name, self.member.middle_name, self.member.last_name) if p]
             return ' '.join(parts)
-        if hasattr(self, 'online_record') and self.online_record_id:
-            return self.online_record.name
+        online = getattr(self, 'online_record', None)
+        if online is not None:
+            return online.name
         return ''
 
 
