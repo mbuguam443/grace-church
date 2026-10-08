@@ -9,6 +9,7 @@ from attendance.models import Attendance
 from core.models import ChurchSetting
 from finance.models import Transaction
 from giving.models import Giving
+from impact.models import FundedPerson
 from members.models import Member
 from reports.pdf_utils import build_report_pdf
 from visitors.models import Visitor
@@ -472,5 +473,136 @@ class VisitorReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
             'summary': [('Total visitors', str(total))] + [
                 (str(k.get('follow_up_status') or '—'), str(k['count']))
                 for k in by_status
+            ],
+        }
+
+
+class ImpactReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
+    """Full People Funded (outreach support) report."""
+
+    template_name = 'reports/impact_report.html'
+    pdf_title = 'People Funded Report'
+    pdf_filename = 'people-funded-report.pdf'
+
+    def get_report(self):
+        request = self.request
+        start = (request.GET.get('start_date') or request.GET.get('date_from') or '').strip()
+        end = (request.GET.get('end_date') or request.GET.get('date_to') or '').strip()
+        category = (request.GET.get('category') or '').strip()
+        status = (request.GET.get('status') or '').strip()
+
+        qs = FundedPerson.objects.all()
+        if start:
+            qs = qs.filter(date_helped__gte=start)
+        if end:
+            qs = qs.filter(date_helped__lte=end)
+        if category:
+            qs = qs.filter(category=category)
+        if status:
+            qs = qs.filter(status=status)
+
+        people = list(qs.order_by('-date_helped', 'name'))
+        total = len(people)
+        active = sum(1 for p in people if p.status == 'active')
+        completed = total - active
+        public = sum(1 for p in people if p.is_public)
+        households = sum((p.household_size or 1) for p in people)
+
+        period = 'All time'
+        if start and end:
+            period = '%s – %s' % (start, end)
+        elif start:
+            period = 'From %s' % start
+        elif end:
+            period = 'Up to %s' % end
+
+        context = {
+            'people': people,
+            'total': total,
+            'active': active,
+            'completed': completed,
+            'public': public,
+            'households': households,
+            'by_category': qs.values('category').annotate(count=Count('id')).order_by('category'),
+            'category_choices': FundedPerson.CATEGORY_CHOICES,
+            'status_choices': FundedPerson.STATUS_CHOICES,
+            'start_date': start,
+            'end_date': end,
+        }
+
+        rows = []
+        for p in people:
+            rows.append([
+                p.record_number or '—',
+                p.name,
+                _display(p, 'category'),
+                _d(p.date_helped),
+                _display(p, 'status'),
+                str(p.age) if p.age is not None else '—',
+                p.location or '—',
+            ])
+
+        category_labels = {code: label for code, label in FundedPerson.CATEGORY_CHOICES}
+
+        return {
+            'context': context,
+            'period': period,
+            'columns': ['Record No.', 'Name', 'Category', 'Date Admitted', 'Status', 'Age', 'Location'],
+            'rows': rows,
+            'summary': [
+                ('Total people', str(total)),
+                ('Active', str(active)),
+                ('Completed', str(completed)),
+                ('Public on Give page', str(public)),
+            ] + [
+                (category_labels.get(k.get('category'), str(k.get('category') or '—')), str(k['count']))
+                for k in context['by_category']
+            ],
+        }
+
+
+class FundedPersonReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
+    """Single person/family support record as a one-page PDF report."""
+
+    template_name = 'reports/funded_person_report.html'
+    pdf_title = 'Support Record'
+    pdf_filename = 'support-record.pdf'
+
+    def get_person(self):
+        return FundedPerson.objects.filter(pk=self.kwargs['pk']).first()
+
+    def get_report(self):
+        person = self.get_person()
+        rows = []
+        if person:
+            rows = [
+                ['Record No.', person.record_number or '—'],
+                ['Name', person.name],
+                ['Category', _display(person, 'category')],
+                ['Date Admitted', _d(person.date_helped)],
+                ['Status', _display(person, 'status')],
+                ['Birth Date', _d(person.date_of_birth)],
+                ['Age', str(person.age) if person.age is not None else '—'],
+                ['Phone Number', person.phone_number or '—'],
+                ['Household Size', str(person.household_size) if person.household_size else '—'],
+                ['Location', person.location or '—'],
+                ['Public on Give page', 'Yes' if person.is_public else 'No'],
+                ['Story / Life Detail', person.story or '—'],
+                ['Internal Note', person.note or '—'],
+            ]
+
+        context = {
+            'person': person,
+        }
+
+        return {
+            'context': context,
+            'period': person.name if person else 'Record not found',
+            'columns': ['Field', 'Value'],
+            'rows': rows,
+            'summary': [
+                ('Record No.', person.record_number if person else '—'),
+                ('Category', _display(person, 'category') if person else '—'),
+                ('Date Admitted', _d(person.date_helped) if person else '—'),
             ],
         }

@@ -1,0 +1,137 @@
+{% extends "admin/base.html" %}
+{% load static humanize %}
+
+{% block title %}{% if person %}{{ person.name }} | {% endif %}Support Record | Church Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{% url 'reports:reports-home' %}">Reports</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'reports:impact-report' %}">People Funded</a></li>
+                    <li class="breadcrumb-item active">{% if person %}{{ person.record_number }}{% else %}Record{% endif %}</li>
+                </ol>
+            </nav>
+            <h1 class="h3 mb-0">
+                <i class="bi bi-file-earmark-person me-2"></i>{% if person %}{{ person.name }}{% else %}Support Record{% endif %}
+            </h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="?format=pdf" class="btn btn-outline-danger">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+            </a>
+            <a href="?export=csv" class="btn btn-outline-success">
+                <i class="bi bi-download me-1"></i>Export CSV
+            </a>
+        </div>
+    </div>
+
+    {% if not person %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>This support record could not be found. It may have been deleted.
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="bi bi-person-vcard me-2"></i>Support Record</h5>
+                    <span class="font-monospace text-muted">{{ person.record_number }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">Name</small>
+                            <p class="mb-0 fw-medium">{{ person.name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Category</small>
+                            <p class="mb-0"><span class="badge bg-secondary">{{ person.get_category_display }}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Date Admitted</small>
+                            <p class="mb-0 fw-medium">{{ person.date_helped|date:"M d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Status</small>
+                            <p class="mb-0"><span class="badge {% if person.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">{{ person.get_status_display }}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Birth Date</small>
+                            <p class="mb-0 fw-medium">{% if person.date_of_birth %}{{ person.date_of_birth|date:"M d, Y" }}{% else %}—{% endif %}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Age</small>
+                            <p class="mb-0 fw-medium">{% if person.age is not None %}{{ person.age }} yrs{% else %}—{% endif %}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Phone Number</small>
+                            <p class="mb-0 fw-medium">{{ person.phone_number|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Household Size</small>
+                            <p class="mb-0 fw-medium">{{ person.household_size|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Location</small>
+                            <p class="mb-0 fw-medium">{{ person.location|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">Public on Give page</small>
+                            <p class="mb-0">
+                                {% if person.is_public %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Public</span>
+                                {% else %}
+                                <span class="badge bg-secondary"><i class="bi bi-eye-slash me-1"></i>Private</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted">Story / Life Detail</small>
+                            <p class="mb-0">{{ person.story|default:"—"|linebreaksbr }}</p>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted">Internal Note</small>
+                            <p class="mb-0 text-muted">{{ person.note|default:"—"|linebreaksbr }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Record Info</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Record No.</span>
+                            <span class="font-monospace">{{ person.record_number }}</span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Created</span>
+                            <span>{{ person.created_at|date:"M d, Y" }}</span>
+                        </li>
+                        <li class="list-group-item px-0 d-flex justify-content-between">
+                            <span class="text-muted">Last Updated</span>
+                            <span>{{ person.updated_at|date:"M d, Y" }}</span>
+                        </li>
+                    </ul>
+                    <a href="{% url 'reports:impact-report' %}" class="btn btn-outline-secondary w-100 mt-3">
+                        <i class="bi bi-arrow-left me-1"></i>Back to People Funded Report
+                    </a>
+                    {% if user.can_manage_content %}
+                    <a href="{% url 'impact:funded-update' person.pk %}" class="btn btn-outline-primary w-100 mt-2">
+                        <i class="bi bi-pencil me-1"></i>Edit Record
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
