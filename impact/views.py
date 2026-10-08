@@ -19,7 +19,7 @@ IMPACT_FIELDS = [
 
 FUNDED_FIELDS = [
     'name', 'category', 'date_helped', 'status', 'date_of_birth', 'phone_number',
-    'household_size', 'location', 'story', 'image', 'is_public', 'note',
+    'household_size', 'location', 'assigned_deacon', 'story', 'image', 'is_public', 'note',
 ]
 
 
@@ -72,6 +72,7 @@ class FundedPersonListView(LoginRequiredMixin, ListView):
                 | Q(story__icontains=search)
                 | Q(location__icontains=search)
                 | Q(phone_number__icontains=search)
+                | Q(assigned_deacon__icontains=search)
             )
         if category:
             queryset = queryset.filter(category=category)

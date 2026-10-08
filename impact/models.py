@@ -29,6 +29,10 @@ class FundedPerson(models.Model):
         null=True, blank=True, help_text='Number of people in the household.'
     )
     location = models.CharField(max_length=200, blank=True, help_text='Estate, village or ward.')
+    assigned_deacon = models.CharField(
+        max_length=150, blank=True,
+        help_text='Deacon or deaconess assigned for follow-up, prayer and discipleship.',
+    )
     story = models.TextField(
         blank=True,
         help_text='Life detail of the family. Only shown publicly after approval.',

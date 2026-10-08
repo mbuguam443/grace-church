@@ -169,6 +169,7 @@
                             <th>Status</th>
                             <th>Age</th>
                             <th>Location</th>
+                            <th>Deacon(ness)</th>
                             <th class="text-end">Report</th>
                         </tr>
                     </thead>
@@ -182,6 +183,7 @@
                             <td><span class="badge {% if person.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">{{ person.get_status_display }}</span></td>
                             <td>{% if person.age is not None %}{{ person.age }} yrs{% else %}—{% endif %}</td>
                             <td>{{ person.location|default:"—" }}</td>
+                            <td>{{ person.assigned_deacon|default:"—" }}</td>
                             <td class="text-end">
                                 <a href="{% url 'reports:funded-person-report' person.pk %}" class="btn btn-sm btn-outline-danger" title="Download single-person PDF">
                                     <i class="bi bi-file-earmark-pdf"></i> PDF
@@ -190,7 +192,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">No funded records found for the selected criteria.</td>
+                            <td colspan="9" class="text-center py-4 text-muted">No funded records found for the selected criteria.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

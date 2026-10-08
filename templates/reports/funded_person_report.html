@@ -79,6 +79,10 @@
                             <p class="mb-0 fw-medium">{{ person.location|default:"—" }}</p>
                         </div>
                         <div class="col-md-6">
+                            <small class="text-muted">Assigned Deacon(ness)</small>
+                            <p class="mb-0 fw-medium">{{ person.assigned_deacon|default:"—" }}</p>
+                        </div>
+                        <div class="col-md-6">
                             <small class="text-muted">Public on Give page</small>
                             <p class="mb-0">
                                 {% if person.is_public %}

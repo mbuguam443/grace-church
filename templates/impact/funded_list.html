@@ -110,6 +110,9 @@
                             {% if person.phone_number %}
                             <div class="text-muted small"><i class="bi bi-telephone"></i> {{ person.phone_number }}</div>
                             {% endif %}
+                            {% if person.assigned_deacon %}
+                            <div class="text-muted small"><i class="bi bi-person-check"></i> Deacon: {{ person.assigned_deacon }}</div>
+                            {% endif %}
                         </td>
                         <td><span class="badge bg-secondary">{{ person.get_category_display }}</span></td>
                         <td>{{ person.date_helped|date:"M d, Y" }}</td>

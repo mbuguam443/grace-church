@@ -540,6 +540,7 @@ class ImpactReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
                 _display(p, 'status'),
                 str(p.age) if p.age is not None else '—',
                 p.location or '—',
+                p.assigned_deacon or '—',
             ])
 
         category_labels = {code: label for code, label in FundedPerson.CATEGORY_CHOICES}
@@ -547,7 +548,7 @@ class ImpactReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
         return {
             'context': context,
             'period': period,
-            'columns': ['Record No.', 'Name', 'Category', 'Date Admitted', 'Status', 'Age', 'Location'],
+            'columns': ['Record No.', 'Name', 'Category', 'Date Admitted', 'Status', 'Age', 'Location', 'Deacon(ness)'],
             'rows': rows,
             'summary': [
                 ('Total people', str(total)),
@@ -586,6 +587,7 @@ class FundedPersonReportView(LoginRequiredMixin, PDFReportMixin, TemplateView):
                 ['Phone Number', person.phone_number or '—'],
                 ['Household Size', str(person.household_size) if person.household_size else '—'],
                 ['Location', person.location or '—'],
+                ['Assigned Deacon(ness)', person.assigned_deacon or '—'],
                 ['Public on Give page', 'Yes' if person.is_public else 'No'],
                 ['Story / Life Detail', person.story or '—'],
                 ['Internal Note', person.note or '—'],
