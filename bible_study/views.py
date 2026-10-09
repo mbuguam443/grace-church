@@ -29,7 +29,8 @@ class BibleStudyListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(title__icontains=search)
                 | Q(bible_verse__icontains=search)
-                | Q(teacher__icontains=search)
+                | Q(teacher__first_name__icontains=search)
+                | Q(teacher__last_name__icontains=search)
                 | Q(content__icontains=search)
             )
         return queryset

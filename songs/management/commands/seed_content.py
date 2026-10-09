@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from songs.models import Song
 from bible_study.models import BibleStudyNote
+from members.models import Member
 from datetime import date, timedelta
 import random
 
@@ -113,7 +114,14 @@ class Command(BaseCommand):
             },
         ]
 
+        teacher, _ = Member.objects.get_or_create(
+            first_name='James', last_name='Mwangi',
+            defaults={'gender': 'male', 'membership_status': 'active'},
+        )
+
         for study_data in bible_studies:
+            study_data = dict(study_data)
+            study_data['teacher'] = teacher
             BibleStudyNote.objects.get_or_create(
                 title=study_data['title'],
                 bible_verse=study_data['bible_verse'],

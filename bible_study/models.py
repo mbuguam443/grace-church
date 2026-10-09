@@ -9,7 +9,11 @@ class BibleStudyNote(models.Model):
     title = models.CharField(max_length=300)
     bible_verse = models.CharField(max_length=200)
     study_date = models.DateField()
-    teacher = models.CharField(max_length=200, blank=True)
+    teacher = models.ForeignKey(
+        'members.Member', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='bible_studies_taught',
+        help_text='Teacher, chosen from the member list.',
+    )
     series = models.CharField(max_length=200, blank=True)
     content = models.TextField()
     key_points = models.TextField(blank=True)
@@ -52,6 +56,12 @@ class BibleStudyNote(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.bible_verse}"
+
+    @property
+    def teacher_name(self):
+        if not self.teacher:
+            return ''
+        return ('%s %s' % (self.teacher.first_name, self.teacher.last_name)).strip()
 
     @property
     def video_id(self):

@@ -1,6 +1,7 @@
 from django import forms
 
 from accounts.models import User
+from members.models import Member
 from ministries.models import Ministry
 from .models import BibleStudyComment, BibleStudyNote
 
@@ -9,7 +10,21 @@ AUDIO_EXTENSIONS = ['.mp3', '.m4a', '.wav', '.ogg', '.oga']
 PDF_EXTENSIONS = ['.pdf']
 
 
+class TeacherChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return f"{obj.first_name} {obj.last_name} ({obj.member_number})"
+
+
 class BibleStudyNoteForm(forms.ModelForm):
+    teacher = TeacherChoiceField(
+        queryset=Member.objects.filter(membership_status='active').order_by('first_name', 'last_name'),
+        required=False,
+        empty_label='— None assigned —',
+        label='Teacher',
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        help_text='Choose the teacher from the member list.',
+    )
+
     # Optional: put members into the class in the same step as posting it.
     add_students = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(is_active=True, is_staff=False, is_superuser=False),

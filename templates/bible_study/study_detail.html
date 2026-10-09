@@ -427,9 +427,9 @@
                     <li class="list-group-item d-flex justify-content-between">
                         <span>Date</span><span class="fw-medium">{{ study.study_date|date:"M d, Y" }}</span>
                     </li>
-                    {% if study.teacher %}
+                    {% if study.teacher_name %}
                     <li class="list-group-item d-flex justify-content-between">
-                        <span>Teacher</span><span class="fw-medium">{{ study.teacher }}</span>
+                        <span>Teacher</span><span class="fw-medium">{{ study.teacher_name }}</span>
                     </li>
                     {% endif %}
                     {% if study.series %}

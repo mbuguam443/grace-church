@@ -7,7 +7,7 @@ from .models import BibleStudyComment, BibleStudyEnrollment, BibleStudyNote
 class BibleStudyNoteAdmin(admin.ModelAdmin):
     list_display = ['title', 'bible_verse', 'teacher', 'study_date', 'enable_registration', 'is_active']
     list_filter = ['is_active', 'study_date', 'enable_registration']
-    search_fields = ['title', 'bible_verse', 'teacher', 'content']
+    search_fields = ['title', 'bible_verse', 'teacher__first_name', 'teacher__last_name', 'content']
 
 
 @admin.register(BibleStudyComment)

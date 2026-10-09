@@ -20,7 +20,11 @@ class Child(models.Model):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     parent = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
     school_class = models.CharField(max_length=50, blank=True)
-    teacher = models.CharField(max_length=100, blank=True)
+    teacher = models.ForeignKey(
+        Member, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='children_taught',
+        help_text='Sunday school teacher, chosen from the member list.',
+    )
     allergies = models.TextField(blank=True)
     emergency_contact = models.CharField(max_length=20, blank=True)
     photo = models.ImageField(upload_to='children/', blank=True, null=True)
@@ -66,6 +70,12 @@ class Child(models.Model):
 
     def get_full_name(self):
         return ('%s %s' % (self.first_name, self.last_name)).strip()
+
+    @property
+    def teacher_name(self):
+        if not self.teacher:
+            return ''
+        return ('%s %s' % (self.teacher.first_name, self.teacher.last_name)).strip()
 
 
 class ChildAttendance(models.Model):

@@ -49,7 +49,7 @@
                 <p class="text-primary mb-2"><i class="bi bi-book me-1"></i>{{ study.bible_verse }}</p>
                 <p class="text-muted small mb-2">
                     <i class="bi bi-calendar me-1"></i>{{ study.study_date|date:"M d, Y" }}
-                    {% if study.teacher %}| <i class="bi bi-person me-1"></i>{{ study.teacher }}{% endif %}
+                    {% if study.teacher_name %}| <i class="bi bi-person me-1"></i>{{ study.teacher_name }}{% endif %}
                     {% if study.series %}| {{ study.series }}{% endif %}
                     {% if study.video or study.audio or study.pdf_attachment or study.video_url %}
                     <span class="text-secondary">|</span>
